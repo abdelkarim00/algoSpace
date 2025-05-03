@@ -1,537 +1,85 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarjan's Algorithm</title>
+    <title>Tarjan's Algorithm Explained with C++ Code Examples</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Tarjan's Algorithm for Finding Strongly Connected Components</h1>
-
-        <p>Tarjan's algorithm is a classic algorithm in graph theory used to find the Strongly Connected Components (SCCs) of a directed graph. A Strongly Connected Component is a subgraph where every vertex is reachable from every other vertex within the subgraph.</p>
-
-        <h2>Algorithm Description</h2>
-        <p>Tarjan's algorithm works by performing a depth-first search (DFS) on the graph. It maintains a stack of vertices and uses two arrays:</p>
+    <h1>Tarjan's Algorithm</h1>
+    <section>
+        <h2>Algorithm Explanation</h2>
+        <p>Tarjan's algorithm is used to find Strongly Connected Components (SCCs) in a directed graph. It uses a depth-first search (DFS) and maintains arrays for discovery time and low-link values.</p>
         <ul>
-            <li><code>dfn</code> (depth-first number): Stores the order in which each node is visited during the DFS.</li>
-            <li><code>low</code>: Stores the lowest <code>dfn</code> of any node reachable from the current node (including the node itself) through the DFS subtree.</li>
+            <li><strong>Time Complexity:</strong> O(V + E)</li>
+            <li><strong>Space Complexity:</strong> O(V)</li>
         </ul>
+    </section>
 
-        <p>The algorithm proceeds as follows:</p>
-        <ol>
-            <li>Initialize <code>dfn</code> and <code>low</code> arrays with a unique increasing number for each node, and mark all nodes as unvisited.</li>
-            <li>Start a DFS traversal from an unvisited node.</li>
-            <li>When visiting a node <code>v</code>:
-                <ul>
-                    <li>Assign <code>dfn[v]</code> and <code>low[v]</code> to the current DFS number.</li>
-                    <li>Push <code>v</code> onto the stack.</li>
-                    <li>For each neighbor <code>w</code> of <code>v</code>:
-                        <ul>
-                            <li>If <code>w</code> is not visited, recursively call DFS on <code>w</code>, and update <code>low[v]</code> to the minimum of <code>low[v]</code> and <code>low[w]</code>.</li>
-                            <li>If <code>w</code> is in the stack, update <code>low[v]</code> to the minimum of <code>low[v]</code> and <code>dfn[w]</code>.</li>
-                        </ul>
-                    </li>
-                    <li>If <code>dfn[v]</code> equals <code>low[v]</code>, then <code>v</code> is the root of an SCC. Pop all nodes from the stack until <code>v</code> is reached; these nodes form the SCC.</li>
-                </ul>
-            </li>
-            <li>Repeat step 2 until all nodes have been visited.</li>
-        </ol>
-
-        <h2>Time and Memory Complexity</h2>
-        <ul>
-            <li><b>Time Complexity:</b> O(V + E), where V is the number of vertices and E is the number of edges. This is because the algorithm performs a standard DFS.</li>
-            <li><b>Memory Complexity:</b> O(V), primarily due to the <code>dfn</code>, <code>low</code>, and stack data structures.</li>
-        </ul>
-
+    <section>
         <h2>Easy Problems</h2>
-
-        <h3 class="problem-title">1. Finding the Number of SCCs</h3>
-        <p><strong>Problem:</strong> Given a directed graph, find the number of strongly connected components.</p>
-        <div class="cpp-code">
-            <pre><code>
-#include <iostream>
-#include <vector>
-#include <stack>
-
-using namespace std;
-
-int timer = 0;
-
-void dfs(int v, vector<vector<int>>& adj, vector<int>& dfn, vector<int>& low, stack<int>& s, vector<bool>& inStack, int& numSCCs) {
-    dfn[v] = low[v] = ++timer;
-    s.push(v);
-    inStack[v] = true;
-
-    for (int w : adj[v]) {
-        if (dfn[w] == 0) { // If w is not visited
-            dfs(w, adj, dfn, low, s, inStack, numSCCs);
-            low[v] = min(low[v], low[w]);
-        } else if (inStack[w]) { // If w is in stack
-            low[v] = min(low[v], dfn[w]);
+        <h3>1. Find all Strongly Connected Components</h3>
+        <pre><code>void tarjanSCC(int u, vector&lt;vector&lt;int&gt;&gt;&amp; adj, vector&lt;int&gt;&amp; disc, vector&lt;int&gt;&amp; low, stack&lt;int&gt;&amp; st, vector&lt;bool&gt;&amp; inStack, int&amp; time, vector&lt;vector&lt;int&gt;&gt;&amp; sccs) {
+    disc[u] = low[u] = time++;
+    st.push(u); inStack[u] = true;
+    for (int v : adj[u]) {
+        if (disc[v] == -1) {
+            tarjanSCC(v, adj, disc, low, st, inStack, time, sccs);
+            low[u] = min(low[u], low[v]);
+        } else if (inStack[v]) {
+            low[u] = min(low[u], disc[v]);
         }
     }
-
-    if (dfn[v] == low[v]) {
-        numSCCs++;
-        int w;
+    if (low[u] == disc[u]) {
+        vector&lt;int&gt; scc;
+        int v;
         do {
-            w = s.top();
-            s.pop();
-            inStack[w] = false;
-        } while (w != v);
+            v = st.top(); st.pop(); inStack[v] = false;
+            scc.push_back(v);
+        } while (u != v);
+        sccs.push_back(scc);
     }
-}
-
-int countSCCs(vector<vector<int>>& adj) {
-    int n = adj.size();
-    vector<int> dfn(n, 0);
-    vector<int> low(n, 0);
-    stack<int> s;
-    vector<bool> inStack(n, false);
-    int numSCCs = 0;
-
-    for (int i = 0; i < n; i++) {
-        if (dfn[i] == 0) {
-            dfs(i, adj, dfn, low, s, inStack, numSCCs);
-        }
-    }
-    return numSCCs;
-}
-
-int main() {
-    int n = 5; // Number of nodes
-    vector<vector<int>> adj(n);
-
-    // Example graph
-    adj[0].push_back(1);
-    adj[1].push_back(2);
-    adj[2].push_back(0);
-    adj[2].push_back(3);
-    adj[3].push_back(4);
-    adj[4].push_back(3);
-
-    int sccs = countSCCs(adj);
-    cout << "Number of SCCs: " << sccs << endl; // Output: 2
-
-    return 0;
-}
-            </code></pre>
-        </div>
-
-        <h3 class="problem-title">2. Condensation Graph</h3>
-        <p><strong>Problem:</strong> Given a directed graph, create a new graph where each node represents a Strongly Connected Component (SCC) of the original graph, and there is an edge between two nodes if there is an edge between the corresponding SCCs in the original graph.  This new graph is called a condensation graph.</p>
-
-        <div class="cpp-code">
-            <pre><code>
-#include <iostream>
-#include <vector>
-#include <stack>
-#include <algorithm>
-
-using namespace std;
-
-int timer = 0;
-
-void dfs(int v, vector<vector<int>>& adj, vector<int>& dfn, vector<int>& low, stack<int>& s, vector<bool>& inStack, vector<int>& scc) {
-    dfn[v] = low[v] = ++timer;
-    s.push(v);
-    inStack[v] = true;
-
-    for (int w : adj[v]) {
-        if (dfn[w] == 0) {
-            dfs(w, adj, dfn, low, s, inStack, scc);
-            low[v] = min(low[v], low[w]);
-        } else if (inStack[w]) {
-            low[v] = min(low[v], dfn[w]);
-        }
-    }
-
-    if (dfn[v] == low[v]) {
-        int w;
-        do {
-            w = s.top();
-            s.pop();
-            inStack[w] = false;
-            scc[w] = v; // Assign each node to its SCC representative
-        } while (w != v);
-    }
-}
-
-vector<vector<int>> getCondensationGraph(vector<vector<int>>& adj) {
-    int n = adj.size();
-    vector<int> dfn(n, 0);
-    vector<int> low(n, 0);
-    stack<int> s;
-    vector<bool> inStack(n, false);
-    vector<int> scc(n);
-
-    for (int i = 0; i < n; i++) {
-        if (dfn[i] == 0) {
-            dfs(i, adj, dfn, low, s, inStack, scc);
-        }
-    }
-
-    // Build the condensation graph
-    vector<vector<int>> condensationGraph(n); // Use original size for SCC ids
-    vector<bool> hasEdge(n, false); // Keep track of duplicate edges between SCCs
-
-    for (int v = 0; v < n; v++) {
-        for (int w : adj[v]) {
-            if (scc[v] != scc[w]) {
-                int u_scc = scc[v];
-                int v_scc = scc[w];
-                int edge_index = u_scc * n + v_scc; // Simple way to create unique edge id
-
-                if (!hasEdge[edge_index])
-                {
-                    condensationGraph[u_scc].push_back(v_scc);
-                    hasEdge[edge_index] = true;
-                }
-            }
-        }
-    }
-    
-    // Remove empty entries.  Important for the size of the result.
-    vector<vector<int>> resultGraph;
-    for(int i = 0; i < condensationGraph.size(); ++i) {
-        if (!condensationGraph[i].empty()){
-            resultGraph.push_back(condensationGraph[i]);
-        }
-    }
-    return resultGraph;
-}
-
-int main() {
-    int n = 6;
-    vector<vector<int>> adj(n);
-
-    adj[0].push_back(1);
-    adj[1].push_back(2);
-    adj[2].push_back(0);
-    adj[3].push_back(2);
-    adj[3].push_back(4);
-    adj[4].push_back(5);
-    adj[5].push_back(3);
-
-    vector<vector<int>> condensationGraph = getCondensationGraph(adj);
-
-    cout << "Condensation Graph Adjacency List:" << endl;
-    for (int i = 0; i < condensationGraph.size(); i++) {
-        cout << i << ": ";
-        for (int j : condensationGraph[i]) {
-            cout << j << " ";
-        }
-        cout << endl;
-    }
-    return 0;
-}
-            </code></pre>
-        </div>
-
-        <h2>Intermediate Problems</h2>
-
-        <h3 class="problem-title">3. 2-SAT Problem</h3>
-        <p><strong>Problem:</strong> Given a 2-SAT problem (a boolean formula in conjunctive normal form where each clause has exactly two literals), determine if there is a satisfying assignment.  2-SAT problems can be solved using SCCs.</p>
-        <p><strong>Solution Idea:</strong></p>
-         <ol>
-            <li>Construct an implication graph: For each clause (a OR b), create edges (!a -> b) and (!b -> a).</li>
-            <li>Find SCCs in the implication graph.</li>
-            <li>If any variable x and its negation !x are in the same SCC, the formula is unsatisfiable. Otherwise, it is satisfiable.</li>
-         </ol>
-
-        <div class="cpp-code">
-            <pre><code>
-#include <iostream>
-#include <vector>
-#include <stack>
-
-using namespace std;
-
-int timer = 0;
-
-void dfs(int v, vector<vector<int>>& adj, vector<int>& dfn, vector<int>& low, stack<int>& s, vector<bool>& inStack, vector<int>& scc) {
-    dfn[v] = low[v] = ++timer;
-    s.push(v);
-    inStack[v] = true;
-
-    for (int w : adj[v]) {
-        if (dfn[w] == 0) {
-            dfs(w, adj, dfn, low, s, inStack, scc);
-            low[v] = min(low[v], low[w]);
-        } else if (inStack[w]) {
-            low[v] = min(low[v], dfn[w]);
-        }
-    }
-
-    if (dfn[v] == low[v]) {
-        int w;
-        do {
-            w = s.top();
-            s.pop();
-            inStack[w] = false;
-            scc[w] = v;
-        } while (w != v);
-    }
-}
-
-bool isSatisfiable2SAT(int numVars, vector<pair<int, int>>& clauses) {
-    int n = 2 * numVars; // Represent x and !x for each variable
-    vector<vector<int>> adj(n);
-
-    // Build implication graph
-    for (auto& clause : clauses) {
-        int a = clause.first;
-        int b = clause.second;
-        int not_a = (a > 0) ? a - numVars : a + numVars;
-        int not_b = (b > 0) ? b - numVars : b + numVars;
-        adj[not_a].push_back(b + numVars * (b < 0)); // !a -> b
-        adj[not_b].push_back(a + numVars * (a < 0)); // !b -> a
-    }
-
-    vector<int> dfn(n, 0);
-    vector<int> low(n, 0);
-    stack<int> s;
-    vector<bool> inStack(n, false);
-    vector<int> scc(n);
-
-    for (int i = 0; i < n; i++) {
-        if (dfn[i] == 0) {
-            dfs(i, adj, dfn, low, s, inStack, scc);
-        }
-    }
-
-    // Check if any variable and its negation are in the same SCC
-    for (int i = 1; i <= numVars; i++) {
-        if (scc[i - 1] == scc[i + numVars - 1]) {
-            return false; // Unsatisfiable
-        }
-    }
-    return true; // Satisfiable
-}
-
-int main() {
-    int numVars = 3;
-    vector<pair<int, int>> clauses = {
-        {1, 2},
-        {-1, 3},
-        {-2, -3},
-        {1, -3}
-    };
-
-    if (isSatisfiable2SAT(numVars, clauses)) {
-        cout << "The 2-SAT problem is satisfiable." << endl;
-    } else {
-        cout << "The 2-SAT problem is unsatisfiable." << endl;
-    }
-    return 0;
-}
-            </code></pre>
-        </div>
-
-        <h3 class="problem-title">4. Finding Bridges in a Graph</h3>
-        <p><strong>Problem:</strong> Given an undirected graph, find all the bridges. A bridge is an edge whose removal increases the number of connected components in the graph. Although this is for an undirected graph, Tarjan's core DFS principles are adapted.</p>
-        <p><strong>Solution Idea:</strong>
-        <ol>
-        <li>Perform a DFS traversal of the graph.</li>
-        <li>Maintain dfn and low arrays.  low[v] is the lowest dfn reachable from v or any of v's descendants through a back edge.</li>
-        <li>An edge (u, v) is a bridge if dfn[u] < low[v] (assuming u is the parent of v in the DFS tree).</li>
-        </ol>
-        </p>
-
-        <div class="cpp-code">
-        <pre><code>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
-
-int timer = 0;
-
-void dfs(int v, int p, vector<vector<int>>& adj, vector<int>& dfn, vector<int>& low, vector<pair<int, int>>& bridges) {
-    dfn[v] = low[v] = ++timer;
-
-    for (int w : adj[v]) {
-        if (w == p) continue; // Skip parent
-
-        if (dfn[w] == 0) { // If w is not visited
-            dfs(w, v, adj, dfn, low, bridges);
-            low[v] = min(low[v], low[w]);
-            if (dfn[v] < low[w]) {
-                bridges.push_back({v, w});
-            }
-        } else { // w is visited
-            low[v] = min(low[v], dfn[w]);
-        }
-    }
-}
-
-vector<pair<int, int>> findBridges(vector<vector<int>>& adj) {
-    int n = adj.size();
-    vector<int> dfn(n, 0);
-    vector<int> low(n, 0);
-    vector<pair<int, int>> bridges;
-
-    for (int i = 0; i < n; i++) {
-        if (dfn[i] == 0) {
-            dfs(i, -1, adj, dfn, low, bridges);
-        }
-    }
-    return bridges;
-}
-
-int main() {
-    int n = 5;
-    vector<vector<int>> adj(n);
-
-    adj[0].push_back(1);
-    adj[1].push_back(0);
-    adj[1].push_back(2);
-    adj[2].push_back(1);
-    adj[2].push_back(3);
-    adj[3].push_back(2);
-    adj[3].push_back(4);
-    adj[4].push_back(3);
-
-    vector<pair<int, int>> bridges = findBridges(adj);
-
-    cout << "Bridges in the graph:" << endl;
-    for (auto& edge : bridges) {
-        cout << "(" << edge.first << ", " << edge.second << ")" << endl;
-    }
-    return 0;
 }
         </code></pre>
-        </div>
 
-        <h2>Hard Problems</h2>
-
-        <h3 class="problem-title">5. Dominator Tree</h3>
-        <p><strong>Problem:</strong> Given a directed graph with a start node, find the dominator tree. A node 'a' dominates a node 'b' if every path from the start node to 'b' must pass through 'a'.</p>
-        <p><strong>Solution Idea:</strong> This is a more advanced application.  Tarjan's algorithm is used as a *part* of a more complex algorithm to solve this.  The Lengauer-Tarjan algorithm is the standard efficient algorithm.
-        <ol>
-            <li>Perform a Depth-First Search (DFS) on the graph, starting from the start node.  Number the vertices in the order they are visited.</li>
-            <li>Use the DFS information to compute the Semi-Dominators.</li>
-            <li>Use the Semi-Dominators to compute the Immediate Dominators.</li>
-            <li>Construct the Dominator Tree from the Immediate Dominators.</li>
-        </ol>
-        </p>
-
-        <div class="cpp-code">
-            <pre><code>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <limits>
-
-using namespace std;
-
-// Function to find dominator tree using Lengauer-Tarjan algorithm
-vector<int> findDominatorTree(vector<vector<int>>& adj, int startNode) {
-    int n = adj.size();
-    vector<int> parent(n, -1);
-    vector<int> dfn(n, 0);
-    vector<int> vertex(n); // vertex[i] is the node with dfn number i+1
-    vector<int> semi(n);
-    vector<int> idom(n, -1);
-    vector<int> ancestor(n);
-    vector<int> best(n);
-    vector<vector<int>> bucket(n);
-    int timer = 0;
-
-    // Step 1: DFS to number vertices
-    function<void(int)> dfs = [&](int v) {
-        dfn[v] = ++timer;
-        vertex[timer - 1] = v;
-        semi[v] = v;
-        ancestor[v] = v;
-        best[v] = v;
-        for (int w : adj[v]) {
-            if (dfn[w] == 0) {
-                parent[w] = v;
-                dfs(w);
-            }
-        }
-    };
-    dfs(startNode);
-
-    // Function to find the ancestor with the smallest semi-dominator
-    function<int(int)> compress = [&](int v) {
-        if (ancestor[v] != ancestor[parent[v]]) {
-            compress(parent[v]);
-            if (dfn[semi[best[v]]] > dfn[semi[best[parent[v]]]]) {
-                best[v] = best[parent[v]];
-            }
-            ancestor[v] = ancestor[parent[v]];
-        }
-        return best[v];
-    };
-
-    function<int(int)> eval = [&](int v) {
-        compress(v);
-        return semi[best[v]];
-    };
-
-    // Step 2 and 3: Compute semi-dominators and immediate dominators
-    for (int i = timer; i >= 2; i--) {
-        int v = vertex[i - 1];
-        int p = parent[v];
-        int s = v;
-        for (int w : adj[v]) {
-            if (dfn[w] > 0 && dfn[w] < dfn[v]) {
-                s = (dfn[semi[s]] < dfn[semi[w]]) ? s : w;
-            }
-        }
-        semi[v] = s;
-        bucket[semi[v]].push_back(v);
-        ancestor[v] = p;
-        for (int w : bucket[p]) {
-            int u = eval(w);
-            if (semi[u] == p) {
-                idom[w] = p;
-            } else {
-                idom[w] = u;
-            }
-        }
-        bucket[p].clear();
-    }
-
-    for (int i = 2; i <= timer; i++) {
-        int v = vertex[i - 1];
-        if (idom[v] != semi[v]) {
-            idom[v] = idom[idom[v]];
+        <h3>2. Count number of SCCs in a Graph</h3>
+        <pre><code>int countSCCs(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    vector&lt;int&gt; disc(V, -1), low(V, -1);
+    vector&lt;bool&gt; inStack(V, false);
+    stack&lt;int&gt; st;
+    int time = 0, count = 0;
+    for (int i = 0; i &lt; V; ++i) {
+        if (disc[i] == -1) {
+            vector&lt;vector&lt;int&gt;&gt; sccs;
+            tarjanSCC(i, adj, disc, low, st, inStack, time, sccs);
+            count += sccs.size();
         }
     }
-    idom[startNode] = startNode; // Start node dominates itself
-
-    return idom;
+    return count;
 }
+        </code></pre>
+    </section>
 
-int main() {
-    int n = 7;
-    vector<vector<int>> adj(n);
+    <section>
+        <h2>Intermediate Problems</h2>
+        <h3>1. Detect Cycles in Directed Graph</h3>
+        <p>Any SCC with more than one node implies a cycle.</p>
 
-    adj[0].push_back(1);
-    adj[0].push_back(2);
-    adj[1].push_back(3);
-    adj[2].push_back(1);
-    adj[2].push_back(4);
-    adj[3].push_back(5);
-    adj[4].push_back(5);
-    adj[5].push_back(6);
+        <h3>2. Condense Graph into DAG of SCCs</h3>
+        <p>After identifying SCCs, treat each as a single node and construct a DAG.</p>
+    </section>
 
-    int startNode = 0;
-    vector<int> dominatorTree = findDominatorTree(adj, startNode);
-
-    cout << "Dominator Tree (node -> dominator):" << endl;
-    for (int i = 0; i < n; i++) {
-        cout << i << " -> " << dominatorTree[i] << endl;
-    }
-    return 0;
+    <section>
+        <h2>Hard Problem</h2>
+        <h3>1. 2-SAT Problem Solver</h3>
+        <p>Convert clauses into implication graph and use Tarjan’s to find SCCs.</p>
+        <pre><code>bool twoSAT(int n, vector&lt;pair&lt;int, int&gt;&gt;& clauses) {
+    // convert clauses to implication graph, build SCCs with Tarjan, 
+    // check if variable and its negation are in the same SCC
+    // implementation skipped for brevity
+    return true;
 }
-            </code></pre>
-        </div>
-    </div>
+        </code></pre>
+    </section>
 </body>
 </html>
