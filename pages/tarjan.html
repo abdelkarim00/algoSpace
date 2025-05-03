@@ -190,9 +190,108 @@ bool hasCycle(vector<vector<int>>& graph) {
   <h2>4. Hard Problem</h2>
   <h3>Problem 5: Minimum Path Cover in a DAG (using SCC + matching)</h3>
   <p>This is an advanced problem involving SCC condensation followed by max bipartite matching.</p>
-  <pre><code>// This is complex and involves extra steps, including SCC reduction, bipartite graph construction, and Hopcroft-Karp matching.
-// Typically seen in contests like ICPC and platforms like Codeforces.
-// Placeholder code due to space. Full implementation available upon request.</code></pre>
+  <pre><code>
+
+    #include <bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 500;
+
+vector<int> graph[MAXN];
+vector<vector<int>> sccs;
+vector<int> indices(MAXN, -1), lowlink(MAXN, -1), sccId(MAXN, -1);
+stack<int> stk;
+vector<bool> onStack(MAXN);
+int idx = 0, sccCount = 0;
+
+// Tarjan's Algorithm
+void tarjan(int u) {
+    indices[u] = lowlink[u] = idx++;
+    stk.push(u);
+    onStack[u] = true;
+
+    for (int v : graph[u]) {
+        if (indices[v] == -1) {
+            tarjan(v);
+            lowlink[u] = min(lowlink[u], lowlink[v]);
+        } else if (onStack[v]) {
+            lowlink[u] = min(lowlink[u], indices[v]);
+        }
+    }
+
+    if (lowlink[u] == indices[u]) {
+        vector<int> scc;
+        while (true) {
+            int v = stk.top(); stk.pop(); onStack[v] = false;
+            sccId[v] = sccCount;
+            scc.push_back(v);
+            if (v == u) break;
+        }
+        sccs.push_back(scc);
+        sccCount++;
+    }
+}
+
+// Bipartite graph for SCC DAG
+vector<int> sccGraph[MAXN];
+bool visited[MAXN];
+int matchTo[MAXN];
+
+// DFS-based matching
+bool bpm(int u) {
+    for (int v : sccGraph[u]) {
+        if (visited[v]) continue;
+        visited[v] = true;
+        if (matchTo[v] == -1 || bpm(matchTo[v])) {
+            matchTo[v] = u;
+            return true;
+        }
+    }
+    return false;
+}
+
+// Main Function
+int minimumPathCover(int n) {
+    // Step 1: Find SCCs
+    for (int i = 0; i < n; ++i)
+        if (indices[i] == -1)
+            tarjan(i);
+
+    // Step 2: Build condensed DAG
+    set<pair<int, int>> edges;
+    for (int u = 0; u < n; ++u)
+        for (int v : graph[u])
+            if (sccId[u] != sccId[v])
+                edges.insert({sccId[u], sccId[v]});
+
+    for (auto [u, v] : edges)
+        sccGraph[u].push_back(v);
+
+    // Step 3: Bipartite Matching on DAG
+    fill(matchTo, matchTo + sccCount, -1);
+    int matching = 0;
+
+    for (int u = 0; u < sccCount; ++u) {
+        fill(visited, visited + sccCount, false);
+        if (bpm(u)) matching++;
+    }
+
+    return sccCount - matching;
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m; // n = nodes, m = edges
+    for (int i = 0; i < m; ++i) {
+        int u, v; cin >> u >> v;
+        graph[u].push_back(v);
+    }
+
+    cout << "Minimum Path Cover: " << minimumPathCover(n) << endl;
+    return 0;
+}
+
+  </code></pre>
 
   <h2>Conclusion</h2>
   <p>Tarjan's algorithm is a powerful tool for graph analysis, especially for identifying strongly connected components and their applications. It is both time and space efficient, and forms the basis for solving many problems in competitive programming and real-world software systems.</p>
