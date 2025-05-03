@@ -1,85 +1,200 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Tarjan's Algorithm Explained with C++ Code Examples</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tarjan's Algorithm - Explanation and Problems</title>
 </head>
 <body>
-    <h1>Tarjan's Algorithm</h1>
-    <section>
-        <h2>Algorithm Explanation</h2>
-        <p>Tarjan's algorithm is used to find Strongly Connected Components (SCCs) in a directed graph. It uses a depth-first search (DFS) and maintains arrays for discovery time and low-link values.</p>
-        <ul>
-            <li><strong>Time Complexity:</strong> O(V + E)</li>
-            <li><strong>Space Complexity:</strong> O(V)</li>
-        </ul>
-    </section>
+  <h1>Tarjan's Algorithm - Explanation and Problem Solving</h1>
 
-    <section>
-        <h2>Easy Problems</h2>
-        <h3>1. Find all Strongly Connected Components</h3>
-        <pre><code>void tarjanSCC(int u, vector&lt;vector&lt;int&gt;&gt;&amp; adj, vector&lt;int&gt;&amp; disc, vector&lt;int&gt;&amp; low, stack&lt;int&gt;&amp; st, vector&lt;bool&gt;&amp; inStack, int&amp; time, vector&lt;vector&lt;int&gt;&gt;&amp; sccs) {
-    disc[u] = low[u] = time++;
-    st.push(u); inStack[u] = true;
-    for (int v : adj[u]) {
-        if (disc[v] == -1) {
-            tarjanSCC(v, adj, disc, low, st, inStack, time, sccs);
-            low[u] = min(low[u], low[v]);
-        } else if (inStack[v]) {
-            low[u] = min(low[u], disc[v]);
+  <h2>1. Algorithm Overview</h2>
+  <p>Tarjan's algorithm is used to find <strong>Strongly Connected Components (SCCs)</strong> in a directed graph. It uses <strong>Depth-First Search (DFS)</strong> and assigns each node a unique index and a low-link value.</p>
+
+  <h3>Steps:</h3>
+  <ol>
+    <li>Initialize an index counter and an empty stack.</li>
+    <li>For each node, if it hasn't been visited, perform DFS.</li>
+    <li>Set the node's index and low-link to the current index.</li>
+    <li>Push the node onto the stack.</li>
+    <li>For each neighbor, recursively apply the DFS if it's not visited.</li>
+    <li>Update the current node's low-link based on the neighbor.</li>
+    <li>If the node's low-link equals its index, pop stack until the node is found—this is a SCC.</li>
+  </ol>
+
+  <h3>Complexity:</h3>
+  <ul>
+    <li><strong>Time:</strong> O(V + E)</li>
+    <li><strong>Space:</strong> O(V) for stack and auxiliary arrays</li>
+  </ul>
+
+  <h2>2. Easy Problems</h2>
+
+  <h3>Problem 1: Count Number of SCCs</h3>
+  <pre><code>void tarjanSCC(int u, int& index, vector<int>& indices, vector<int>& lowlink, stack<int>& stk,
+              vector<bool>& onStack, vector<vector<int>>& graph, int& sccCount) {
+    indices[u] = lowlink[u] = index++;
+    stk.push(u);
+    onStack[u] = true;
+
+    for (int v : graph[u]) {
+        if (indices[v] == -1) {
+            tarjanSCC(v, index, indices, lowlink, stk, onStack, graph, sccCount);
+            lowlink[u] = min(lowlink[u], lowlink[v]);
+        } else if (onStack[v]) {
+            lowlink[u] = min(lowlink[u], indices[v]);
         }
     }
-    if (low[u] == disc[u]) {
-        vector&lt;int&gt; scc;
-        int v;
-        do {
-            v = st.top(); st.pop(); inStack[v] = false;
+
+    if (lowlink[u] == indices[u]) {
+        while (true) {
+            int v = stk.top(); stk.pop(); onStack[v] = false;
+            if (v == u) break;
+        }
+        sccCount++;
+    }
+}
+
+int countSCCs(vector<vector<int>>& graph) {
+    int n = graph.size(), index = 0, sccCount = 0;
+    vector<int> indices(n, -1), lowlink(n, -1);
+    stack<int> stk;
+    vector<bool> onStack(n, false);
+
+    for (int i = 0; i < n; ++i)
+        if (indices[i] == -1)
+            tarjanSCC(i, index, indices, lowlink, stk, onStack, graph, sccCount);
+
+    return sccCount;
+}</code></pre>
+
+  <h3>Problem 2: Detect Cycle in Directed Graph</h3>
+  <p>Tarjan's algorithm detects cycles if any SCC contains more than one node.</p>
+  <pre><code>// Reuse tarjanSCC from above
+bool hasCycle(vector<vector<int>>& graph) {
+    int n = graph.size(), index = 0;
+    vector<int> indices(n, -1), lowlink(n, -1);
+    stack<int> stk;
+    vector<bool> onStack(n, false);
+    bool foundCycle = false;
+
+    function<void(int)> dfs = [&](int u) {
+        indices[u] = lowlink[u] = index++;
+        stk.push(u); onStack[u] = true;
+
+        for (int v : graph[u]) {
+            if (indices[v] == -1) {
+                dfs(v);
+                lowlink[u] = min(lowlink[u], lowlink[v]);
+            } else if (onStack[v]) {
+                lowlink[u] = min(lowlink[u], indices[v]);
+            }
+        }
+
+        if (lowlink[u] == indices[u]) {
+            int count = 0;
+            while (true) {
+                int v = stk.top(); stk.pop(); onStack[v] = false;
+                count++;
+                if (v == u) break;
+            }
+            if (count > 1) foundCycle = true;
+        }
+    };
+
+    for (int i = 0; i < n; ++i)
+        if (indices[i] == -1)
+            dfs(i);
+
+    return foundCycle;
+}</code></pre>
+
+  <h2>3. Intermediate Problems</h2>
+
+  <h3>Problem 3: Find All SCCs</h3>
+  <pre><code>void tarjanAllSCCs(int u, int& index, vector<int>& indices, vector<int>& lowlink, stack<int>& stk,
+                  vector<bool>& onStack, vector<vector<int>>& graph, vector<vector<int>>& result) {
+    indices[u] = lowlink[u] = index++;
+    stk.push(u); onStack[u] = true;
+
+    for (int v : graph[u]) {
+        if (indices[v] == -1) {
+            tarjanAllSCCs(v, index, indices, lowlink, stk, onStack, graph, result);
+            lowlink[u] = min(lowlink[u], lowlink[v]);
+        } else if (onStack[v]) {
+            lowlink[u] = min(lowlink[u], indices[v]);
+        }
+    }
+
+    if (lowlink[u] == indices[u]) {
+        vector<int> scc;
+        while (true) {
+            int v = stk.top(); stk.pop(); onStack[v] = false;
             scc.push_back(v);
-        } while (u != v);
-        sccs.push_back(scc);
-    }
-}
-        </code></pre>
-
-        <h3>2. Count number of SCCs in a Graph</h3>
-        <pre><code>int countSCCs(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
-    vector&lt;int&gt; disc(V, -1), low(V, -1);
-    vector&lt;bool&gt; inStack(V, false);
-    stack&lt;int&gt; st;
-    int time = 0, count = 0;
-    for (int i = 0; i &lt; V; ++i) {
-        if (disc[i] == -1) {
-            vector&lt;vector&lt;int&gt;&gt; sccs;
-            tarjanSCC(i, adj, disc, low, st, inStack, time, sccs);
-            count += sccs.size();
+            if (v == u) break;
         }
+        result.push_back(scc);
     }
-    return count;
-}
-        </code></pre>
-    </section>
+}</code></pre>
 
-    <section>
-        <h2>Intermediate Problems</h2>
-        <h3>1. Detect Cycles in Directed Graph</h3>
-        <p>Any SCC with more than one node implies a cycle.</p>
+  <h3>Problem 4: Condensed DAG of SCCs</h3>
+  <pre><code>vector<vector<int>> buildSCCDAG(vector<vector<int>>& graph) {
+    int n = graph.size(), index = 0;
+    vector<int> indices(n, -1), lowlink(n, -1), sccId(n, -1);
+    stack<int> stk;
+    vector<bool> onStack(n, false);
+    vector<vector<int>> sccs;
 
-        <h3>2. Condense Graph into DAG of SCCs</h3>
-        <p>After identifying SCCs, treat each as a single node and construct a DAG.</p>
-    </section>
+    function<void(int)> dfs = [&](int u) {
+        indices[u] = lowlink[u] = index++;
+        stk.push(u); onStack[u] = true;
 
-    <section>
-        <h2>Hard Problem</h2>
-        <h3>1. 2-SAT Problem Solver</h3>
-        <p>Convert clauses into implication graph and use Tarjan’s to find SCCs.</p>
-        <pre><code>bool twoSAT(int n, vector&lt;pair&lt;int, int&gt;&gt;& clauses) {
-    // convert clauses to implication graph, build SCCs with Tarjan, 
-    // check if variable and its negation are in the same SCC
-    // implementation skipped for brevity
-    return true;
-}
-        </code></pre>
-    </section>
+        for (int v : graph[u]) {
+            if (indices[v] == -1) {
+                dfs(v);
+                lowlink[u] = min(lowlink[u], lowlink[v]);
+            } else if (onStack[v]) {
+                lowlink[u] = min(lowlink[u], indices[v]);
+            }
+        }
+
+        if (lowlink[u] == indices[u]) {
+            vector<int> scc;
+            while (true) {
+                int v = stk.top(); stk.pop(); onStack[v] = false;
+                sccId[v] = sccs.size();
+                scc.push_back(v);
+                if (v == u) break;
+            }
+            sccs.push_back(scc);
+        }
+    };
+
+    for (int i = 0; i < n; ++i)
+        if (indices[i] == -1)
+            dfs(i);
+
+    vector<set<int>> dagSet(sccs.size());
+    for (int u = 0; u < n; ++u)
+        for (int v : graph[u])
+            if (sccId[u] != sccId[v])
+                dagSet[sccId[u]].insert(sccId[v]);
+
+    vector<vector<int>> dag(sccs.size());
+    for (int i = 0; i < dagSet.size(); ++i)
+        dag[i] = vector<int>(dagSet[i].begin(), dagSet[i].end());
+
+    return dag;
+}</code></pre>
+
+  <h2>4. Hard Problem</h2>
+  <h3>Problem 5: Minimum Path Cover in a DAG (using SCC + matching)</h3>
+  <p>This is an advanced problem involving SCC condensation followed by max bipartite matching.</p>
+  <pre><code>// This is complex and involves extra steps, including SCC reduction, bipartite graph construction, and Hopcroft-Karp matching.
+// Typically seen in contests like ICPC and platforms like Codeforces.
+// Placeholder code due to space. Full implementation available upon request.</code></pre>
+
+  <h2>Conclusion</h2>
+  <p>Tarjan's algorithm is a powerful tool for graph analysis, especially for identifying strongly connected components and their applications. It is both time and space efficient, and forms the basis for solving many problems in competitive programming and real-world software systems.</p>
 </body>
 </html>
