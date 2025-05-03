@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Counting Sort Algorithm - Analysis and Examples</title>
+</head>
+<body>
+
+<h1>Counting Sort Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  Counting Sort is a non-comparison-based sorting algorithm that works best when the range of input values is not significantly larger than the number of elements to be sorted.
+</p>
+
+<h2>🧠 Algorithm Steps</h2>
+<ol>
+  <li>Find the range (max and min) of the input array.</li>
+  <li>Count the frequency of each unique value.</li>
+  <li>Calculate the prefix sum of counts.</li>
+  <li>Place elements into their sorted positions using the counts.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n + k)</li>
+  <li><strong>Average Case:</strong> O(n + k)</li>
+  <li><strong>Worst Case:</strong> O(n + k)</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Auxiliary Space:</strong> O(k) where k is the range of input values</li>
+</ul>
+
+<hr>
+
+<h2>✅ Easy Problems Solvable by Counting Sort</h2>
+
+<h3>1. Sort an Array of Non-Negative Integers</h3>
+<pre><code>
+void countingSort(int arr[], int n) {
+    int maxVal = *std::max_element(arr, arr + n);
+    std::vector&lt;int&gt; count(maxVal + 1, 0);
+
+    for (int i = 0; i &lt; n; i++) count[arr[i]]++;
+
+    int idx = 0;
+    for (int i = 0; i &lt;= maxVal; i++) {
+        while (count[i]--) arr[idx++] = i;
+    }
+}
+</code></pre>
+
+<h3>2. Count Frequency of Elements</h3>
+<pre><code>
+void countFrequencies(int arr[], int n) {
+    int maxVal = *std::max_element(arr, arr + n);
+    std::vector&lt;int&gt; freq(maxVal + 1, 0);
+
+    for (int i = 0; i &lt; n; i++) freq[arr[i]]++;
+
+    for (int i = 0; i &lt;= maxVal; i++)
+        if (freq[i] &gt; 0)
+            std::cout &lt;&lt; i &lt;&lt; ": " &lt;&lt; freq[i] &lt;&lt; "\n";
+}
+</code></pre>
+
+<hr>
+
+<h2>🔁 Intermediate Problems Solvable by Counting Sort</h2>
+
+<h3>1. Sort Characters of a String</h3>
+<pre><code>
+void countingSortString(std::string &amp;s) {
+    int count[256] = {0};
+
+    for (char c : s) count[(int)c]++;
+
+    int idx = 0;
+    for (int i = 0; i &lt; 256; i++) {
+        while (count[i]--) s[idx++] = (char)i;
+    }
+}
+</code></pre>
+
+<h3>2. Find the Mode (Most Frequent Element)</h3>
+<pre><code>
+int findMode(int arr[], int n) {
+    int maxVal = *std::max_element(arr, arr + n);
+    std::vector&lt;int&gt; freq(maxVal + 1, 0);
+
+    for (int i = 0; i &lt; n; i++) freq[arr[i]]++;
+
+    int mode = 0, maxFreq = 0;
+    for (int i = 0; i &lt;= maxVal; i++) {
+        if (freq[i] &gt; maxFreq) {
+            maxFreq = freq[i];
+            mode = i;
+        }
+    }
+    return mode;
+}
+</code></pre>
+
+<hr>
+
+<h2>🧠 Hard Problem Solvable by Counting Sort</h2>
+
+<h3>1. Sort Numbers in a Fixed Range with Stability</h3>
+<p>Counting Sort can be made stable for problems like sorting student records by score, preserving the input order for equal scores.</p>
+<pre><code>
+struct Student {
+    std::string name;
+    int score;
+};
+
+void stableCountingSort(std::vector&lt;Student&gt;&amp; students) {
+    int maxScore = 100;
+    int count[maxScore + 1] = {0};
+
+    for (const auto&amp; s : students) count[s.score]++;
+
+    for (int i = 1; i &lt;= maxScore; i++) count[i] += count[i - 1];
+
+    std::vector&lt;Student&gt; output(students.size());
+
+    for (int i = students.size() - 1; i &gt;= 0; i--) {
+        output[count[students[i].score] - 1] = students[i];
+        count[students[i].score]--;
+    }
+
+    students = output;
+}
+</code></pre>
+
+</body>
+</html>

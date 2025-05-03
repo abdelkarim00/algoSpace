@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heap Sort Algorithm - Analysis and Examples</title>
+</head>
+<body>
+
+<h1>Heap Sort Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  Heap Sort is a comparison-based sorting algorithm that uses a binary heap data structure. It first builds a max-heap, then repeatedly extracts the maximum element to sort the array.
+</p>
+
+<h2>🧠 Algorithm Steps</h2>
+<ol>
+  <li>Build a max-heap from the input data.</li>
+  <li>Swap the first element (max) with the last element.</li>
+  <li>Reduce heap size and heapify the root again.</li>
+  <li>Repeat until heap size becomes 1.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n log n)</li>
+  <li><strong>Average Case:</strong> O(n log n)</li>
+  <li><strong>Worst Case:</strong> O(n log n)</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Auxiliary Space:</strong> O(1) (in-place)</li>
+</ul>
+
+<hr>
+
+<h2>✅ Easy Problems Solvable by Heap Sort</h2>
+
+<h3>1. Sort a List of Integers</h3>
+<pre><code>
+void heapify(int arr[], int n, int i) {
+    int largest = i;
+    int l = 2*i + 1;
+    int r = 2*i + 2;
+
+    if (l &lt; n &amp;&amp; arr[l] &gt; arr[largest]) largest = l;
+    if (r &lt; n &amp;&amp; arr[r] &gt; arr[largest]) largest = r;
+
+    if (largest != i) {
+        std::swap(arr[i], arr[largest]);
+        heapify(arr, n, largest);
+    }
+}
+
+void heapSort(int arr[], int n) {
+    for (int i = n / 2 - 1; i &gt;= 0; i--)
+        heapify(arr, n, i);
+
+    for (int i = n - 1; i &gt; 0; i--) {
+        std::swap(arr[0], arr[i]);
+        heapify(arr, i, 0);
+    }
+}
+</code></pre>
+
+<h3>2. Find the Largest k Elements (Sort & Slice)</h3>
+<pre><code>
+void topKElements(int arr[], int n, int k) {
+    heapSort(arr, n);  // Sort the array
+    for (int i = n - 1; i &gt;= n - k; i--)
+        std::cout &lt;&lt; arr[i] &lt;&lt; " ";
+}
+</code></pre>
+
+<hr>
+
+<h2>🔁 Intermediate Problems Solvable by Heap Sort</h2>
+
+<h3>1. Sort a Nearly Sorted (K-Sorted) Array</h3>
+<pre><code>
+#include &lt;queue&gt;
+
+void sortKSortedArray(int arr[], int n, int k) {
+    std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; pq;
+    int index = 0;
+
+    for (int i = 0; i &lt;= k; i++)
+        pq.push(arr[i]);
+
+    for (int i = k + 1; i &lt; n; i++) {
+        arr[index++] = pq.top(); pq.pop();
+        pq.push(arr[i]);
+    }
+
+    while (!pq.empty()) {
+        arr[index++] = pq.top();
+        pq.pop();
+    }
+}
+</code></pre>
+
+<h3>2. Merge K Sorted Arrays (via Min-Heap)</h3>
+<pre><code>
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+
+struct Element {
+    int val, i, j;
+    bool operator&gt;(const Element&amp; e) const {
+        return val &gt; e.val;
+    }
+};
+
+std::vector&lt;int&gt; mergeKSortedArrays(std::vector&lt;std::vector&lt;int&gt;&gt;&amp; arrays) {
+    std::priority_queue&lt;Element, std::vector&lt;Element&gt;, std::greater&lt;Element&gt;&gt; pq;
+    std::vector&lt;int&gt; result;
+
+    for (int i = 0; i &lt; arrays.size(); i++)
+        if (!arrays[i].empty())
+            pq.push({arrays[i][0], i, 0});
+
+    while (!pq.empty()) {
+        Element cur = pq.top(); pq.pop();
+        result.push_back(cur.val);
+
+        if (cur.j + 1 &lt; arrays[cur.i].size())
+            pq.push({arrays[cur.i][cur.j + 1], cur.i, cur.j + 1});
+    }
+
+    return result;
+}
+</code></pre>
+
+<hr>
+
+<h2>🧠 Hard Problem Solvable by Heap Sort</h2>
+
+<h3>1. Median in a Stream</h3>
+<p>Use two heaps (max-heap and min-heap) to maintain the lower and upper halves of the stream.</p>
+<pre><code>
+#include &lt;queue&gt;
+
+std::priority_queue&lt;int&gt; maxHeap; // left half
+std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; minHeap; // right half
+
+void insertNumber(int num) {
+    if (maxHeap.empty() || num &lt;= maxHeap.top())
+        maxHeap.push(num);
+    else
+        minHeap.push(num);
+
+    if (maxHeap.size() &gt; minHeap.size() + 1) {
+        minHeap.push(maxHeap.top());
+        maxHeap.pop();
+    } else if (minHeap.size() &gt; maxHeap.size()) {
+        maxHeap.push(minHeap.top());
+        minHeap.pop();
+    }
+}
+
+double getMedian() {
+    if (maxHeap.size() == minHeap.size())
+        return (maxHeap.top() + minHeap.top()) / 2.0;
+    return maxHeap.top();
+}
+</code></pre>
+
+</body>
+</html>

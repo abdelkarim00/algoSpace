@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Selection Sort Algorithm - Analysis and Examples</title>
+</head>
+<body>
+
+<h1>Selection Sort Algorithm</h1>
+
+<h2>📌 Overview</h2>
+<p>
+  Selection Sort is a simple, comparison-based sorting algorithm. It works by dividing the array into two parts: the sorted part at the beginning and the unsorted part. It repeatedly selects the smallest (or largest) element from the unsorted portion and swaps it with the first element of the unsorted portion.
+</p>
+
+<h2>🧠 Algorithm Steps</h2>
+<ol>
+  <li>Start from the first element.</li>
+  <li>Find the minimum element in the unsorted part.</li>
+  <li>Swap it with the first unsorted element.</li>
+  <li>Repeat the process for the remaining unsorted part.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n²)</li>
+  <li><strong>Average Case:</strong> O(n²)</li>
+  <li><strong>Worst Case:</strong> O(n²)</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Space:</strong> O(1) – In-place sort</li>
+</ul>
+
+<hr>
+
+<h2>✅ Easy Problems Solvable by Selection Sort</h2>
+
+<h3>1. Sort Small List of Integers</h3>
+<p>Perfect for arrays with small size where algorithm simplicity is more important than performance.</p>
+<pre><code>
+void selectionSort(int arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j] &lt; arr[minIdx])
+                minIdx = j;
+        }
+        swap(arr[minIdx], arr[i]);
+    }
+}
+</code></pre>
+
+<h3>2. Find Minimum Element Without Sorting Fully</h3>
+<pre><code>
+int findMinimum(int arr[], int n) {
+    int min = arr[0];
+    for (int i = 1; i &lt; n; i++) {
+        if (arr[i] &lt; min)
+            min = arr[i];
+    }
+    return min;
+}
+</code></pre>
+
+<hr>
+
+<h2>🔁 Intermediate Problems Solvable by Selection Sort</h2>
+
+<h3>1. Sort Names Alphabetically (Small Class)</h3>
+<pre><code>
+void selectionSortStrings(string arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j] &lt; arr[minIdx])
+                minIdx = j;
+        }
+        swap(arr[minIdx], arr[i]);
+    }
+}
+</code></pre>
+
+<h3>2. Sort Student Marks (≤ 100 records)</h3>
+<pre><code>
+struct Student {
+    string name;
+    int marks;
+};
+
+void selectionSortStudents(Student arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j].marks &lt; arr[minIdx].marks)
+                minIdx = j;
+        }
+        swap(arr[i], arr[minIdx]);
+    }
+}
+</code></pre>
+
+<hr>
+
+<h2>🧠 Hard Problem Solvable by Selection Sort</h2>
+
+<h3>1. In-Place Sorting with Stable Memory Constraints (No Dynamic Allocation)</h3>
+<p>
+  For embedded systems with tight memory where performance is secondary to predictability and space usage, Selection Sort is useful due to O(1) space.
+</p>
+<pre><code>
+void inplaceStableSelectionSort(int arr[], int n) {
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j] &lt; arr[minIdx])
+                minIdx = j;
+        }
+
+        int minValue = arr[minIdx];
+        // Shift elements right to preserve stability
+        for (int k = minIdx; k &gt; i; k--)
+            arr[k] = arr[k - 1];
+        arr[i] = minValue;
+    }
+}
+</code></pre>
+
+</body>
+</html>

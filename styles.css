@@ -15,6 +15,18 @@ body {
     background-color: #f5f5f5;
 }
 
+pre {
+    background-color: #29292d;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+code {
+    font-family: Consolas, monospace;
+    color: #e9ecef;
+}
+
 /* Sidebar styling */
 #sidebar {
     width: 300px;

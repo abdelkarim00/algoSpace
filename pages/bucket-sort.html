@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bucket Sort Algorithm - Explanation and C++ Examples</title>
+</head>
+<body>
+
+<h1>Bucket Sort Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  Bucket Sort is a distribution sort that distributes elements into a number of buckets, sorts each bucket individually (often using another algorithm like insertion sort), and then concatenates all sorted buckets.
+</p>
+
+<h2>🧠 Algorithm Steps</h2>
+<ol>
+  <li>Find the range of the input data.</li>
+  <li>Divide the range into a fixed number of buckets.</li>
+  <li>Distribute the input elements into these buckets.</li>
+  <li>Sort each bucket individually.</li>
+  <li>Concatenate all sorted buckets.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n + k)</li>
+  <li><strong>Average Case:</strong> O(n + k)</li>
+  <li><strong>Worst Case:</strong> O(n²) — when all elements fall into a single bucket and a poor inner sort is used</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Auxiliary Space:</strong> O(n + k)</li>
+</ul>
+
+<hr>
+
+<h2>✅ Easy Problems Solvable by Bucket Sort</h2>
+
+<h3>1. Sort Floating-Point Numbers in [0, 1)</h3>
+<pre><code>
+void bucketSort(float arr[], int n) {
+    std::vector&lt;std::vector&lt;float&gt;&gt; buckets(n);
+
+    for (int i = 0; i &lt; n; i++) {
+        int index = n * arr[i];
+        buckets[index].push_back(arr[i]);
+    }
+
+    for (int i = 0; i &lt; n; i++)
+        std::sort(buckets[i].begin(), buckets[i].end());
+
+    int idx = 0;
+    for (int i = 0; i &lt; n; i++) {
+        for (float val : buckets[i])
+            arr[idx++] = val;
+    }
+}
+</code></pre>
+
+<h3>2. Sort Uniformly Distributed Integers</h3>
+<pre><code>
+void bucketSortInt(int arr[], int n, int bucketSize = 10) {
+    int maxVal = *std::max_element(arr, arr + n);
+    std::vector&lt;std::vector&lt;int&gt;&gt; buckets((maxVal / bucketSize) + 1);
+
+    for (int i = 0; i &lt; n; i++) {
+        int index = arr[i] / bucketSize;
+        buckets[index].push_back(arr[i]);
+    }
+
+    int idx = 0;
+    for (auto&amp; bucket : buckets) {
+        std::sort(bucket.begin(), bucket.end());
+        for (int val : bucket)
+            arr[idx++] = val;
+    }
+}
+</code></pre>
+
+<hr>
+
+<h2>🔁 Intermediate Problems Solvable by Bucket Sort</h2>
+
+<h3>1. Sort Student GPA Scores (0.00 to 4.00)</h3>
+<pre><code>
+void sortGPA(float gpas[], int n) {
+    bucketSort(gpas, n);
+}
+</code></pre>
+
+<h3>2. Sort Decimal Numbers in [0, 100) with 2 Decimal Places</h3>
+<pre><code>
+void sortDecimals(float arr[], int n) {
+    for (int i = 0; i &lt; n; i++)
+        arr[i] /= 100.0f;
+    bucketSort(arr, n);
+    for (int i = 0; i &lt; n; i++)
+        arr[i] *= 100.0f;
+}
+</code></pre>
+
+<hr>
+
+<h2>🧠 Hard Problem Solvable by Bucket Sort</h2>
+
+<h3>1. Sort 2D Points by X Coordinate Using Buckets</h3>
+<pre><code>
+struct Point {
+    float x, y;
+};
+
+void bucketSortPoints(std::vector&lt;Point&gt;&amp; points) {
+    int n = points.size();
+    std::vector&lt;std::vector&lt;Point&gt;&gt; buckets(n);
+
+    for (auto&amp; pt : points) {
+        int index = n * pt.x;
+        buckets[index].push_back(pt);
+    }
+
+    for (auto&amp; bucket : buckets)
+        std::sort(bucket.begin(), bucket.end(), [](Point a, Point b) {
+            return a.x &lt; b.x;
+        });
+
+    int idx = 0;
+    for (auto&amp; bucket : buckets)
+        for (auto pt : bucket)
+            points[idx++] = pt;
+}
+</code></pre>
+
+<hr>
+
+<h2>📌 Summary</h2>
+<ul>
+  <li><strong>Bucket Sort</strong> is efficient when input is uniformly distributed.</li>
+  <li>It is useful for floating-point numbers or data falling in a known range.</li>
+  <li>Its time complexity can degrade if data is not well distributed.</li>
+</ul>
+
+<h2>❗ When to Use</h2>
+<ul>
+  <li>When input is evenly spread over a range (e.g., [0, 1)).</li>
+  <li>For floating point sorting, GPA, percentages, coordinates, etc.</li>
+</ul>
+
+<h2>📚 References</h2>
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Bucket_sort" target="_blank">Wikipedia: Bucket Sort</a></li>
+  <li><a href="https://www.geeksforgeeks.org/bucket-sort-2/" target="_blank">GeeksForGeeks: Bucket Sort</a></li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear Search Algorithm - C++ Examples</title>
+</head>
+<body>
+
+<h1>Linear Search Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  Linear Search, also known as Sequential Search, is a simple algorithm that checks each element of a list sequentially until the desired element is found or the list is exhausted.
+</p>
+
+<h2>🔍 How It Works</h2>
+<ol>
+  <li>Start from the first element of the list.</li>
+  <li>Compare the current element with the target value.</li>
+  <li>If they match, return the index of the current element.</li>
+  <li>If they don't match, move to the next element and repeat the process.</li>
+  <li>If the end of the list is reached without finding the target, return -1 to indicate the element is not present.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(1) — when the target element is the first element in the list.</li>
+  <li><strong>Average Case:</strong> O(n) — when the target element is somewhere in the middle.</li>
+  <li><strong>Worst Case:</strong> O(n) — when the target element is the last element or not present at all.</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Space Complexity:</strong> O(1) — since it only requires a constant amount of extra space for variables.</li>
+</ul>
+
+<h2>✅ Easy Problems Solvable by Linear Search</h2>
+
+<h3>1. Find the Index of an Element in an Array</h3>
+<p>Given an array of integers, find the index of a specific element.</p>
+<pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int linearSearch(int arr[], int size, int target) {
+    for (int i = 0; i &lt; size; i++) {
+        if (arr[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    int arr[] = {10, 20, 30, 40, 50};
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int target = 30;
+    int result = linearSearch(arr, size, target);
+    if (result != -1) {
+        cout &lt;&lt; "Element found at index: " &lt;&lt; result &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Element not found" &lt;&lt; endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>2. Check if an Element Exists in an Array</h3>
+<p>Given an array of integers, check if a specific element exists.</p>
+<pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+bool linearSearch(int arr[], int size, int target) {
+    for (int i = 0; i &lt; size; i++) {
+        if (arr[i] == target) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main() {
+    int arr[] = {10, 20, 30, 40, 50};
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int target = 60;
+    if (linearSearch(arr, size, target)) {
+        cout &lt;&lt; "Element found" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Element not found" &lt;&lt; endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h2>🔁 Intermediate Problems Solvable by Linear Search</h2>
+
+<h3>1. Count the Occurrences of an Element in an Array</h3>
+<p>Given an array of integers, count how many times a specific element appears.</p>
+<pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int countOccurrences(int arr[], int size, int target) {
+    int count = 0;
+    for (int i = 0; i &lt; size; i++) {
+        if (arr[i] == target) {
+            count++;
+        }
+    }
+    return count;
+}
+
+int main() {
+    int arr[] = {10, 20, 30, 20, 40, 20};
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int target = 20;
+    int result = countOccurrences(arr, size, target);
+    cout &lt;&lt; "Element " &lt;&lt; target &lt;&lt; " occurs " &lt;&lt; result &lt;&lt; " times." &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+
+<h3>2. Find the Maximum Element in an Array</h3>
+<p>Given an array of integers, find the maximum element.</p>
+<pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int findMax(int arr[], int size) {
+    int max = arr[0];
+    for (int i = 1; i &lt; size; i++) {
+        if (arr[i] &gt; max) {
+            max = arr[i];
+        }
+    }
+    return max;
+}
+
+int main() {
+    int arr[] = {10, 20, 30, 40, 50};
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int result = findMax(arr, size);
+    cout &lt;&lt; "Maximum element is: " &lt;&lt; result &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+
+<h2>🧠 Advanced Problem Solvable by Linear Search</h2>
+
+<h3>1. Find the First Non-Repeating Character in a String</h3>
+<p>Given a string, find the first character that does not repeat.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;unordered_map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+char firstNonRepeatingChar(string str) {
+    unordered_map&lt;char, int&gt; freq;
+    for (char c : str) {
+        freq[c]++;
+    }
+    for (char c : str) {
+        if (freq[c] == 1) {
+            return c;
+        }
+    }
+    return '\0'; // No non-repeating character
+}
+
+int main() {
+    string str = "swiss";
+    char result = firstNonRepeatingChar(str);
+    if (result != '\0') {
+        cout &lt;&lt; "First non-repeating character is: " &lt;&lt; result &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "No non-repeating character found" &lt;&lt; endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h2>📌 Summary</h2>
+<ul>
+  <li><strong>Linear Search</strong> is a straightforward algorithm ideal for small datasets or unsorted collections.</li>
+  <li>It is easy to implement but becomes inefficient for large datasets due to its O(n) time complexity.</li>
+  <li>Despite its simplicity, it remains a fundamental algorithm in computer science education and practical applications where data is small or unsorted.</li>
+</ul>
+
+</body>
+</html>

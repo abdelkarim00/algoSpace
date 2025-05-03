@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bubble Sort Algorithm - Analysis and Examples</title>
+</head>
+<body>
+
+<h1>Bubble Sort Algorithm</h1>
+
+<h2>📌 Overview</h2>
+<p>Bubble Sort is a simple comparison-based sorting algorithm. It repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The process continues until no swaps are needed, indicating the list is sorted.</p>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+    <li><strong>Best Case:</strong> O(n) (when the array is already sorted)</li>
+    <li><strong>Average Case:</strong> O(n²)</li>
+    <li><strong>Worst Case:</strong> O(n²) (when the array is in reverse order)</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+    <li><strong>Space:</strong> O(1) – It is an in-place algorithm and does not require additional memory.</li>
+</ul>
+
+<h2>✅ Easy Problems Solvable by Bubble Sort</h2>
+<ol>
+    <li><strong>Sorting Small Arrays:</strong> Bubble Sort is sufficient for sorting arrays of ≤100 elements for simplicity and readability.</li>
+    <li><strong>Check if an Array is Sorted:</strong> One pass of Bubble Sort can determine if any swaps are needed.</li>
+</ol>
+
+<h2>🔁 Intermediate Problems Solvable by Bubble Sort</h2>
+<ol>
+    <li><strong>Find the k-th Largest Element:</strong> Sort the array fully with Bubble Sort and return the k-th largest.</li>
+    <li><strong>Sort Students by Marks:</strong> For ≤100 records, Bubble Sort works fine in stable environments with minimal requirements.</li>
+</ol>
+
+<h2>🧠 Hard Problem Solvable by Bubble Sort</h2>
+<ol>
+    <li><strong>Stable Sorting with Strict Memory Constraints:</strong> When a stable sort with O(1) space is required and dataset size is small, Bubble Sort is a viable option.</li>
+</ol>
+
+<h2>🧾 C++ Code Examples</h2>
+
+<h3>1. Bubble Sort Function</h3>
+<pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+void bubbleSort(int arr[], int n) {
+    bool swapped;
+    for (int i = 0; i &lt; n - 1; i++) {
+        swapped = false;
+        for (int j = 0; j &lt; n - i - 1; j++) {
+            if (arr[j] &gt; arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+</code></pre>
+
+<h3>2. Print Array Function</h3>
+<pre><code>
+void printArray(int arr[], int size) {
+    for (int i = 0; i &lt; size; i++)
+        cout &lt;&lt; arr[i] &lt;&lt; " ";
+    cout &lt;&lt; endl;
+}
+</code></pre>
+
+<h3>3. Find K-th Largest Element</h3>
+<pre><code>
+int findKthLargest(int arr[], int n, int k) {
+    bubbleSort(arr, n);
+    return arr[n - k];
+}
+</code></pre>
+
+<h3>4. Check if Array is Sorted</h3>
+<pre><code>
+bool isSorted(int arr[], int n) {
+    for(int i = 0; i &lt; n - 1; i++) {
+        if(arr[i] &gt; arr[i+1])
+            return false;
+    }
+    return true;
+}
+</code></pre>
+
+</body>
+</html>

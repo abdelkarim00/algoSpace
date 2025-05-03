@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Sort Algorithm - C++ Examples</title>
+</head>
+<body>
+
+<h1>Quick Sort Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  Quick Sort is a highly efficient sorting algorithm and is based on partitioning an array into smaller sub-arrays. Developed by Tony Hoare in 1959, it is still widely used due to its average-case efficiency.
+</p>
+
+<h2>🔍 How It Works</h2>
+<ol>
+  <li><strong>Choose a pivot:</strong> Select an element from the array.</li>
+  <li><strong>Partitioning:</strong> Reorder the array so that elements less than the pivot come before it, and elements greater come after it.</li>
+  <li><strong>Recursively apply:</strong> Apply the same process to the sub-arrays formed by splitting the array at the pivot.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n log n) — when the pivot divides the array into nearly equal parts.</li>
+  <li><strong>Average Case:</strong> O(n log n) — typically achieved with good pivot selection strategies.</li>
+  <li><strong>Worst Case:</strong> O(n²) — occurs when the pivot is the smallest or largest element, leading to unbalanced partitions.</li>
+</ul>
+<p>
+  To mitigate the worst-case scenario, techniques like <em>randomized pivot selection</em> or <em>median-of-three</em> are used.
+</p>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(log n) — due to the depth of the recursion tree.</li>
+  <li><strong>Worst Case:</strong> O(n) — occurs when the recursion tree is highly unbalanced.</li>
+</ul>
+
+<h2>✅ Easy Problems Solvable by Quick Sort</h2>
+
+<h3>1. Sorting an Array of Integers</h3>
+<p>Given an array of integers, sort them in ascending order.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+void quickSort(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    if (low &lt; high) {
+        int pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j &lt; high; j++) {
+            if (arr[j] &lt; pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {10, 7, 8, 9, 1, 5};
+    int n = arr.size();
+    quickSort(arr, 0, n - 1);
+    std::cout &lt;&lt; "Sorted array: ";
+    for (int i : arr) std::cout &lt;&lt; i &lt;&lt; " ";
+    return 0;
+}
+</code></pre>
+
+<h3>2. Sorting an Array of Strings</h3>
+<p>Given an array of strings, sort them in lexicographical order.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+void quickSort(std::vector&lt;std::string&gt;&amp; arr, int low, int high) {
+    if (low &lt; high) {
+        std::string pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j &lt; high; j++) {
+            if (arr[j] &lt; pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;std::string&gt; arr = {"banana", "apple", "cherry", "date"};
+    int n = arr.size();
+    quickSort(arr, 0, n - 1);
+    std::cout &lt;&lt; "Sorted strings: ";
+    for (const auto&amp; str : arr) std::cout &lt;&lt; str &lt;&lt; " ";
+    return 0;
+}
+</code></pre>
+
+<h2>🔁 Intermediate Problems Solvable by Quick Sort</h2>
+
+<h3>1. Sorting a Large Dataset</h3>
+<p>Given a large dataset of integers, sort them efficiently.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+void quickSort(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    if (low &lt; high) {
+        int pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j &lt; high; j++) {
+            if (arr[j] &lt; pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {100, 200, 300, 400, 500};
+    int n = arr.size();
+    quickSort(arr, 0, n - 1);
+    std::cout &lt;&lt; "Sorted dataset: ";
+    for (int i : arr) std::cout &lt;&lt; i &lt;&lt; " ";
+    return 0;
+}
+</code></pre>
+
+<h3>2. Sorting an Array of Floating-Point Numbers</h3>
+<p>Given an array of floating-point numbers, sort them in ascending order.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+void quickSort(std::vector&lt;double&gt;&amp; arr, int low, int high) {
+    if (low &lt; high) {
+        double pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j &lt; high; j++) {
+            if (arr[j] &lt; pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;double&gt; arr = {3.14, 2.71, 1.41, 1.73};
+    int n = arr.size();
+    quickSort(arr, 0, n - 1);
+    std::cout &lt;&lt; "Sorted floats: ";
+    for (double d : arr) std::cout &lt;&lt; d &lt;&lt; " ";
+    return 0;
+}
+</code></pre>
+
+<h2>🧠 Advanced Problem Solvable by Quick Sort</h2>
+
+<h3>1. Sorting a Large Dataset with Duplicate Elements</h3>
+<p>Given a large dataset with many duplicate elements, sort them efficiently.</p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+void quickSort(std::vector&lt;int&gt;&amp; arr, int low, int high) {
+    if (low &lt; high) {
+        int pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j &lt; high; j++) {
+            if (arr[j] &lt; pivot) {
+                i++;
+                std::swap(arr[i], arr[j]);
+            }
+        }
+        std::swap(arr[i + 1], arr[high]);
+        int pi = i + 1;
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {5, 5, 5, 5, 5};
+    int n = arr.size();
+    quickSort(arr, 0, n - 1);
+    std::cout &lt;&lt; "Sorted dataset with duplicates: ";
+    for (int i : arr) std::cout &lt;&lt; i &lt;&lt; " ";
+    return 0;
+}
+</code></pre>
+
+<h2>📌 Summary</h2>
+<ul>
+  <li><strong>Quick Sort</strong> is a divide-and-conquer algorithm known for its average-case efficiency.</li>
+  <li>It is widely used in various applications due to its speed and efficiency.</li>
+  <li>Understanding its implementation and complexities is crucial for optimizing sorting operations in software development.</li>
+</ul>
+
+</body>
+</html>

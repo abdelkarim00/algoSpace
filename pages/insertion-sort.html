@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Insertion Sort Algorithm - Analysis and Examples</title>
+</head>
+<body>
+
+<h1>Insertion Sort Algorithm</h1>
+
+<h2>📌 Overview</h2>
+<p>Insertion Sort is a simple sorting algorithm that builds the sorted list one element at a time. It is efficient for small datasets and partially sorted data.</p>
+
+<h2>🧠 Algorithm Steps</h2>
+<ol>
+  <li>Start from the second element (index 1).</li>
+  <li>Compare it with elements before it and insert it into the correct position.</li>
+  <li>Repeat for all remaining elements.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Best Case:</strong> O(n) — when the array is already sorted</li>
+  <li><strong>Average Case:</strong> O(n²)</li>
+  <li><strong>Worst Case:</strong> O(n²) — when the array is sorted in reverse</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Space:</strong> O(1) — in-place sorting</li>
+</ul>
+
+<hr>
+
+<h2>✅ Easy Problems Solvable by Insertion Sort</h2>
+
+<h3>1. Sort Small Integer Array</h3>
+<pre><code>
+void insertionSort(int arr[], int n) {
+    for (int i = 1; i &lt; n; i++) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j &gt;= 0 && arr[j] &gt; key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+</code></pre>
+
+<h3>2. Insert Element into a Sorted Array</h3>
+<pre><code>
+// Insert 'val' into sorted array 'arr' of size n
+void insertIntoSortedArray(int arr[], int &n, int val) {
+    int i = n - 1;
+    while (i &gt;= 0 && arr[i] &gt; val) {
+        arr[i + 1] = arr[i];
+        i--;
+    }
+    arr[i + 1] = val;
+    n++;
+}
+</code></pre>
+
+<hr>
+
+<h2>🔁 Intermediate Problems Solvable by Insertion Sort</h2>
+
+<h3>1. Sort Array of Strings Alphabetically</h3>
+<pre><code>
+void insertionSortStrings(string arr[], int n) {
+    for (int i = 1; i &lt; n; i++) {
+        string key = arr[i];
+        int j = i - 1;
+        while (j &gt;= 0 && arr[j] &gt; key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+</code></pre>
+
+<h3>2. Sort Students by Score (Small Data)</h3>
+<pre><code>
+struct Student {
+    string name;
+    int score;
+};
+
+void insertionSortStudents(Student arr[], int n) {
+    for (int i = 1; i &lt; n; i++) {
+        Student key = arr[i];
+        int j = i - 1;
+        while (j &gt;= 0 && arr[j].score &gt; key.score) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+</code></pre>
+
+<hr>
+
+<h2>🧠 Hard Problem Solvable by Insertion Sort</h2>
+
+<h3>1. Real-time Sorting of Streaming Data (e.g. in Sensor Devices)</h3>
+<p>Insertion Sort works well when elements are coming in one at a time and must be sorted immediately (e.g. microcontroller).</p>
+<pre><code>
+void insertSensorReading(int sorted[], int &n, int newReading) {
+    int i = n - 1;
+    while (i &gt;= 0 && sorted[i] &gt; newReading) {
+        sorted[i + 1] = sorted[i];
+        i--;
+    }
+    sorted[i + 1] = newReading;
+    n++;
+}
+</code></pre>
+
+</body>
+</html>
