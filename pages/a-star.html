@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A* Search Algorithm and Applications</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
+    h1, h2, h3 { color: #2F4F4F; }
+    code { background-color: #f0f0f0; padding: 2px 4px; }
+    pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ccc; overflow-x: auto; }
+    ol, ul { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<h1>A* Search Algorithm</h1>
+<p>
+A* (A-star) is a best-first graph search algorithm that finds the shortest path between a start node and a goal node. It uses a heuristic function <code>h(n)</code> to estimate the cost from any node <code>n</code> to the goal, guiding the search efficiently. The total estimated cost is <code>f(n) = g(n) + h(n)</code>, where <code>g(n)</code> is the cost from the start to <code>n</code>.
+</p>
+
+<h2>Algorithm Details</h2>
+<ol>
+  <li>
+    Initialize the open set (priority queue) with the start node, where <code>g(start)=0</code> and <code>f(start)=h(start)</code>.
+  </li>
+  <li>
+    While the open set is not empty:
+    <ul>
+      <li>Pop node <code>u</code> with lowest <code>f(u)</code> from the queue.</li>
+      <li>If <code>u</code> is the goal, reconstruct and return the path.</li>
+      <li>For each neighbor <code>v</code> of <code>u</code>:</li>
+      <ul>
+        <li>Compute tentative cost <code>g_temp = g(u) + cost(u, v)</code>.</li>
+        <li>
+          If <code>g_temp &lt; g(v)</code>, update <code>g(v)=g_temp</code>, <code>f(v)=g(v)+h(v)</code>, and set <code>parent[v]=u</code>. Push or update <code>v</code> in the open set.
+        </li>
+      </ul>
+    </ul>
+  </li>
+  <li>
+    If the open set empties without reaching the goal, no path exists.
+  </li>
+</ol>
+
+<h2>Complexity</h2>
+<ul>
+  <li><strong>Time:</strong> In the worst case <code>O(E + V log V)</code> when using a binary heap. Without heuristic (i.e., <code>h=0</code>), it reduces to Dijkstra's algorithm.</li>
+  <li><strong>Memory:</strong> <code>O(V)</code> to store the open and closed sets as well as cost arrays.</li>
+</ul>
+
+<h2>Easy-Level Problems</h2>
+
+<h3>1. Grid Path (AtCoder ABC184D)</h3>
+<p><strong>Problem:</strong> Given an <code>H×W</code> grid with free cells <code>.</code> and obstacles <code>#</code>, find the minimum number of steps from start <code>(sx, sy)</code> to goal <code>(gx, gy)</code>. You can move in four directions.</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+typedef pair<int,int> pii;
+
+struct Node {
+    int x, y;
+    int g, f;
+};
+
+struct Compare {
+    bool operator()(Node const &a, Node const &b) const {
+        return a.f > b.f;
+    }
+};
+
+int main() {
+    int H, W;
+    cin >> H >> W;
+
+    vector<string> grid(H);
+    for (int i = 0; i < H; i++) {
+        cin >> grid[i];
+    }
+
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
+    sx--; sy--; gx--; gy--;
+
+    auto heuristic = [&](int x, int y) {
+        return abs(x - gx) + abs(y - gy);
+    };
+
+    vector<vector<int>> g(H, vector<int>(W, INT_MAX));
+    priority_queue<Node, vector<Node>, Compare> openSet;
+
+    g[sx][sy] = 0;
+    openSet.push({sx, sy, 0, heuristic(sx, sy)});
+
+    int dirs[4][2] = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+
+    while (!openSet.empty()) {
+        Node cur = openSet.top();
+        openSet.pop();
+
+        if (cur.x == gx && cur.y == gy) {
+            cout << cur.g;
+            return 0;
+        }
+
+        if (cur.g > g[cur.x][cur.y]) continue;
+
+        for (auto &d : dirs) {
+            int nx = cur.x + d[0];
+            int ny = cur.y + d[1];
+
+            if (nx < 0 || nx >= H || ny < 0 || ny >= W) continue;
+            if (grid[nx][ny] == '#') continue;
+
+            int ng = cur.g + 1;
+            if (ng < g[nx][ny]) {
+                g[nx][ny] = ng;
+                openSet.push({nx, ny, ng, ng + heuristic(nx, ny)});
+            }
+        }
+    }
+
+    cout << -1;
+    return 0;
+}
+</code></pre>
+
+<h3>2. Knight Moves (AtCoder ARC010B)</h3>
+<p><strong>Problem:</strong> On an <code>N×N</code> board, find the minimum knight moves from <code>(sx, sy)</code> to <code>(gx, gy)</code>.</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int heuristic(int dx, int dy) {
+    dx = abs(dx);
+    dy = abs(dy);
+    return max((dx + 1) / 2, (dx + dy + 2) / 3);
+}
+
+struct Node {
+    int x, y;
+    int g, f;
+};
+
+struct Compare {
+    bool operator()(Node const &a, Node const &b) const {
+        return a.f > b.f;
+    }
+};
+
+int main() {
+    int N;
+    cin >> N;
+
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
+    sx--; sy--; gx--; gy--;
+
+    vector<vector<int>> g(N, vector<int>(N, INT_MAX));
+    priority_queue<Node, vector<Node>, Compare> openSet;
+
+    auto pushNode = [&](int x, int y, int cost) {
+        int h = heuristic(gx - x, gy - y);
+        g[x][y] = cost;
+        openSet.push({x, y, cost, cost + h});
+    };
+
+    pushNode(sx, sy, 0);
+
+    int dx[8] = {2, 2, -2, -2, 1, 1, -1, -1};
+    int dy[8] = {1, -1, 1, -1, 2, -2, 2, -2};
+
+    while (!openSet.empty()) {
+        Node cur = openSet.top();
+        openSet.pop();
+
+        if (cur.x == gx && cur.y == gy) {
+            cout << cur.g;
+            return 0;
+        }
+
+        if (cur.g > g[cur.x][cur.y]) continue;
+
+        for (int i = 0; i < 8; i++) {
+            int nx = cur.x + dx[i];
+            int ny = cur.y + dy[i];
+
+            if (nx < 0 || nx >= N || ny < 0 || ny >= N) continue;
+
+            int ng = cur.g + 1;
+            if (ng < g[nx][ny]) {
+                pushNode(nx, ny, ng);
+            }
+        }
+    }
+
+    cout << -1;
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate-Level Problems</h2>
+
+<h3>3. Sliding Puzzle (AtCoder ABC263E)</h3>
+<p><strong>Problem:</strong> Solve a 3×3 sliding puzzle, moving tiles to reach the goal state <code>123456780</code>.</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using State = string;
+
+int heuristic(const State &s) {
+    int res = 0;
+    for (int i = 0; i < 9; i++) {
+        if (s[i] != '0') {
+            int d = s[i] - '1';
+            res += abs(i / 3 - d / 3) + abs(i % 3 - d % 3);
+        }
+    }
+    return res;
+}
+
+struct Node {
+    State s;
+    int g, f;
+};
+
+struct Compare {
+    bool operator()(Node const &a, Node const &b) const {
+        return a.f > b.f;
+    }
+};
+
+int main() {
+    State start;
+    for (int i = 0; i < 9; i++) {
+        char c; cin >> c;
+        start += c;
+    }
+    State goal = "123456780";
+
+    priority_queue<Node, vector<Node>, Compare> openSet;
+    unordered_map<State, int> dist;
+
+    dist[start] = 0;
+    openSet.push({start, 0, heuristic(start)});
+
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+
+    while (!openSet.empty()) {
+        Node cur = openSet.top();
+        openSet.pop();
+
+        if (cur.s == goal) {
+            cout << cur.g;
+            return 0;
+        }
+
+        if (cur.g > dist[cur.s]) continue;
+
+        int z = cur.s.find('0');
+        int x = z / 3;
+        int y = z % 3;
+
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (nx < 0 || nx >= 3 || ny < 0 || ny >= 3) continue;
+
+            State next = cur.s;
+            swap(next[z], next[nx * 3 + ny]);
+
+            int ng = cur.g + 1;
+            if (!dist.count(next) || ng < dist[next]) {
+                dist[next] = ng;
+                openSet.push({next, ng, ng + heuristic(next)});
+            }
+        }
+    }
+
+    cout << -1;
+    return 0;
+}
+</code></pre>
+
+<h3>4. Robot on Ice (Codeforces 239B)</h3>
+<p><strong>Problem:</strong> A robot slides on ice: once it moves in a direction, it continues until hitting an obstacle or boundary. Find minimum slides from start to goal.</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+typedef pair<int,int> pii;
+
+struct Node {
+    int x, y;
+    int g, f;
+};
+
+struct Compare {
+    bool operator()(Node const &a, Node const &b) const {
+        return a.f > b.f;
+    }
+};
+
+int main() {
+    int H, W;
+    cin >> H >> W;
+    vector<string> grid(H);
+    for (int i = 0; i < H; i++) {
+        cin >> grid[i];
+    }
+
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
+    sx--; sy--; gx--; gy--;
+
+    auto heuristic = [&](int x, int y) {
+        double d = hypot(x - gx, y - gy);
+        return (int)ceil(d / max(H, W));
+    };
+
+    priority_queue<Node, vector<Node>, Compare> openSet;
+    vector<vector<int>> dist(H, vector<int>(W, INT_MAX));
+
+    auto pushNode = [&](int x, int y, int cost) {
+        dist[x][y] = cost;
+        openSet.push({x, y, cost, cost + heuristic(x, y)});
+    };
+
+    pushNode(sx, sy, 0);
+    int dirs[4][2] = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+
+    while (!openSet.empty()) {
+        Node cur = openSet.top();
+        openSet.pop();
+
+        if (cur.x == gx && cur.y == gy) {
+            cout << cur.g;
+            return 0;
+        }
+
+        if (cur.g > dist[cur.x][cur.y]) continue;
+
+        for (auto &d : dirs) {
+            int nx = cur.x;
+            int ny = cur.y;
+            while (true) {
+                int tx = nx + d[0];
+                int ty = ny + d[1];
+                if (tx < 0 || tx >= H || ty < 0 || ty >= W || grid[tx][ty] == '#') break;
+                nx = tx; ny = ty;
+            }
+            if (nx == cur.x && ny == cur.y) continue;
+            int ng = cur.g + 1;
+            if (ng < dist[nx][ny]) {
+                pushNode(nx, ny, ng);
+            }
+        }
+    }
+
+    cout << -1;
+    return 0;
+}
+</code></pre>
+
+<h2>Hard-Level Problem</h2>
+
+<h3>Naval Warfare (AtCoder AGC029D)</h3>
+<p><strong>Problem:</strong> Given a sea grid with ships (~ cost 2) and open water (cost 1), find minimum fuel path from start to goal using A*.</p>
+<pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using ll = long long;
+
+struct Node {
+    int x, y;
+    ll g, f;
+};
+
+struct Compare {
+    bool operator()(Node const &a, Node const &b) const {
+        return a.f > b.f;
+    }
+};
+
+int main() {
+    int H, W;
+    cin >> H >> W;
+    vector<string> grid(H);
+    for (int i = 0; i < H; i++) {
+        cin >> grid[i];
+    }
+
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
+    sx--; sy--; gx--; gy--;
+
+    auto costAt = [&](int x, int y) -> ll {
+        return (grid[x][y] == '~') ? 2LL : 1LL;
+    };
+
+    auto heuristic = [&](int x, int y) {
+        return llabs(x - gx) + llabs(y - gy);
+    };
+
+    priority_queue<Node, vector<Node>, Compare> openSet;
+    vector<vector<ll>> dist(H, vector<ll>(W, LLONG_MAX));
+
+    auto pushNode = [&](int x, int y, ll cost) {
+        dist[x][y] = cost;
+        openSet.push({x, y, cost, cost + heuristic(x, y)});
+    };
+
+    pushNode(sx, sy, 0);
+    int dirs[4][2] = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+
+    while (!openSet.empty()) {
+        Node cur = openSet.top();
+        openSet.pop();
+
+        if (cur.x == gx && cur.y == gy) {
+            cout << cur.g;
+            return 0;
+        }
+
+        if (cur.g > dist[cur.x][cur.y]) continue;
+
+        for (auto &d : dirs) {
+            int nx = cur.x + d[0];
+            int ny = cur.y + d[1];
+            if (nx < 0 || nx >= H || ny < 0 || ny >= W) continue;
+
+            ll ng = cur.g + costAt(nx, ny);
+            if (ng < dist[nx][ny]) {
+                pushNode(nx, ny, ng);
+            }
+        }
+    }
+
+    cout << -1;
+    return 0;
+}
+</code></pre>
+
+</body>
+</html>
