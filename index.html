@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA with Dynamic Loading</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div id="sidebar">
+        <h1>Philosophiæ Naturalis Principia Mathematica</h1>
+        <p style="font-style: italic; color: #bdc3c7;">By Sir Isaac Newton (1687)</p>
+        
+        <div class="book-section">
+            <h2>Book I: The Motion of Bodies</h2>
+            <ul>
+                <li data-page="definitions"><a href="#definitions">Definitions</a></li>
+                <li data-page="axioms"><a href="#axioms">Axioms (Laws of Motion)</a></li>
+                <li data-page="lem-props"><a href="#lem-props">Lemmas and Propositions</a></li>
+                <li data-page="centripetal"><a href="#centripetal">Centripetal Forces</a></li>
+                <li data-page="conic-sections"><a href="#conic-sections">Motion in Conic Sections</a></li>
+                <li data-page="attraction"><a href="#attraction">Attraction to Centers</a></li>
+                <li data-page="pendulum"><a href="#pendulum">Pendulum Motion</a></li>
+                <li data-page="fluid-resistance"><a href="#fluid-resistance">Motion in Resisting Media</a></li>
+            </ul>
+        </div>
+        
+        <div class="book-section">
+            <h2>Book II: The Motion of Bodies in Resisting Mediums</h2>
+            <ul>
+                <li data-page="resistance-laws"><a href="#resistance-laws">Laws of Resistance</a></li>
+                <li data-page="pendulum-resistance"><a href="#pendulum-resistance">Pendulums in Resisting Media</a></li>
+                <li data-page="fluid-dynamics"><a href="#fluid-dynamics">Fluid Dynamics</a></li>
+                <li data-page="wave-motion"><a href="#wave-motion">Wave Motion</a></li>
+                <li data-page="vortex-theory"><a href="#vortex-theory">Refutation of Vortex Theory</a></li>
+            </ul>
+        </div>
+        
+        <div class="book-section">
+            <h2>Book III: The System of the World</h2>
+            <ul>
+                <li data-page="phenomena"><a href="#phenomena">Phenomena (Observational Data)</a></li>
+                <li data-page="propositions"><a href="#propositions">Propositions</a></li>
+                <li data-page="moon-theory"><a href="#moon-theory">Theory of the Moon</a></li>
+                <li data-page="tides"><a href="#tides">Tides and Gravitation</a></li>
+                <li data-page="comets"><a href="#comets">Motion of Comets</a></li>
+                <li data-page="planets"><a href="#planets">Planetary Orbits</a></li>
+                <li data-page="corollaries"><a href="#corollaries">General Scholium & Corollaries</a></li>
+            </ul>
+        </div>
+        
+        <div class="book-section">
+            <h2>Fundamental Concepts</h2>
+            <ul>
+                <li data-page="mass"><a href="#mass">Mass</a></li>
+                <li data-page="momentum"><a href="#momentum">Momentum</a></li>
+                <li data-page="inertia"><a href="#inertia">Inertia</a></li>
+                <li data-page="force"><a href="#force">Force</a></li>
+                <li data-page="gravity"><a href="#gravity">Universal Gravitation</a></li>
+                <li data-page="calculus"><a href="#calculus">Method of Fluxions (Calculus)</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-content">
+        <!-- Content will be loaded here dynamically -->
+        <div id="page-content"></div>
+        
+        <!-- Loading indicator -->
+        <div id="loading" style="display: none;">
+            <div class="loader"></div>
+            <p>Loading content...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

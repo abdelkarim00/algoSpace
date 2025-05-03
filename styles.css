@@ -1,0 +1,92 @@
+.page {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.page.active {
+    opacity: 1;
+}
+
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background-color: #f5f5f5;
+}
+
+/* Sidebar styling */
+#sidebar {
+    width: 300px;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    height: 100vh;
+    overflow-y: auto;
+    position: sticky;
+    top: 0;
+}
+
+#sidebar h1 {
+    font-size: 1.5em;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.book-section {
+    margin-bottom: 25px;
+}
+
+.book-section h2 {
+    color: #3498db;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.book-section ul {
+    list-style-type: none;
+    padding-left: 15px;
+}
+
+.book-section li {
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.book-section li:before {
+    content: "•";
+    color: #3498db;
+    position: absolute;
+    left: -15px;
+}
+
+.book-section li a {
+    color: #ecf0f1;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.book-section li a:hover {
+    color: #3498db;
+}
+
+/* Main content area */
+#main-content {
+    flex: 1;
+    padding: 30px;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+    }
+    #sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+}
+
