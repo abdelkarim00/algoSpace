@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kruskal's Algorithm - Full Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+    h1, h2, h3 { color: #2c3e50; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    code { font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>Kruskal's Algorithm - Full Guide</h1>
+
+  <h2>Overview</h2>
+  <p>Kruskal's Algorithm is a greedy algorithm used to find the <strong>Minimum Spanning Tree (MST)</strong> of a graph. It works by selecting the shortest edges and ensuring no cycles are formed until all vertices are connected.</p>
+
+  <h2>Algorithm Steps</h2>
+  <ol>
+    <li>Sort all edges in non-decreasing order of their weights.</li>
+    <li>Initialize a disjoint-set (Union-Find) for cycle detection.</li>
+    <li>Iterate over the sorted edges:</li>
+    <ul>
+      <li>If the edge connects two different sets, include it in the MST and union the sets.</li>
+    </ul>
+    <li>Repeat until MST has (V - 1) edges.</li>
+  </ol>
+
+  <h2>Time and Memory Complexity</h2>
+  <ul>
+    <li><strong>Time Complexity:</strong> O(E log E + E α(V)) ≈ O(E log E), where E is the number of edges and α is the inverse Ackermann function.</li>
+    <li><strong>Space Complexity:</strong> O(V) for storing parent and rank arrays.</li>
+  </ul>
+
+  <h2>Code Template (C++)</h2>
+  <pre><code>struct Edge {
+  int u, v, weight;
+  bool operator<(const Edge& e) const {
+    return weight < e.weight;
+  }
+};
+
+int find(vector<int>& parent, int x) {
+  if (parent[x] != x) parent[x] = find(parent, parent[x]);
+  return parent[x];
+}
+
+void unite(vector<int>& parent, vector<int>& rank, int x, int y) {
+  int xr = find(parent, x);
+  int yr = find(parent, y);
+  if (xr != yr) {
+    if (rank[xr] < rank[yr]) parent[xr] = yr;
+    else if (rank[xr] > rank[yr]) parent[yr] = xr;
+    else { parent[yr] = xr; rank[xr]++; }
+  }
+}
+
+int kruskal(int n, vector<Edge>& edges) {
+  sort(edges.begin(), edges.end());
+  vector<int> parent(n), rank(n, 0);
+  iota(parent.begin(), parent.end(), 0);
+
+  int mst_weight = 0;
+  for (Edge& e : edges) {
+    if (find(parent, e.u) != find(parent, e.v)) {
+      unite(parent, rank, e.u, e.v);
+      mst_weight += e.weight;
+    }
+  }
+  return mst_weight;
+}</code></pre>
+
+  <h2>Easy Problems</h2>
+  <h3>1. Find the MST of an Undirected Graph</h3>
+  <pre><code>// Input: 4 vertices, 5 edges
+// Output: MST weight
+int main() {
+  vector<Edge> edges = {{0,1,10}, {0,2,6}, {0,3,5}, {1,3,15}, {2,3,4}};
+  cout << kruskal(4, edges); // Output: 19
+}</code></pre>
+
+  <h3>2. Check if a graph is connected using Kruskal</h3>
+  <pre><code>bool isConnected(int n, vector<Edge>& edges) {
+  sort(edges.begin(), edges.end());
+  vector<int> parent(n), rank(n, 0);
+  iota(parent.begin(), parent.end(), 0);
+
+  int edge_count = 0;
+  for (Edge& e : edges) {
+    if (find(parent, e.u) != find(parent, e.v)) {
+      unite(parent, rank, e.u, e.v);
+      edge_count++;
+    }
+  }
+  return edge_count == n - 1;
+}</code></pre>
+
+  <h2>Intermediate Problems</h2>
+  <h3>1. Second Best MST</h3>
+  <pre><code>// Compute all MSTs excluding one edge at a time
+int secondBestMST(int n, vector<Edge> edges) {
+  sort(edges.begin(), edges.end());
+  vector<int> parent(n), rank(n);
+  iota(parent.begin(), parent.end(), 0);
+
+  vector<Edge> mst;
+  int mst_weight = 0;
+  for (Edge& e : edges) {
+    if (find(parent, e.u) != find(parent, e.v)) {
+      unite(parent, rank, e.u, e.v);
+      mst.push_back(e);
+      mst_weight += e.weight;
+    }
+  }
+
+  int second_best = INT_MAX;
+  for (Edge removed : mst) {
+    vector<int> p(n), r(n, 0);
+    iota(p.begin(), p.end(), 0);
+    int weight = 0, count = 0;
+    for (Edge& e : edges) {
+      if (e.u == removed.u && e.v == removed.v && e.weight == removed.weight) continue;
+      if (find(p, e.u) != find(p, e.v)) {
+        unite(p, r, e.u, e.v);
+        weight += e.weight;
+        count++;
+      }
+    }
+    if (count == n - 1) second_best = min(second_best, weight);
+  }
+  return second_best;
+}</code></pre>
+
+  <h3>2. Minimum Cost to Connect All Cities</h3>
+  <pre><code>int minimumCost(int n, vector&lt;Edge&gt;& edges) {
+  return kruskal(n, edges);
+}</code></pre>
+
+  <h2>Hard Problem</h2>
+  <h3>1. Maximum Edge Weight in MST Path Between Two Nodes</h3>
+  <p>Use Kruskal to build MST, then preprocess tree for LCA with max edge weight query.</p>
+  <pre><code>// This needs Binary Lifting (not shown fully here). Concept:
+// - Build MST with Kruskal
+// - Use DFS + Binary Lifting to preprocess max edge weight between nodes
+// - Query max edge on path using LCA
+</code></pre>
+
+  <h2>Conclusion</h2>
+  <p>Kruskal's Algorithm is a powerful and efficient method for MST-related problems. Its simplicity and performance make it a go-to choice for sparse graphs or problems where edge weights dominate computation.</p>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prim's Algorithm: Explanation and Examples</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #2c3e50; }
+        pre { background-color: #f4f4f4; padding: 10px; overflow-x: auto; }
+        code { font-family: Consolas, monospace; }
+    </style>
+</head>
+<body>
+    <h1>Prim's Algorithm</h1>
+    <h2>Explanation</h2>
+    <p>
+        Prim's algorithm is a greedy algorithm that finds a minimum spanning tree (MST) for a weighted undirected graph. The MST is a subset of the edges forming a tree that connects all vertices with the minimum possible total edge weight.
+    </p>
+    <h3>Steps of Prim's Algorithm:</h3>
+    <ol>
+        <li>Initialize a priority queue and a set to track visited nodes.</li>
+        <li>Start from any node and add its edges to the queue.</li>
+        <li>Repeat the following until all nodes are visited:
+            <ul>
+                <li>Extract the smallest edge from the queue.</li>
+                <li>If the destination node is not visited, add it to the MST and push its edges to the queue.</li>
+            </ul>
+        </li>
+    </ol>
+
+    <h3>Time Complexity:</h3>
+    <ul>
+        <li>Using Min-Heap and Adjacency List: <strong>O(E log V)</strong>, where E = number of edges, V = number of vertices.</li>
+    </ul>
+
+    <h3>Space Complexity:</h3>
+    <ul>
+        <li><strong>O(V + E)</strong> for storing the graph and the priority queue.</li>
+    </ul>
+
+    <h2>Easy Problems</h2>
+    <h3>Problem 1: Minimum Cost to Connect All Points (Simplified Graph)</h3>
+    <pre><code>/* C++ Code */
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+int primSimple(vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt;& graph, int n) {
+    priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, greater&lt;&gt;&gt; pq;
+    vector&lt;bool&gt; visited(n, false);
+    int total = 0;
+    pq.push({0, 0});
+
+    while (!pq.empty()) {
+        auto [cost, u] = pq.top(); pq.pop();
+        if (visited[u]) continue;
+        visited[u] = true;
+        total += cost;
+
+        for (auto [v, w] : graph[u])
+            if (!visited[v]) pq.push({w, v});
+    }
+    return total;
+}</code></pre>
+
+    <h3>Problem 2: Build Roads Between Cities</h3>
+    <p>Given cities and road costs, connect all cities with minimum total cost.</p>
+    <pre><code>/* Graph input same as above, call primSimple(graph, n) */</code></pre>
+
+    <h2>Intermediate Problems</h2>
+    <h3>Problem 1: Design Network with Redundancy</h3>
+    <p>Find the MST and then analyze second-best MST for backup routes.</p>
+    <pre><code>// Use Prim's to get MST, then test MST - e + e' for each non-MST edge.</code></pre>
+
+    <h3>Problem 2: Island Connection</h3>
+    <p>Each island connected via bridges of given costs; connect all with min total cost.</p>
+    <pre><code>// Similar to primSimple, graph built with input bridge costs.</code></pre>
+
+    <h2>Hard Problem</h2>
+    <h3>Problem: Optimize Power Grid</h3>
+    <p>Connect a set of power stations and cities at minimal cost, with special discount rules.</p>
+    <pre><code>/* Advanced Prim's with modified edge weights based on discount rules */</code></pre>
+
+    <h2>Conclusion</h2>
+    <p>Prim's algorithm is essential for solving MST-related problems efficiently. Its greedy nature ensures optimal results in connecting nodes with minimal total cost.</p>
+</body>
+</html>

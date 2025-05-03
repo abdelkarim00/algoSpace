@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Topological Sort - Algorithm and Problems</title>
+</head>
+<body>
+<h1>Topological Sort - Algorithm and Problems</h1>
+
+<h2>Algorithm Explanation</h2>
+<p>Topological sorting is applicable only to Directed Acyclic Graphs (DAGs). It orders vertices such that for every directed edge u → v, vertex u comes before v in the ordering.</p>
+
+<h3>Approach (Kahn's Algorithm - BFS Based)</h3>
+<ol>
+  <li>Compute in-degree for each node.</li>
+  <li>Initialize a queue with all nodes having in-degree 0.</li>
+  <li>While the queue is not empty:
+    <ul>
+      <li>Pop a node from the queue and add it to the result.</li>
+      <li>Decrease in-degree of its neighbors. If in-degree becomes 0, add to queue.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p><strong>O(V + E)</strong> where V = number of vertices, E = number of edges.</p>
+
+<h3>Memory Complexity</h3>
+<p><strong>O(V + E)</strong> for adjacency list and auxiliary structures like in-degree and queue.</p>
+
+<h2>Easy Problems</h2>
+
+<h3>1. Course Schedule</h3>
+<p>Given prerequisites, determine if all courses can be finished.</p>
+<pre><code>bool canFinish(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) {
+    vector&lt;vector&lt;int&gt;&gt; graph(numCourses);
+    vector&lt;int&gt; in_degree(numCourses, 0);
+    for (auto p : prerequisites) {
+        graph[p[1]].push_back(p[0]);
+        in_degree[p[0]]++;
+    }
+    queue&lt;int&gt; q;
+    for (int i = 0; i &lt; numCourses; ++i)
+        if (in_degree[i] == 0) q.push(i);
+
+    int count = 0;
+    while (!q.empty()) {
+        int node = q.front(); q.pop(); count++;
+        for (int neighbor : graph[node])
+            if (--in_degree[neighbor] == 0) q.push(neighbor);
+    }
+    return count == numCourses;
+}</code></pre>
+
+<h3>2. Task Ordering</h3>
+<p>Return one valid order of tasks given dependency rules.</p>
+<pre><code>vector&lt;int&gt; findOrder(int numTasks, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) {
+    vector&lt;vector&lt;int&gt;&gt; graph(numTasks);
+    vector&lt;int&gt; in_degree(numTasks, 0);
+    for (auto &p : prerequisites) {
+        graph[p[1]].push_back(p[0]);
+        in_degree[p[0]]++;
+    }
+    queue&lt;int&gt; q;
+    for (int i = 0; i &lt; numTasks; ++i)
+        if (in_degree[i] == 0) q.push(i);
+
+    vector&lt;int&gt; order;
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        order.push_back(u);
+        for (int v : graph[u])
+            if (--in_degree[v] == 0) q.push(v);
+    }
+    return (order.size() == numTasks) ? order : vector&lt;int&gt;();
+}</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>1. Alien Dictionary</h3>
+<p>Determine the order of characters in an alien language.</p>
+<pre><code>string alienOrder(vector&lt;string&gt;& words) {
+    unordered_map&lt;char, unordered_set&lt;char&gt;&gt; graph;
+    unordered_map&lt;char, int&gt; in_degree;
+    for (string word : words)
+        for (char c : word) in_degree[c] = 0;
+
+    for (int i = 0; i &lt; words.size() - 1; ++i) {
+        string w1 = words[i], w2 = words[i + 1];
+        int len = min(w1.size(), w2.size());
+        for (int j = 0; j &lt; len; ++j) {
+            if (w1[j] != w2[j]) {
+                if (!graph[w1[j]].count(w2[j])) {
+                    graph[w1[j]].insert(w2[j]);
+                    in_degree[w2[j]]++;
+                }
+                break;
+            }
+        }
+    }
+    queue&lt;char&gt; q;
+    for (auto &[c, deg] : in_degree)
+        if (deg == 0) q.push(c);
+
+    string result;
+    while (!q.empty()) {
+        char c = q.front(); q.pop();
+        result += c;
+        for (char nei : graph[c])
+            if (--in_degree[nei] == 0) q.push(nei);
+    }
+    return (result.size() == in_degree.size()) ? result : "";
+}</code></pre>
+
+<h3>2. Build System Dependency</h3>
+<p>Given file dependencies, output build order.</p>
+<pre><code>vector&lt;string&gt; buildOrder(vector&lt;pair&lt;string, string&gt;&gt;& dependencies) {
+    unordered_map&lt;string, vector&lt;string&gt;&gt; graph;
+    unordered_map&lt;string, int&gt; in_degree;
+    for (auto &dep : dependencies) {
+        graph[dep.second].push_back(dep.first);
+        in_degree[dep.first]++;
+        if (!in_degree.count(dep.second)) in_degree[dep.second] = 0;
+    }
+    queue&lt;string&gt; q;
+    for (auto &[node, deg] : in_degree)
+        if (deg == 0) q.push(node);
+
+    vector&lt;string&gt; order;
+    while (!q.empty()) {
+        string node = q.front(); q.pop();
+        order.push_back(node);
+        for (string &nei : graph[node])
+            if (--in_degree[nei] == 0) q.push(nei);
+    }
+    return (order.size() == in_degree.size()) ? order : vector&lt;string&gt;();
+}</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>1. Minimum Time to Complete All Tasks</h3>
+<p>Each task has duration and dependencies. Find minimum total time.</p>
+<pre><code>int minimumTime(int n, vector&lt;vector&lt;int&gt;&gt;& relations, vector&lt;int&gt;& time) {
+    vector&lt;vector&lt;int&gt;&gt; graph(n);
+    vector&lt;int&gt; in_degree(n, 0), dp(n);
+    for (auto &r : relations) {
+        graph[r[0] - 1].push_back(r[1] - 1);
+        in_degree[r[1] - 1]++;
+    }
+    queue&lt;int&gt; q;
+    for (int i = 0; i &lt; n; ++i) {
+        if (in_degree[i] == 0) {
+            q.push(i);
+            dp[i] = time[i];
+        }
+    }
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int v : graph[u]) {
+            dp[v] = max(dp[v], dp[u] + time[v]);
+            if (--in_degree[v] == 0) q.push(v);
+        }
+    }
+    return *max_element(dp.begin(), dp.end());
+}</code></pre>
+
+</body>
+</html>

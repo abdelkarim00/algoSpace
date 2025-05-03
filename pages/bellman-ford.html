@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bellman-Ford Algorithm in C++</title>
+</head>
+<body>
+
+<h1>Bellman-Ford Algorithm</h1>
+
+<h2>1. Explanation</h2>
+<p>The Bellman-Ford algorithm is used to find the shortest paths from a single source vertex to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, Bellman-Ford can handle graphs with negative weight edges.</p>
+
+<h3>Steps:</h3>
+<ol>
+  <li>Initialize the distance to the source as 0 and all other distances as infinity.</li>
+  <li>Relax all edges |V|-1 times (where V is the number of vertices).</li>
+  <li>Check for negative-weight cycles: if you can relax any edge further, a cycle exists.</li>
+</ol>
+
+<h3>Time Complexity:</h3>
+<p><code>O(V * E)</code>, where V = number of vertices, E = number of edges.</p>
+
+<h3>Space Complexity:</h3>
+<p><code>O(V)</code> for distance array.</p>
+
+<h2>2. Easy Problems</h2>
+
+<h3>Problem 1: Single Source Shortest Path</h3>
+<pre><code>// C++ Code
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct Edge {
+    int src, dest, weight;
+};
+
+void bellmanFord(int V, int E, int src, vector&lt;Edge&gt;& edges) {
+    vector&lt;int&gt; dist(V, INT_MAX);
+    dist[src] = 0;
+
+    for (int i = 1; i &lt; V; ++i) {
+        for (auto edge : edges) {
+            if (dist[edge.src] != INT_MAX && dist[edge.src] + edge.weight &lt; dist[edge.dest]) {
+                dist[edge.dest] = dist[edge.src] + edge.weight;
+            }
+        }
+    }
+
+    for (auto edge : edges) {
+        if (dist[edge.src] != INT_MAX && dist[edge.src] + edge.weight &lt; dist[edge.dest]) {
+            cout &lt;&lt; "Negative weight cycle detected." &lt;&lt; endl;
+            return;
+        }
+    }
+
+    for (int i = 0; i &lt; V; ++i)
+        cout &lt;&lt; "Distance to vertex " &lt;&lt; i &lt;&lt; ": " &lt;&lt; dist[i] &lt;&lt; endl;
+}</code></pre>
+
+<h3>Problem 2: Detecting Negative Weight Cycle</h3>
+<pre><code>// Use the same Bellman-Ford function above
+// If negative weight cycle is detected in last check, we know it exists</code></pre>
+
+<h2>3. Intermediate Problems</h2>
+
+<h3>Problem 1: Currency Arbitrage (Negative cycle detection)</h3>
+<pre><code>// Model exchange rates as negative log of rates to detect arbitrage cycle
+// Use Bellman-Ford to detect a negative cycle</code></pre>
+
+<h3>Problem 2: Road System with Toll Rebates</h3>
+<pre><code>// Use Bellman-Ford to find cheapest paths considering toll rebates (negative weights)
+// Same base function applies</code></pre>
+
+<h2>4. Hard Problem</h2>
+
+<h3>Problem: Time-Traveling Trader</h3>
+<p>You can make a profit if a negative cycle exists. Use Bellman-Ford to detect it.</p>
+<pre><code>// Input graph of cities with buy/sell costs; edges represent trades
+// Detect profit cycles as negative cycles in cost graph
+// Same logic as above with appropriate modeling</code></pre>
+
+<h2>Conclusion</h2>
+<p>Bellman-Ford is a versatile and robust algorithm for shortest path problems, particularly when dealing with negative weights or cycles. While it's slower than Dijkstra's in positive-weight graphs, its ability to detect negative cycles is unmatched.</p>
+
+</body>
+</html>

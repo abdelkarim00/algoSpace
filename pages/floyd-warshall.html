@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Floyd-Warshall Algorithm Guide</title>
+</head>
+<body>
+  <h1>Floyd-Warshall Algorithm</h1>
+  <p>The Floyd-Warshall algorithm is a classic dynamic programming method used to find the shortest paths between all pairs of vertices in a weighted graph (can handle negative weights but not negative cycles).</p>
+
+  <h2>Algorithm Explanation</h2>
+  <p>Let <code>dist[i][j]</code> be the shortest distance from vertex <code>i</code> to <code>j</code>. Initialize <code>dist[i][j]</code> to the weight of edge <code>(i, j)</code>, or infinity if no edge exists. The diagonal <code>dist[i][i]</code> is set to 0. For each vertex <code>k</code>, check if going through <code>k</code> shortens the path from <code>i</code> to <code>j</code>:</p>
+  <pre><code>for (int k = 0; k < V; ++k)
+  for (int i = 0; i < V; ++i)
+    for (int j = 0; j < V; ++j)
+      if (dist[i][k] + dist[k][j] < dist[i][j])
+        dist[i][j] = dist[i][k] + dist[k][j];</code></pre>
+
+  <h2>Complexity</h2>
+  <ul>
+    <li><strong>Time Complexity:</strong> O(V<sup>3</sup>)</li>
+    <li><strong>Space Complexity:</strong> O(V<sup>2</sup>)</li>
+  </ul>
+
+  <h2>Easy Problems</h2>
+
+  <h3>1. Find All Pairs Shortest Paths</h3>
+  <p>Given a graph, compute shortest distances between every pair of vertices.</p>
+  <pre><code>const int INF = 1e9;
+const int V = 4;
+int graph[V][V] = {
+  {0, 5, INF, 10},
+  {INF, 0, 3, INF},
+  {INF, INF, 0, 1},
+  {INF, INF, INF, 0}
+};
+
+void floydWarshall(int dist[V][V]) {
+  for (int k = 0; k < V; k++)
+    for (int i = 0; i < V; i++)
+      for (int j = 0; j < V; j++)
+        if (dist[i][k] + dist[k][j] < dist[i][j])
+          dist[i][j] = dist[i][k] + dist[k][j];
+}</code></pre>
+
+  <h3>2. Detect Reachability Between Nodes</h3>
+  <p>Using Floyd-Warshall, determine if a path exists between two vertices.</p>
+  <pre><code>bool reachable(int dist[V][V], int u, int v) {
+  return dist[u][v] &lt; INF;
+}</code></pre>
+
+  <h2>Intermediate Problems</h2>
+
+  <h3>1. Find the Graph Center</h3>
+  <p>The center is the node with the minimum maximum distance to all other nodes.</p>
+  <pre><code>int findGraphCenter(int dist[V][V]) {
+  int center = -1, minMaxDist = INF;
+  for (int i = 0; i < V; i++) {
+    int maxDist = 0;
+    for (int j = 0; j < V; j++) {
+      if (i != j) maxDist = max(maxDist, dist[i][j]);
+    }
+    if (maxDist < minMaxDist) {
+      minMaxDist = maxDist;
+      center = i;
+    }
+  }
+  return center;
+}</code></pre>
+
+  <h3>2. Count the Number of Shortest Paths</h3>
+  <p>Modify the algorithm to also count how many different shortest paths exist between pairs.</p>
+  <pre><code>int countPaths[V][V];
+void floydWarshallCount(int dist[V][V]) {
+  for (int i = 0; i < V; i++)
+    for (int j = 0; j < V; j++)
+      countPaths[i][j] = (dist[i][j] &lt; INF);
+
+  for (int k = 0; k < V; k++)
+    for (int i = 0; i < V; i++)
+      for (int j = 0; j < V; j++) {
+        if (dist[i][k] + dist[k][j] < dist[i][j]) {
+          dist[i][j] = dist[i][k] + dist[k][j];
+          countPaths[i][j] = countPaths[i][k] * countPaths[k][j];
+        } else if (dist[i][k] + dist[k][j] == dist[i][j]) {
+          countPaths[i][j] += countPaths[i][k] * countPaths[k][j];
+        }
+      }
+}</code></pre>
+
+  <h2>Hard Problem</h2>
+
+  <h3>Minimize the Longest Distance After Adding One Edge</h3>
+  <p>Given a graph, compute the current longest shortest path, and evaluate where adding one edge reduces it the most.</p>
+  <pre><code>int minimizeLongestDistance(int dist[V][V]) {
+  int best = INF;
+  for (int u = 0; u < V; u++) {
+    for (int v = u + 1; v < V; v++) {
+      if (dist[u][v] &gt; 1) { // simulate adding an edge of weight 1
+        int temp[V][V];
+        memcpy(temp, dist, sizeof(temp));
+        for (int i = 0; i < V; i++) {
+          for (int j = 0; j < V; j++) {
+            temp[i][j] = min(temp[i][j], min(temp[i][u] + 1 + temp[v][j], temp[i][v] + 1 + temp[u][j]));
+          }
+        }
+        int maxDist = 0;
+        for (int i = 0; i < V; i++)
+          for (int j = 0; j < V; j++)
+            maxDist = max(maxDist, temp[i][j]);
+        best = min(best, maxDist);
+      }
+    }
+  }
+  return best;
+}</code></pre>
+
+</body>
+</html>

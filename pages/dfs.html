@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Depth-First Search (DFS) in C++</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+    h1, h2 { color: #2c3e50; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    code { color: #e74c3c; }
+  </style>
+</head>
+<body>
+
+  <h1>Depth-First Search (DFS)</h1>
+
+  <h2>Algorithm Explanation</h2>
+  <p>Depth-First Search (DFS) is a graph traversal algorithm that explores as far as possible along each branch before backtracking. It can be implemented recursively or iteratively using a stack.</p>
+
+  <h2>Time and Space Complexity</h2>
+  <ul>
+    <li><strong>Time Complexity:</strong> O(V + E), where V is the number of vertices and E is the number of edges.</li>
+    <li><strong>Space Complexity:</strong> O(V), due to the visited array and the recursion stack.</li>
+  </ul>
+
+  <h2>Easy Problems</h2>
+
+  <h3>1. DFS Traversal of a Graph</h3>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void DFS(int v, vector&lt;bool&gt;&amp; visited, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    visited[v] = true;
+    cout &lt;&lt; v &lt;&lt; " ";
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            DFS(u, visited, adj);
+        }
+    }
+}
+
+int main() {
+    int V = 5;
+    vector&lt;vector&lt;int&gt;&gt; adj(V);
+    adj[0] = {1, 2};
+    adj[1] = {0, 3, 4};
+    adj[2] = {0};
+    adj[3] = {1};
+    adj[4] = {1};
+
+    vector&lt;bool&gt; visited(V, false);
+    DFS(0, visited, adj);
+    return 0;
+}
+  </code></pre>
+
+  <h3>2. Detect Cycle in an Undirected Graph</h3>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+bool DFS(int v, int parent, vector&lt;bool&gt;&amp; visited, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    visited[v] = true;
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            if (DFS(u, v, visited, adj)) return true;
+        } else if (u != parent) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool hasCycle(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    vector&lt;bool&gt; visited(V, false);
+    for (int v = 0; v &lt; V; ++v) {
+        if (!visited[v]) {
+            if (DFS(v, -1, visited, adj)) return true;
+        }
+    }
+    return false;
+}
+  </code></pre>
+
+  <h2>Intermediate Problems</h2>
+
+  <h3>1. Count Connected Components in a Graph</h3>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void DFS(int v, vector&lt;bool&gt;&amp; visited, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    visited[v] = true;
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            DFS(u, visited, adj);
+        }
+    }
+}
+
+int countComponents(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    vector&lt;bool&gt; visited(V, false);
+    int count = 0;
+    for (int v = 0; v &lt; V; ++v) {
+        if (!visited[v]) {
+            DFS(v, visited, adj);
+            count++;
+        }
+    }
+    return count;
+}
+  </code></pre>
+
+  <h3>2. Topological Sort of a DAG</h3>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+using namespace std;
+
+void DFS(int v, vector&lt;bool&gt;&amp; visited, stack&lt;int&gt;&amp; Stack, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    visited[v] = true;
+    for (int u : adj[v]) {
+        if (!visited[u]) {
+            DFS(u, visited, Stack, adj);
+        }
+    }
+    Stack.push(v);
+}
+
+void topologicalSort(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj) {
+    stack&lt;int&gt; Stack;
+    vector&lt;bool&gt; visited(V, false);
+    for (int v = 0; v &lt; V; ++v) {
+        if (!visited[v]) {
+            DFS(v, visited, Stack, adj);
+        }
+    }
+    while (!Stack.empty()) {
+        cout &lt;&lt; Stack.top() &lt;&lt; " ";
+        Stack.pop();
+    }
+}
+  </code></pre>
+
+  <h2>Hard Problem</h2>
+
+  <h3>Find All Paths from Source to Target in a DAG</h3>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void DFS(int v, int target, vector&lt;vector&lt;int&gt;&gt;&amp; adj, vector&lt;int&gt;&amp; path, vector&lt;vector&lt;int&gt;&gt;&amp; allPaths) {
+    path.push_back(v);
+    if (v == target) {
+        allPaths.push_back(path);
+    } else {
+        for (int u : adj[v]) {
+            DFS(u, target, adj, path, allPaths);
+        }
+    }
+    path.pop_back();
+}
+
+vector&lt;vector&lt;int&gt;&gt; findAllPaths(int V, vector&lt;vector&lt;int&gt;&gt;&amp; adj, int source, int target) {
+    vector&lt;vector&lt;int&gt;&gt; allPaths;
+    vector&lt;int&gt; path;
+    DFS(source, target, adj, path, allPaths);
+    return allPaths;
+}
+  </code></pre>
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dijkstra's Algorithm Explained</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+    h1, h2, h3 { color: #2c3e50; }
+    pre { background: #f4f4f4; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    code { font-family: Consolas, monospace; }
+  </style>
+</head>
+<body>
+  <h1>Dijkstra's Algorithm: Detailed Explanation</h1>
+
+  <h2>Algorithm Overview</h2>
+  <p>Dijkstra's algorithm is a classic algorithm used to find the shortest path from a single source node to all other nodes in a weighted graph with non-negative edge weights.</p>
+
+  <h2>Steps</h2>
+  <ol>
+    <li>Initialize distances from the source to all nodes as infinity, except the source itself (0).</li>
+    <li>Use a min-priority queue (min-heap) to select the node with the smallest known distance.</li>
+    <li>For each neighbor of the current node, update their distances if a shorter path is found.</li>
+    <li>Repeat until all nodes have been processed.</li>
+  </ol>
+
+  <h2>Time and Memory Complexity</h2>
+  <ul>
+    <li><strong>Time Complexity:</strong> O((V + E) log V) using a binary heap</li>
+    <li><strong>Space Complexity:</strong> O(V + E) for adjacency list and distance tracking</li>
+  </ul>
+
+  <h2>Easy Problems</h2>
+
+  <h3>1. Find shortest path in a small road network</h3>
+  <pre><code>// C++ Code
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+const int INF = 1e9;
+
+void dijkstra(int src, vector&lt;pair&lt;int,int&gt;&gt; adj[], vector&lt;int&gt; &dist) {
+    priority_queue&lt;pair&lt;int,int&gt;, vector&lt;pair&lt;int,int&gt;&gt;, greater&lt;&gt;&gt; pq;
+    pq.push({0, src});
+    dist[src] = 0;
+    while (!pq.empty()) {
+        int u = pq.top().second, d = pq.top().first;
+        pq.pop();
+        if (d &gt; dist[u]) continue;
+        for (auto [v, w] : adj[u]) {
+            if (dist[u] + w &lt; dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+}</code></pre>
+
+  <h3>2. Minimum time to deliver a message</h3>
+  <p>Given nodes as communication towers, calculate the fastest time to deliver a message from one tower to another.</p>
+
+  <h2>Intermediate Problems</h2>
+
+  <h3>1. Network Delay Time (Leetcode 743)</h3>
+  <pre><code>// Assume n nodes, times is edge list
+int networkDelayTime(vector&lt;vector&lt;int&gt;&gt;& times, int n, int k) {
+    vector&lt;pair&lt;int,int&gt;&gt; adj[n+1];
+    for (auto &e : times)
+        adj[e[0]].push_back({e[1], e[2]});
+    vector&lt;int&gt; dist(n+1, 1e9);
+    dijkstra(k, adj, dist);
+    int res = *max_element(dist.begin()+1, dist.end());
+    return res == 1e9 ? -1 : res;
+}</code></pre>
+
+  <h3>2. Cheapest Flights Within K Stops</h3>
+  <p>Use Dijkstra variant with state tracking for number of stops.</p>
+  <pre><code>int findCheapestPrice(int n, vector&lt;vector&lt;int&gt;&gt;& flights, int src, int dst, int k) {
+    vector&lt;pair&lt;int,int&gt;&gt; adj[n];
+    for (auto &f : flights) adj[f[0]].emplace_back(f[1], f[2]);
+    queue&lt;tuple&lt;int,int,int&gt;&gt; q;
+    vector&lt;int&gt; cost(n, INT_MAX);
+    q.push({src, 0, 0});
+    while (!q.empty()) {
+        auto [u, c, stops] = q.front(); q.pop();
+        if (stops &gt; k) continue;
+        for (auto [v, w] : adj[u]) {
+            if (c + w &lt; cost[v]) {
+                cost[v] = c + w;
+                q.push({v, cost[v], stops+1});
+            }
+        }
+    }
+    return cost[dst] == INT_MAX ? -1 : cost[dst];
+}</code></pre>
+
+  <h2>Hard Problem</h2>
+  <h3>1. Path with Minimum Effort (Leetcode 1631)</h3>
+  <p>Apply Dijkstra with edge weights based on maximum effort.</p>
+  <pre><code>int minimumEffortPath(vector&lt;vector&lt;int&gt;&gt;& heights) {
+    int m = heights.size(), n = heights[0].size();
+    vector&lt;vector&lt;int&gt;&gt; dist(m, vector&lt;int&gt;(n, INT_MAX));
+    priority_queue&lt;tuple&lt;int,int,int&gt;, vector&lt;tuple&lt;int,int,int&gt;&gt;, greater&lt;&gt;&gt; pq;
+    pq.push({0, 0, 0});
+    dist[0][0] = 0;
+    int dir[5] = {-1, 0, 1, 0, -1};
+    while (!pq.empty()) {
+        auto [d, x, y] = pq.top(); pq.pop();
+        if (x == m-1 && y == n-1) return d;
+        for (int i = 0; i &lt; 4; ++i) {
+            int nx = x + dir[i], ny = y + dir[i+1];
+            if (nx &gt;= 0 && ny &gt;= 0 && nx &lt; m && ny &lt; n) {
+                int nd = max(d, abs(heights[nx][ny] - heights[x][y]));
+                if (nd &lt; dist[nx][ny]) {
+                    dist[nx][ny] = nd;
+                    pq.push({nd, nx, ny});
+                }
+            }
+        }
+    }
+    return 0;
+}</code></pre>
+
+  <p>All these problems demonstrate the power and flexibility of Dijkstra’s algorithm in handling various pathfinding challenges in graphs.</p>
+</body>
+</html>
