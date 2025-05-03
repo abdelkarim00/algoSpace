@@ -46,6 +46,7 @@ A* (A-star) is a best-first graph search algorithm that finds the shortest path 
 
 <h3>1. Grid Path (AtCoder ABC184D)</h3>
 <p><strong>Problem:</strong> Given an <code>H×W</code> grid with free cells <code>.</code> and obstacles <code>#</code>, find the minimum number of steps from start <code>(sx, sy)</code> to goal <code>(gx, gy)</code>. You can move in four directions.</p>
+<p><strong>Solution Explanation:</strong> We model the grid as a graph where each cell is a node and edges connect adjacent free cells with cost 1. Using A*, we take Manhattan distance as an admissible heuristic (<code>h(n)=|x-gx|+|y-gy|</code>), which never overestimates the true remaining cost. Thus A* will find the optimal path, exploring fewer nodes than BFS when obstacles exist.</p>
 <pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
 typedef pair<int,int> pii;
@@ -118,7 +119,8 @@ int main() {
 </code></pre>
 
 <h3>2. Knight Moves (AtCoder ARC010B)</h3>
-<p><strong>Problem:</strong> On an <code>N×N</code> board, find the minimum knight moves from <code>(sx, sy)</code> to <code>(gx, gy)</code>.</p>
+<p><strong>Problem:</strong> On an <code>N×N</code> chessboard, find the minimum number of knight moves from <code>(sx, sy)</code> to <code>(gx, gy)</code>.</p>
+<p><strong>Solution Explanation:</strong> We represent each board position as a node, edges connect valid knight moves with cost 1. An admissible heuristic for knight distance is <code>h(dx,dy)=max((|dx|+1)/2,(|dx|+|dy|+2)/3)</code>, guaranteeing <code>h</code> never overestimates. A* guided by this heuristic efficiently finds the shortest path.</p>
 <pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
@@ -193,7 +195,8 @@ int main() {
 <h2>Intermediate-Level Problems</h2>
 
 <h3>3. Sliding Puzzle (AtCoder ABC263E)</h3>
-<p><strong>Problem:</strong> Solve a 3×3 sliding puzzle, moving tiles to reach the goal state <code>123456780</code>.</p>
+<p><strong>Problem:</strong> Solve a 3×3 sliding puzzle to reach the goal state <code>123456780</code>.</p>
+<p><strong>Solution Explanation:</strong> We treat each permutation of tiles as a node, and moves as edges of cost 1. We use the sum of Manhattan distances of each tile from its goal position as an admissible heuristic, ensuring optimality of A*. This dramatically reduces states explored versus uninformed BFS.</p>
 <pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
 using State = string;
@@ -274,7 +277,8 @@ int main() {
 </code></pre>
 
 <h3>4. Robot on Ice (Codeforces 239B)</h3>
-<p><strong>Problem:</strong> A robot slides on ice: once it moves in a direction, it continues until hitting an obstacle or boundary. Find minimum slides from start to goal.</p>
+<p><strong>Problem:</strong> A robot slides on ice: once it moves in a direction, it continues until hitting an obstacle or boundary. Find the minimum number of slides from start to goal.</p>
+<p><strong>Solution Explanation:</strong> We create nodes for each position; edges connect to landing positions after a slide with cost 1. As heuristic, we use Euclidean distance divided by maximum grid dimension, which underestimates slide count, making it admissible. A* thus quickly focuses search toward the goal.</p>
 <pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
 typedef pair<int,int> pii;
@@ -354,7 +358,8 @@ int main() {
 <h2>Hard-Level Problem</h2>
 
 <h3>Naval Warfare (AtCoder AGC029D)</h3>
-<p><strong>Problem:</strong> Given a sea grid with ships (~ cost 2) and open water (cost 1), find minimum fuel path from start to goal using A*.</p>
+<p><strong>Problem:</strong> Given a sea grid with ships (~ cost 2) and open water (cost 1), find the minimum fuel path from start to goal using A*.</p>
+<p><strong>Solution Explanation:</strong> We define node costs by terrain: open water =1, ships =2. Edges connect adjacent cells. Heuristic is Manhattan distance, which never overestimates the remaining fuel. A* guided by this heuristic finds the minimum-fuel path efficiently.</p>
 <pre><code class="language-cpp">#include &lt;bits/stdc++.h&gt;
 using namespace std;
 using ll = long long;
