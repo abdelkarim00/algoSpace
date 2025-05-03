@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kosaraju's Algorithm and Applications</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.5; }
+    h1, h2, h3 { color: #2F4F4F; }
+    code { background-color: #f0f0f0; padding: 2px 4px; }
+    pre { background-color: #f8f8f8; padding: 10px; border: 1px solid #ccc; overflow-x: auto; }
+    ul { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<h1>Kosaraju's Algorithm</h1>
+<p>
+Kosaraju's algorithm is a classic method for finding <em>strongly connected components</em> (SCCs) in a directed graph. A <strong>strongly connected component</strong> is defined as a maximal set of vertices such that every vertex is reachable from every other vertex within the set. In other words, for any two vertices <code>u</code> and <code>v</code> in a strongly connected component, there exist directed paths <code>u→...→v</code> and <code>v→...→u</code>.
+</p>
+
+<p><strong>Algorithm Steps:</strong></p>
+<ol>
+<li>Perform a DFS on the original graph to compute a <em>finishing order</em> for all vertices.</li>
+<li>Construct the transpose (reversed) graph by reversing every edge.</li>
+<li>Process the vertices in decreasing order of their finishing times. Run DFS on the transpose graph, collecting one SCC per traversal.</li>
+</ol>
+
+<p><strong>Complexity:</strong> Kosaraju's algorithm runs in <code>O(V + E)</code> time and uses <code>O(V + E)</code> memory.</p>
+
+<h2>Problems Solvable with Kosaraju's Algorithm</h2>
+<p>These problems from Codeforces and AtCoder apply Kosaraju's algorithm or SCC computation techniques.</p>
+
+<!-- Easy-level problems are already included -->
+
+<h2>Intermediate-Level Problems</h2>
+
+<h3>Domino Principle (Codeforces 1312D)</h3>
+<p><strong>Goal:</strong> Determine minimum dominoes needed to topple all by pushing some of them initially. SCCs can be used to find domino groups.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; g, rg;
+vector&lt;bool&gt; visited;
+stack&lt;int&gt; st;
+
+void dfs1(int u) {
+    visited[u] = true;
+    for (int v : g[u])
+        if (!visited[v]) dfs1(v);
+    st.push(u);
+}
+
+void dfs2(int u) {
+    visited[u] = true;
+    for (int v : rg[u])
+        if (!visited[v]) dfs2(v);
+}
+
+int main() {
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    g.resize(n); rg.resize(n);
+    for (int i = 0; i &lt; m; ++i) {
+        int x, y;
+        cin &gt;&gt; x &gt;&gt; y;
+        --x; --y;
+        g[x].push_back(y);
+        rg[y].push_back(x);
+    }
+
+    visited.assign(n, false);
+    for (int i = 0; i &lt; n; ++i) if (!visited[i]) dfs1(i);
+
+    visited.assign(n, false);
+    int ans = 0;
+    while (!st.empty()) {
+        int u = st.top(); st.pop();
+        if (!visited[u]) {
+            dfs2(u);
+            ans++;
+        }
+    }
+    cout &lt;&lt; ans &lt;&lt; endl;
+}</code></pre>
+
+<h3>Calling Circles (UVa 247 - used in many online judges)</h3>
+<p><strong>Goal:</strong> Identify groups where everyone can reach everyone else (SCCs).</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;map&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+#include &lt;set&gt;
+using namespace std;
+
+map&lt;string, int&gt; name2id;
+vector&lt;string&gt; id2name;
+vector&lt;vector&lt;int&gt;&gt; g, rg;
+vector&lt;bool&gt; vis;
+stack&lt;int&gt; st;
+
+void dfs1(int u) {
+    vis[u] = true;
+    for (int v : g[u]) if (!vis[v]) dfs1(v);
+    st.push(u);
+}
+
+void dfs2(int u, set&lt;int&gt;&amp; comp) {
+    vis[u] = true;
+    comp.insert(u);
+    for (int v : rg[u]) if (!vis[v]) dfs2(v, comp);
+}
+
+int main() {
+    int n, m; cin &gt;&gt; n &gt;&gt; m;
+    g.resize(n); rg.resize(n);
+    for (int i = 0; i &lt; m; ++i) {
+        string a, b;
+        cin &gt;&gt; a &gt;&gt; b;
+        if (name2id.count(a) == 0) {
+            name2id[a] = name2id.size();
+            id2name.push_back(a);
+        }
+        if (name2id.count(b) == 0) {
+            name2id[b] = name2id.size();
+            id2name.push_back(b);
+        }
+        int u = name2id[a], v = name2id[b];
+        g[u].push_back(v);
+        rg[v].push_back(u);
+    }
+
+    vis.assign(n, false);
+    for (int i = 0; i &lt; n; ++i) if (!vis[i]) dfs1(i);
+    vis.assign(n, false);
+    while (!st.empty()) {
+        int u = st.top(); st.pop();
+        if (!vis[u]) {
+            set&lt;int&gt; comp;
+            dfs2(u, comp);
+            for (int id : comp) cout &lt;&lt; id2name[id] &lt;&lt; " ";
+            cout &lt;&lt; endl;
+        }
+    }
+}</code></pre>
+
+<h2>Hard-Level Problem</h2>
+
+<h3>Reachability Queries (Codeforces 427C)</h3>
+<p><strong>Goal:</strong> Find the minimal cost to cover all SCCs and count the number of ways to do it using the smallest node cost from each SCC.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+const int MOD = 1e9+7;
+
+vector&lt;vector&lt;int&gt;&gt; g, rg;
+vector&lt;int&gt; cost;
+vector&lt;bool&gt; vis;
+stack&lt;int&gt; st;
+
+void dfs1(int u) {
+    vis[u] = true;
+    for (int v : g[u]) if (!vis[v]) dfs1(v);
+    st.push(u);
+}
+
+int dfs2(int u, int&amp; minCost, int&amp; count) {
+    vis[u] = true;
+    if (cost[u] &lt; minCost) {
+        minCost = cost[u];
+        count = 1;
+    } else if (cost[u] == minCost) count++;
+    for (int v : rg[u])
+        if (!vis[v]) dfs2(v, minCost, count);
+    return 0;
+}
+
+int main() {
+    int n; cin &gt;&gt; n;
+    cost.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; cost[i];
+
+    g.resize(n); rg.resize(n);
+    int m; cin &gt;&gt; m;
+    for (int i = 0; i &lt; m; ++i) {
+        int u, v; cin &gt;&gt; u &gt;&gt; v; --u; --v;
+        g[u].push_back(v);
+        rg[v].push_back(u);
+    }
+
+    vis.assign(n, false);
+    for (int i = 0; i &lt; n; ++i)
+        if (!vis[i]) dfs1(i);
+
+    vis.assign(n, false);
+    long long totalCost = 0, ways = 1;
+    while (!st.empty()) {
+        int u = st.top(); st.pop();
+        if (!vis[u]) {
+            int minCost = INT_MAX, count = 0;
+            dfs2(u, minCost, count);
+            totalCost += minCost;
+            ways = (ways * count) % MOD;
+        }
+    }
+    cout &lt;&lt; totalCost &lt;&lt; " " &lt;&lt; ways &lt;&lt; endl;
+}</code></pre>
+
+</body>
+</html>
