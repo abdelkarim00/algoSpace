@@ -16,15 +16,14 @@ body {
 }
 
 pre {
-    background-color: #29292d;
-    padding: 10px;
+    background-color: #f4f4f4;
+    padding: 15px;
     border-radius: 5px;
-    overflow-x: auto;
+    font-size: 16px;
+    font-family: Consolas, monaco, monospace;
 }
-
 code {
-    font-family: Consolas, monospace;
-    color: #0163c5;
+    color: #e74c3c;
 }
 
 /* Sidebar styling */
