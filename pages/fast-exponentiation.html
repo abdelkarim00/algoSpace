@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Exponentiation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: Consolas, monaco, monospace;
+        }
+        code {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Fast Exponentiation</h1>
+
+    <p><strong>Fast Exponentiation</strong>, also known as <strong>Exponentiation by Squaring</strong>, is an algorithm to efficiently compute powers of a number. Instead of computing a^b by multiplying a by itself b times, this algorithm breaks down the computation into smaller steps using the properties of exponents:</p>
+    
+    <p>If <strong>b</strong> is even:
+    <br><code>a^b = (a^(b/2))^2</code>
+    If <strong>b</strong> is odd:
+    <br><code>a^b = a * a^(b-1)</code></p>
+
+    <h2>Time and Space Complexity</h2>
+    <ul>
+        <li><strong>Time Complexity:</strong> 
+            <ul>
+                <li>Exponentiation by squaring reduces the number of multiplications from O(b) to O(log b), where <strong>b</strong> is the exponent.</li>
+            </ul>
+        </li>
+        <li><strong>Space Complexity:</strong> O(1), because only a constant amount of space is used to store intermediate results.</li>
+    </ul>
+
+    <h2>Easy Problems Solvable by Fast Exponentiation</h2>
+
+    <h3>Problem 1: Compute a^b % n</h3>
+    <p>Given integers <strong>a</strong>, <strong>b</strong>, and <strong>n</strong>, compute <strong>a^b % n</strong>.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int fastExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int a = 3, b = 10, n = 7;
+    cout &lt;&lt; "Result: " &lt;&lt; fastExponentiation(a, b, n) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Calculate Power with Modulo</h3>
+    <p>Given <strong>a</strong> and <strong>b</strong>, find the result of <strong>a^b</strong> without overflow using the fast exponentiation technique.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+long long fastExponentiation(long long a, long long b) {
+    long long result = 1;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = result * a;
+        }
+        a = a * a;
+        b = b / 2;
+    }
+    return result;
+}
+
+int main() {
+    long long a = 2, b = 10;
+    cout &lt;&lt; "Result: " &lt;&lt; fastExponentiation(a, b) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Intermediate Problems Solvable by Fast Exponentiation</h2>
+
+    <h3>Problem 1: Compute Modular Inverse</h3>
+    <p>Given a number <strong>a</strong> and a modulus <strong>n</strong>, find the modular inverse of <strong>a</strong> modulo <strong>n</strong> using Fermat's Little Theorem and fast exponentiation. This is useful in modular arithmetic and cryptography.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int fastExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+// Function to compute modular inverse using Fermat's Little Theorem
+int modInverse(int a, int n) {
+    return fastExponentiation(a, n - 2, n);
+}
+
+int main() {
+    int a = 3, n = 7;
+    cout &lt;&lt; "Modular Inverse: " &lt;&lt; modInverse(a, n) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Find the Result of Large Exponents</h3>
+    <p>Given large numbers <strong>a</strong> and <strong>b</strong>, compute <strong>a^b</strong> modulo <strong>n</strong> efficiently using fast exponentiation.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int fastExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int a = 98765, b = 12345, n = 1000000007;
+    cout &lt;&lt; "Result: " &lt;&lt; fastExponentiation(a, b, n) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Hard Problem Solvable by Fast Exponentiation</h2>
+
+    <h3>Problem: Solve the RSA Encryption Decryption Problem</h3>
+    <p>In RSA encryption, to decrypt a message <strong>C</strong>, use the formula <strong>M = C^d mod n</strong>, where <strong>d</strong> is the private key and <strong>n</strong> is the modulus. Fast exponentiation is used to efficiently compute large powers in this context.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+// Fast exponentiation function
+int fastExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int C = 12345, d = 6789, n = 9999991;
+    cout &lt;&lt; "Decrypted Message: " &lt;&lt; fastExponentiation(C, d, n) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+</body>
+</html>

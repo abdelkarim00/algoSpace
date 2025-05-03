@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Arithmetic</title>
+</head>
+<body>
+
+    <h1>Modular Arithmetic</h1>
+
+    <p>Modular arithmetic is a system of arithmetic for integers, where numbers "wrap around" upon reaching a certain value, the modulus. It's widely used in number theory and cryptography.</p>
+
+    <h2>Algorithms and Operations</h2>
+
+    <p>Some basic modular operations include:</p>
+    <ul>
+        <li><strong>Modular Addition:</strong> (a + b) mod m</li>
+        <li><strong>Modular Subtraction:</strong> (a - b) mod m</li>
+        <li><strong>Modular Multiplication:</strong> (a * b) mod m</li>
+        <li><strong>Modular Exponentiation:</strong> (a^b) mod m</li>
+    </ul>
+
+    <h2>Time and Space Complexity</h2>
+    <p>Modular arithmetic operations have the following time and space complexities:</p>
+    <ul>
+        <li><strong>Time Complexity:</strong> 
+            <ul>
+                <li>Addition, Subtraction, Multiplication: O(1)</li>
+                <li>Modular Exponentiation: O(log b) using exponentiation by squaring</li>
+            </ul>
+        </li>
+        <li><strong>Space Complexity:</strong> O(1) for basic operations, O(log b) for storing intermediate results in modular exponentiation</li>
+    </ul>
+
+    <h2>Easy Problems Solvable by Modular Arithmetic</h2>
+
+    <h3>Problem 1: Compute (a + b) mod m</h3>
+    <p>Given integers a, b, and m, compute (a + b) mod m.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int modAdd(int a, int b, int m) {
+    return (a + b) % m;
+}
+
+int main() {
+    int a = 5, b = 7, m = 12;
+    cout &lt;&lt; "Result: " &lt;&lt; modAdd(a, b, m) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Compute (a * b) mod m</h3>
+    <p>Given integers a, b, and m, compute (a * b) mod m.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int modMultiply(int a, int b, int m) {
+    return (a * b) % m;
+}
+
+int main() {
+    int a = 5, b = 7, m = 12;
+    cout &lt;&lt; "Result: " &lt;&lt; modMultiply(a, b, m) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Intermediate Problems Solvable by Modular Arithmetic</h2>
+
+    <h3>Problem 1: Compute (a^b) mod m</h3>
+    <p>Given integers a, b, and m, compute (a^b) mod m efficiently using exponentiation by squaring.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int modExponentiate(int a, int b, int m) {
+    int result = 1;
+    a = a % m;
+    while (b &gt; 0) {
+        if (b % 2 == 1)
+            result = (result * a) % m;
+        b = b &gt;&gt; 1;
+        a = (a * a) % m;
+    }
+    return result;
+}
+
+int main() {
+    int a = 5, b = 3, m = 13;
+    cout &lt;&lt; "Result: " &lt;&lt; modExponentiate(a, b, m) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Compute Modular Inverse</h3>
+    <p>Given integers a and m, compute the modular inverse of a modulo m. Use the Extended Euclidean Algorithm to compute it.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int gcdExtended(int a, int b, int &x, int &y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    int x1, y1;
+    int gcd = gcdExtended(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return gcd;
+}
+
+int modInverse(int a, int m) {
+    int x, y;
+    int g = gcdExtended(a, m, x, y);
+    if (g != 1)
+        return -1; // Inverse doesn't exist
+    else {
+        int res = (x % m + m) % m;
+        return res;
+    }
+}
+
+int main() {
+    int a = 3, m = 11;
+    cout &lt;&lt; "Modular Inverse: " &lt;&lt; modInverse(a, m) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Advanced Problem Solvable by Modular Arithmetic</h2>
+
+    <h3>Problem 1: Solve a System of Modular Equations</h3>
+    <p>Given two congruences:</p>
+    <ul>
+        <li>x ≡ 2 (mod 5)</li>
+        <li>x ≡ 3 (mod 7)</li>
+    </ul>
+    <p>Find the solution using the Chinese Remainder Theorem.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x &lt; m; x++)
+        if ((a * x) % m == 1)
+            return x;
+    return -1;
+}
+
+int solveModularEquations(int a1, int m1, int a2, int m2) {
+    int m = m1 * m2;
+    int M1 = m / m1;
+    int M2 = m / m2;
+    int inv1 = modInverse(M1, m1);
+    int inv2 = modInverse(M2, m2);
+    if (inv1 == -1 || inv2 == -1)
+        return -1; // No solution
+    int x = (a1 * M1 * inv1 + a2 * M2 * inv2) % m;
+    return x;
+}
+
+int main() {
+    int a1 = 2, m1 = 5, a2 = 3, m2 = 7;
+    cout &lt;&lt; "Solution: " &lt;&lt; solveModularEquations(a1, m1, a2, m2) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+</body>
+</html>

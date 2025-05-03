@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Euler's Theorem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: Consolas, monaco, monospace;
+        }
+        code {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Euler's Theorem</h1>
+    <p><strong>Euler's Theorem</strong> is a generalization of Fermat's Little Theorem. It states that if <strong>a</strong> and <strong>n</strong> are coprime (i.e., the greatest common divisor of <strong>a</strong> and <strong>n</strong> is 1), then:</p>
+    <p><code>a^φ(n) ≡ 1 (mod n)</code></p>
+    where <strong>φ(n)</strong> is Euler's Totient Function, which represents the number of integers less than or equal to <strong>n</strong> that are coprime with <strong>n</strong>.
+
+    <h2>Euler's Totient Function (φ(n))</h2>
+    <p>Euler's Totient Function φ(n) is calculated by:</p>
+    <p><code>φ(n) = n * (1 - 1/p1) * (1 - 1/p2) * ... * (1 - 1/pk)</code></p>
+    where <strong>p1, p2, ..., pk</strong> are the distinct prime factors of <strong>n</strong>.
+
+    <h2>Time and Space Complexity</h2>
+    <ul>
+        <li><strong>Time Complexity:</strong>
+            <ul>
+                <li>Computing φ(n): The time complexity is O(sqrt(n)) because we need to check all prime divisors of n.</li>
+                <li>Exponentiation by squaring for calculating a^φ(n) % n: The time complexity is O(log(φ(n))) or O(log n).</li>
+                <li>Thus, overall time complexity for Euler’s Theorem becomes O(sqrt(n) + log n) for large numbers.</li>
+            </ul>
+        </li>
+        <li><strong>Space Complexity:</strong> O(1), since we only need a constant amount of space to store the variables.</li>
+    </ul>
+
+    <h2>Easy Problems Solvable by Euler's Theorem</h2>
+
+    <h3>Problem 1: Find the modular exponentiation using Euler's Theorem</h3>
+    <p>Given a number <strong>a</strong> and modulus <strong>n</strong>, find <strong>a^φ(n) % n</strong>.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+// Function to compute Euler's Totient Function
+int eulerTotient(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) {
+                n /= i;
+            }
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) {
+        result -= result / n;
+    }
+    return result;
+}
+
+// Function to calculate a^b % n using modular exponentiation
+int modExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int a = 3, n = 11;
+    int phi = eulerTotient(n); // Calculate φ(n)
+    cout &lt;&lt; "Result: " &lt;&lt; modExponentiation(a, phi, n) &lt;&lt; endl; // a^φ(n) % n
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Verify Euler's Theorem</h3>
+    <p>Verify Euler's Theorem for a given number <strong>a</strong> and <strong>n</strong> (i.e., check if <strong>a^φ(n) ≡ 1 (mod n)</strong>).</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int eulerTotient(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) {
+                n /= i;
+            }
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) {
+        result -= result / n;
+    }
+    return result;
+}
+
+int modExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int a = 3, n = 11;
+    int phi = eulerTotient(n); // Calculate φ(n)
+    if (modExponentiation(a, phi, n) == 1) {
+        cout &lt;&lt; "Euler's Theorem holds: a^φ(n) ≡ 1 (mod n)" &lt;&lt; endl;
+    } else {
+        cout &lt;&lt; "Euler's Theorem does not hold." &lt;&lt; endl;
+    }
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Intermediate Problems Solvable by Euler's Theorem</h2>
+
+    <h3>Problem 1: Modular Inverse Using Euler's Theorem</h3>
+    <p>Given a number <strong>a</strong> and modulus <strong>n</strong>, find the modular inverse of <strong>a</strong> modulo <strong>n</strong> using Euler's Theorem.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int eulerTotient(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) {
+                n /= i;
+            }
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) {
+        result -= result / n;
+    }
+    return result;
+}
+
+// Function to find modular inverse using Euler's Theorem
+int modInverse(int a, int n) {
+    int phi = eulerTotient(n); // Calculate φ(n)
+    return modExponentiation(a, phi - 1, n);
+}
+
+int modExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int main() {
+    int a = 3, n = 11;
+    cout &lt;&lt; "Modular Inverse: " &lt;&lt; modInverse(a, n) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h3>Problem 2: Find All Numbers Coprime with n Using Euler's Totient Function</h3>
+    <p>Given an integer <strong>n</strong>, find all numbers between 1 and <strong>n</strong> that are coprime with <strong>n</strong> using Euler's Totient Function.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int eulerTotient(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) {
+                n /= i;
+            }
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) {
+        result -= result / n;
+    }
+    return result;
+}
+
+int main() {
+    int n = 10;
+    cout &lt;&lt; "Numbers coprime with " &lt;&lt; n &lt;&lt; ": ";
+    for (int i = 1; i &lt; n; i++) {
+        if (gcd(i, n) == 1) {
+            cout &lt;&lt; i &lt;&lt; " ";
+        }
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+    <h2>Hard Problem Solvable by Euler's Theorem</h2>
+
+    <h3>Problem: Solve the Chinese Remainder Theorem Using Euler's Theorem</h3>
+    <p>Given a system of congruences, use Euler's Theorem to solve the system.</p>
+
+    <pre>
+    <code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+int eulerTotient(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (n % i == 0) {
+            while (n % i == 0) {
+                n /= i;
+            }
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) {
+        result -= result / n;
+    }
+    return result;
+}
+
+int modInverse(int a, int n) {
+    int phi = eulerTotient(n); // Calculate φ(n)
+    return modExponentiation(a, phi - 1, n);
+}
+
+int modExponentiation(int a, int b, int n) {
+    int result = 1;
+    a = a % n;
+    while (b > 0) {
+        if (b % 2 == 1) {
+            result = (result * a) % n;
+        }
+        b = b / 2;
+        a = (a * a) % n;
+    }
+    return result;
+}
+
+int solveChineseRemainder(int a1, int m1, int a2, int m2) {
+    int modInv = modInverse(m2, m1);
+    return (a1 * modInv) % m1;
+}
+
+int main() {
+    int a1 = 2, m1 = 5, a2 = 3, m2 = 7;
+    cout &lt;&lt; "Solution: " &lt;&lt; solveChineseRemainder(a1, m1, a2, m2) &lt;&lt; endl;
+    return 0;
+}
+    </code>
+    </pre>
+
+</body>
+</html>

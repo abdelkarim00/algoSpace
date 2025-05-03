@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCD and LCM Algorithms - C++ Examples</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+</head>
+<body>
+
+<h1>GCD and LCM Algorithms</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  The GCD (Greatest Common Divisor) of two integers is the largest integer that divides both numbers without leaving a remainder. The LCM (Least Common Multiple) is the smallest integer that is divisible by both numbers.
+</p>
+<p>
+  These concepts are fundamental in number theory and have applications in simplifying fractions, cryptography, and solving Diophantine equations.
+</p>
+
+<h2>🔍 How It Works</h2>
+<ul>
+  <li><strong>GCD:</strong> The Euclidean algorithm finds the GCD by repeatedly applying the formula: <code>gcd(a, b) = gcd(b, a % b)</code>, until <code>b = 0</code>.</li>
+  <li><strong>LCM:</strong> The LCM can be computed using the formula: <code>lcm(a, b) = (a * b) / gcd(a, b)</code>.</li>
+</ul>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>GCD (Euclidean Algorithm):</strong> O(log(min(a, b))) — The algorithm reduces the problem size exponentially with each step.</li>
+  <li><strong>LCM:</strong> O(log(min(a, b))) — Calculating the LCM involves computing the GCD first.</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Both GCD and LCM:</strong> O(1) — Only a constant amount of extra space is required.</li>
+</ul>
+
+<h2>✅ Easy Problems Solvable by GCD and LCM</h2>
+
+<h3>1. Finding the GCD and LCM of Two Numbers</h3>
+<p>Given two integers, compute their GCD and LCM.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+int lcm(int a, int b) {
+    return (a * b) / gcd(a, b);
+}
+
+int main() {
+    int a = 12, b = 18;
+    std::cout &lt;&lt; "GCD: " &lt;&lt; gcd(a, b) &lt;&lt; ", LCM: " &lt;&lt; lcm(a, b) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>2. Simplifying a Fraction</h3>
+<p>Given a numerator and denominator, simplify the fraction to its lowest terms.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+int main() {
+    int numerator = 36, denominator = 60;
+    int divisor = gcd(numerator, denominator);
+    std::cout &lt;&lt; "Simplified Fraction: " &lt;&lt; numerator / divisor &lt;&lt; "/" &lt;&lt; denominator / divisor &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>🔁 Intermediate Problems Solvable by GCD and LCM</h2>
+
+<h3>1. Finding the LCM of Multiple Numbers</h3>
+<p>Given an array of integers, compute their LCM.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+int lcm(int a, int b) {
+    return (a * b) / gcd(a, b);
+}
+
+int findLcmOfArray(const std::vector&lt;int&gt;&amp; arr) {
+    int result = arr[0];
+    for (int i = 1; i &lt; arr.size(); ++i) {
+        result = lcm(result, arr[i]);
+    }
+    return result;
+}
+
+int main() {
+    std::vector&lt;int&gt; numbers = {4, 5, 6};
+    std::cout &lt;&lt; "LCM of array: " &lt;&lt; findLcmOfArray(numbers) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>2. Solving Diophantine Equations</h3>
+<p>Given integers a, b, and c, determine if the equation <code>ax + by = c</code> has integer solutions.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+bool hasSolution(int a, int b, int c) {
+    return c % gcd(a, b) == 0;
+}
+
+int main() {
+    int a = 15, b = 25, c = 100;
+    if (hasSolution(a, b, c))
+        std::cout &lt;&lt; "Equation has integer solutions." &lt;&lt; std::endl;
+    else
+        std::cout &lt;&lt; "Equation has no integer solutions." &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>🧠 Advanced Problem Solvable by GCD and LCM</h2>
+
+<h3>1. Finding the Least Common Denominator (LCD) of Fractions</h3>
+<p>Given a list of fractions, compute their least common denominator.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+int lcm(int a, int b) {
+    return (a * b) / gcd(a, b);
+}
+
+int findLcdOfFractions(const std::vector&lt;std::pair&lt;int, int&gt;&gt;&amp; fractions) {
+    int denominator = fractions[0].second;
+    for (const auto&amp; fraction : fractions) {
+        denominator = lcm(denominator, fraction.second);
+    }
+    return denominator;
+}
+
+int main() {
+    std::vector&lt;std::pair&lt;int, int&gt;&gt; fractions = {{1, 2}, {1, 3}, {1, 4}};
+    std::cout &lt;&lt; "LCD of fractions: " &lt;&lt; findLcdOfFractions(fractions) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>📚 Further Reading</h2>
+<ul>
+  <li><a href="https://www.geeksforgeeks.org/program-to-find-lcm-of-two-numbers/">Program to find LCM of two numbers - GeeksforGeeks</a></li>
+  <li><a href="https://www.studytonight.com/cpp-programs/cpp-program-to-find-gcd-and-lcm">C++ Program to find GCD and LCM - Studytonight</a></li>
+  <li><a href="https://www.programiz.com/cpp-programming/examples/lcm">C++ Program to Find LCM - Programiz</a></li>
+</ul>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+
+</body>
+</html>

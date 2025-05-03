@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sieve of Eratosthenes - C++ Examples</title>
+</head>
+<body>
+
+<h1>Sieve of Eratosthenes Algorithm</h1>
+
+<h2>📘 Overview</h2>
+<p>
+  The Sieve of Eratosthenes is an ancient algorithm used to find all prime numbers up to a specified integer. It works by iteratively marking the multiples of each prime number starting from 2.
+</p>
+
+<h2>🔍 How It Works</h2>
+<ol>
+  <li>Create a list of consecutive integers from 2 to n.</li>
+  <li>Initially, assume all numbers are prime.</li>
+  <li>Starting from 2, mark all multiples of 2 as non-prime.</li>
+  <li>Move to the next unmarked number and mark all its multiples as non-prime.</li>
+  <li>Repeat until you've processed numbers up to √n.</li>
+  <li>The remaining unmarked numbers are prime.</li>
+</ol>
+
+<h2>⏱️ Time Complexity</h2>
+<ul>
+  <li><strong>Time Complexity:</strong> O(n log log n) — The algorithm efficiently marks non-prime numbers, with the marking process for each prime number being proportional to n/log n.</li>
+</ul>
+
+<h2>💾 Space Complexity</h2>
+<ul>
+  <li><strong>Space Complexity:</strong> O(n) — Requires an array of size n to store the primality of each number.</li>
+</ul>
+
+<h2>✅ Easy Problems Solvable by Sieve of Eratosthenes</h2>
+
+<h3>1. Finding All Prime Numbers Up to n</h3>
+<p>Given an integer n, print all prime numbers less than or equal to n.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void sieve(int n) {
+    std::vector&lt;bool&gt; prime(n+1, true);
+    prime[0] = prime[1] = false;
+    for (int p = 2; p * p &lt;= n; ++p) {
+        if (prime[p]) {
+            for (int i = p * p; i &lt;= n; i += p) {
+                prime[i] = false;
+            }
+        }
+    }
+    for (int p = 2; p &lt;= n; ++p) {
+        if (prime[p]) {
+            std::cout &lt;&lt; p &lt;&lt; " ";
+        }
+    }
+    std::cout &lt;&lt; std::endl;
+}
+
+int main() {
+    int n = 30;
+    std::cout &lt;&lt; "Primes up to " &lt;&lt; n &lt;&lt; ": ";
+    sieve(n);
+    return 0;
+}
+</code></pre>
+
+<h3>2. Checking if a Number is Prime</h3>
+<p>Given an integer n, determine if it is a prime number.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+bool isPrime(int n) {
+    if (n &lt; 2) return false;
+    std::vector&lt;bool&gt; prime(n+1, true);
+    prime[0] = prime[1] = false;
+    for (int p = 2; p * p &lt;= n; ++p) {
+        if (prime[p]) {
+            for (int i = p * p; i &lt;= n; i += p) {
+                prime[i] = false;
+            }
+        }
+    }
+    return prime[n];
+}
+
+int main() {
+    int n = 29;
+    if (isPrime(n)) {
+        std::cout &lt;&lt; n &lt;&lt; " is prime." &lt;&lt; std::endl;
+    } else {
+        std::cout &lt;&lt; n &lt;&lt; " is not prime." &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h2>🔁 Intermediate Problems Solvable by Sieve of Eratosthenes</h2>
+
+<h3>1. Finding All Prime Numbers in a Range [m, n]</h3>
+<p>Given two integers m and n, print all prime numbers in the range [m, n].</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void sieve(int n, std::vector&lt;bool&gt;&amp; prime) {
+    prime.assign(n+1, true);
+    prime[0] = prime[1] = false;
+    for (int p = 2; p * p &lt;= n; ++p) {
+        if (prime[p]) {
+            for (int i = p * p; i &lt;= n; i += p) {
+                prime[i] = false;
+            }
+        }
+    }
+}
+
+void printPrimesInRange(int m, int n) {
+    std::vector&lt;bool&gt; prime;
+    sieve(n, prime);
+    for (int i = m; i &lt;= n; ++i) {
+        if (prime[i]) {
+            std::cout &lt;&lt; i &lt;&lt; " ";
+        }
+    }
+    std::cout &lt;&lt; std::endl;
+}
+
+int main() {
+    int m = 10, n = 50;
+    std::cout &lt;&lt; "Primes in range [" &lt;&lt; m &lt;&lt; ", " &lt;&lt; n &lt;&lt; "]: ";
+    printPrimesInRange(m, n);
+    return 0;
+}
+</code></pre>
+
+<h3>2. Counting the Number of Primes Less Than or Equal to n</h3>
+<p>Given an integer n, count the number of prime numbers less than or equal to n.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int countPrimes(int n) {
+    std::vector&lt;bool&gt; prime(n+1, true);
+    prime[0] = prime[1] = false;
+    for (int p = 2; p * p &lt;= n; ++p) {
+        if (prime[p]) {
+            for (int i = p * p; i &lt;= n; i += p) {
+                prime[i] = false;
+            }
+        }
+    }
+    int count = 0;
+    for (int p = 2; p &lt;= n; ++p) {
+        if (prime[p]) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+int main() {
+    int n = 30;
+    std::cout &lt;&lt; "Number of primes less than or equal to " &lt;&lt; n &lt;&lt; ": " &lt;&lt; countPrimes(n) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>🧠 Advanced Problem Solvable by Sieve of Eratosthenes</h2>
+
+<h3>1. Finding the Prime Factorization of a Number</h3>
+<p>Given an integer n, find its prime factorization.</p>
+<pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void sieve(int n, std::vector&lt;int&gt;&amp; spf) {
+    spf.assign(n+1, 0);
+    for (int i = 2; i &lt;= n; ++i) {
+        if (spf[i] == 0) {
+            spf[i] = i;
+            for (int j = i * i; j &lt;= n; j += i) {
+                if (spf[j] == 0) {
+                    spf[j] = i;
+                }
+            }
+        }
+    }
+}
+
+void primeFactorization(int n, const std::vector&lt;int&gt;&amp; spf) {
+    while (n != 1) {
+        std::cout &lt;&lt; spf[n] &lt;&lt; " ";
+        n /= spf[n];
+    }
+    std::cout &lt;&lt; std::endl;
+}
+
+int main() {
+    int n = 60;
+    std::vector&lt;int&gt; spf;
+    sieve(n, spf);
+    std::cout &lt;&lt; "Prime factorization of " &lt;&lt; n &lt;&lt; ": ";
+    primeFactorization(n, spf);
+    return 0;
+}
+</code></pre>
+
+<h2>📚 Further Reading</h2>
+<ul>
+  <li><a href="https://www.geeksforgeeks.org/sieve-of-eratosthenes/">Sieve of Eratosthenes - GeeksforGeeks</a></li>
+  <li><a href="https://cp-algorithms.com/algebra/sieve-of-eratosthenes.html">Sieve of Eratosthenes - CP-Algorithms</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of Eratosthenes - Wikipedia</a></li>
+</ul>
+
+</body>
+</html>
+ 
