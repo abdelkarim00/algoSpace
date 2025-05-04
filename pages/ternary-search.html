@@ -1,243 +1,194 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ternary Search Algorithm - C++ Examples</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
-</head>
-<body>
-
 <h1>Ternary Search Algorithm</h1>
 
-<h2>📘 Overview</h2>
+<h2>1. Algorithm Overview</h2>
 <p>
-  Ternary Search is a divide-and-conquer algorithm that finds the position of a target value within a sorted array. It works by dividing the array into three parts using two midpoints and recursively narrowing down the search range.
+  Ternary Search is a divide-and-conquer algorithm used to find the maximum or minimum of a unimodal function (a function that increases then decreases, or vice versa) on a given interval. It works by dividing the interval into three parts and determining in which segment the extremum lies, then recursively (or iteratively) repeating on that segment.
 </p>
-
-<h2>🔍 How It Works</h2>
 <ol>
-  <li>Divide the array into three parts by calculating two midpoints: <code>mid1 = low + (high - low) / 3</code> and <code>mid2 = high - (high - low) / 3</code>.</li>
-  <li>Compare the target value with the elements at <code>mid1</code> and <code>mid2</code>.</li>
-  <li>If the target equals <code>arr[mid1]</code>, return <code>mid1</code>; if it equals <code>arr[mid2]</code>, return <code>mid2</code>.</li>
-  <li>If the target is less than <code>arr[mid1]</code>, recursively search the left third of the array.</li>
-  <li>If the target is greater than <code>arr[mid2]</code>, recursively search the right third of the array.</li>
-  <li>If the target is between <code>arr[mid1]</code> and <code>arr[mid2]</code>, recursively search the middle third of the array.</li>
+  <li>Given an interval <code>[l, r]</code>, pick two mid-points:
+    <pre><code>
+m1 = l + (r - l) / 3;
+m2 = r - (r - l) / 3;
+    </code></pre>
+  </li>
+  <li>Evaluate <code>f(m1)</code> and <code>f(m2)</code>.</li>
+  <li>If searching for the maximum:
+    <ul>
+      <li>If <code>f(m1) &lt; f(m2)</code>, the maximum lies in <code>[m1, r]</code> → set <code>l = m1</code>.</li>
+      <li>Else, the maximum lies in <code>[l, m2]</code> → set <code>r = m2</code>.</li>
+    </ul>
+  </li>
+  <li>Repeat until <code>r - l</code> is below a tolerance (for real-valued functions) or pointers cross (for discrete).</li>
 </ol>
 
-<h2>⏱️ Time Complexity</h2>
+<h2>2. Time and Memory Complexity</h2>
 <ul>
-  <li><strong>Best Case:</strong> O(1) — when the target element is found at one of the midpoints.</li>
-  <li><strong>Average and Worst Case:</strong> O(log₃ n) — the search space is divided into three parts at each step, reducing the problem size exponentially.</li>
+  <li><strong>Time Complexity:</strong> Each step reduces the search interval to two-thirds, so after <code>k</code> steps the interval is <code>((2/3)^k) * n</code>. To reduce to size <code>1</code> takes <code>O(log₃ n)</code> steps. Equivalently <code>O(log n)</code>.</li>
+  <li><strong>Memory Complexity:</strong> <code>O(1)</code> extra space if implemented iteratively (only a few pointers); <code>O(log n)</code> stack if implemented recursively.</li>
 </ul>
+
+<hr>
+
+<h2>3. Easy Problems</h2>
+
+<h3>3.1. Find Maximum in a Bitonic Array</h3>
 <p>
-  Ternary Search is more efficient than linear search but less commonly used than binary search due to its higher constant factors and more comparisons per iteration.
+  A bitonic array first strictly increases then strictly decreases. Use discrete ternary search to find its peak.
 </p>
-
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Iterative Implementation:</strong> O(1) — uses a constant amount of extra space.</li>
-  <li><strong>Recursive Implementation:</strong> O(log₃ n) — due to the depth of the recursion stack.</li>
-</ul>
-
-<h2>✅ Easy Problems Solvable by Ternary Search</h2>
-
-<h3>1. Finding an Element in a Sorted Array</h3>
-<p>Given a sorted array of integers and a target value, determine if the target exists in the array.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
+<pre><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
+using namespace std;
 
-int ternarySearch(const std::vector&lt;int&gt;&amp; arr, int target) {
-    int low = 0, high = arr.size() - 1;
-    while (low &lt;= high) {
-        int mid1 = low + (high - low) / 3;
-        int mid2 = high - (high - low) / 3;
-        if (arr[mid1] == target) return mid1;
-        if (arr[mid2] == target) return mid2;
-        if (target &lt; arr[mid1]) high = mid1 - 1;
-        else if (target &gt; arr[mid2]) low = mid2 + 1;
-        else {
-            low = mid1 + 1;
-            high = mid2 - 1;
-        }
+int ternaryPeak(const vector&lt;int&gt;&amp; a) {
+    int l = 0, r = a.size() - 1;
+    while (l + 2 &lt;= r) {
+        int m1 = l + (r - l) / 3;
+        int m2 = r - (r - l) / 3;
+        if (a[m1] &lt; a[m2])
+            l = m1 + 1;
+        else
+            r = m2 - 1;
     }
-    return -1;
+    int peak = l;
+    for (int i = l+1; i &lt;= r; ++i)
+        if (a[i] &gt; a[peak])
+            peak = i;
+    return peak;
 }
 
 int main() {
-    std::vector&lt;int&gt; arr = {1, 3, 5, 7, 9, 11};
-    int target = 7;
-    int result = ternarySearch(arr, target);
-    if (result != -1) std::cout &lt;&lt; "Element found at index " &lt;&lt; result &lt;&lt; std::endl;
-    else std::cout &lt;&lt; "Element not found" &lt;&lt; std::endl;
+    vector&lt;int&gt; arr = {1, 3, 8, 12, 9, 5, 2};
+    int idx = ternaryPeak(arr);
+    cout &lt;&lt; "Peak at index " &lt;&lt; idx
+         &lt;&lt; ", value = " &lt;&lt; arr[idx] &lt;&lt; endl;
     return 0;
 }
 </code></pre>
 
-<h3>2. Finding the First Occurrence of an Element</h3>
-<p>Given a sorted array with duplicate elements, find the index of the first occurrence of a given target value.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
+<h3>3.2. Find Cube Root of a Number</h3>
+<p>
+  Approximate the cube root of <code>x</code> in <code>[0, x]</code> using real-valued ternary search.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
 
-int findFirstOccurrence(const std::vector&lt;int&gt;&amp; arr, int target) {
-    int low = 0, high = arr.size() - 1, result = -1;
-    while (low &lt;= high) {
-        int mid1 = low + (high - low) / 3;
-        int mid2 = high - (high - low) / 3;
-        if (arr[mid1] == target) {
-            result = mid1;
-            high = mid1 - 1;
-        } else if (arr[mid2] == target) {
-            result = mid2;
-            high = mid2 - 1;
-        } else if (target &lt; arr[mid1]) high = mid1 - 1;
-        else if (target &gt; arr[mid2]) low = mid2 + 1;
-        else {
-            low = mid1 + 1;
-            high = mid2 - 1;
-        }
+double cubeRoot(double x) {
+    double l = 0, r = max(1.0, x), eps = 1e-6;
+    while (r - l &gt; eps) {
+        double m1 = l + (r - l) / 3;
+        double m2 = r - (r - l) / 3;
+        if (fabs(m1*m1*m1 - x) &lt; fabs(m2*m2*m2 - x))
+            r = m2;
+        else
+            l = m1;
     }
-    return result;
+    return (l + r) / 2;
 }
 
 int main() {
-    std::vector&lt;int&gt; arr = {1, 2, 2, 2, 3, 4};
-    int target = 2;
-    int result = findFirstOccurrence(arr, target);
-    if (result != -1) std::cout &lt;&lt; "First occurrence at index " &lt;&lt; result &lt;&lt; std::endl;
-    else std::cout &lt;&lt; "Element not found" &lt;&lt; std::endl;
+    double x = 27.0;
+    cout &lt;&lt; "Cube root of " &lt;&lt; x &lt;&lt; " ≈ "
+         &lt;&lt; cubeRoot(x) &lt;&lt; endl;
     return 0;
 }
 </code></pre>
 
-<h2>🔁 Intermediate Problems Solvable by Ternary Search</h2>
+<hr>
 
-<h3>1. Finding the Square Root of a Number</h3>
-<p>Given a non-negative integer, find its square root without using built-in functions.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
+<h2>4. Intermediate Problems</h2>
 
-double sqrtTernarySearch(double x) {
-    double low = 0, high = x, mid1, mid2;
-    while (high - low &gt; 1e-6) {
-        mid1 = low + (high - low) / 3;
-        mid2 = high - (high - low) / 3;
-        if (mid1 * mid1 &gt; x) high = mid1;
-        else if (mid2 * mid2 &lt; x) low = mid2;
-        else {
-            low = mid1;
-            high = mid2;
-        }
+<h3>4.1. Maximize a Continuous Unimodal Function</h3>
+<p>
+  Given <code>f(x) = -(x-2)*(x-2) + 4</code> on <code>[0, 4]</code>, find its maximum.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
+
+double ternaryMax(function&lt;double(double)&gt; f, double l, double r) {
+    double eps = 1e-6;
+    while (r - l &gt; eps) {
+        double m1 = l + (r - l) / 3;
+        double m2 = r - (r - l) / 3;
+        if (f(m1) &lt; f(m2))
+            l = m1;
+        else
+            r = m2;
     }
-    return (low + high) / 2;
+    return (l + r) / 2;
 }
 
 int main() {
-    double x = 16;
-    std::cout &lt;&lt; "Square root of " &lt;&lt; x &lt;&lt; " is " &lt;&lt; sqrtTernarySearch(x) &lt;&lt; std::endl;
+    auto f = [](double x) { return - (x-2)*(x-2) + 4; };
+    double xm = ternaryMax(f, 0.0, 4.0);
+    cout &lt;&lt; "Maximum at x = " &lt;&lt; xm
+         &lt;&lt; ", f(x) = " &lt;&lt; f(xm) &lt;&lt; endl;
     return 0;
 }
 </code></pre>
 
-<h3>2. Finding the Peak Element in an Array</h3>
-<p>Given an array where each element is greater than or equal to its neighbors, find a peak element.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
+<h3>4.2. Find Minimum of a Convex Function</h3>
+<p>
+  Given <code>g(x) = (x-1)*(x-1) + 5</code> on <code>[-10, 10]</code>, find its minimum.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;functional&gt;
+using namespace std;
 
-int findPeakElement(const std::vector&lt;int&gt;&amp; nums) {
-    int low = 0, high = nums.size() - 1;
-    while (low &lt;= high) {
-        int mid1 = low + (high - low) / 3;
-        int mid2 = high - (high - low) / 3;
-        if ((mid1 == 0 || nums[mid1 - 1] &lt;= nums[mid1]) &&
-            (mid1 == nums.size() - 1 || nums[mid1 + 1] &lt;= nums[mid1]))
-            return mid1;
-        else if (mid1 &gt; 0 && nums[mid1 - 1] &gt; nums[mid1]) high = mid1 - 1;
-        else low = mid1 + 1;
+double ternaryMin(function&lt;double(double)&gt; f, double l, double r) {
+    double eps = 1e-6;
+    while (r - l &gt; eps) {
+        double m1 = l + (r - l) / 3;
+        double m2 = r - (r - l) / 3;
+        if (f(m1) &gt; f(m2))
+            l = m1;
+        else
+            r = m2;
     }
-    return -1;
+    return (l + r) / 2;
 }
 
 int main() {
-    std::vector&lt;int&gt; nums = {1, 3, 20, 4, 1};
-    std::cout &lt;&lt; "Peak element at index " &lt;&lt; findPeakElement(nums) &lt;&lt; std::endl;
+    auto g = [](double x) { return (x-1)*(x-1) + 5; };
+    double xm = ternaryMin(g, -10.0, 10.0);
+    cout &lt;&lt; "Minimum at x = " &lt;&lt; xm
+         &lt;&lt; ", g(x) = " &lt;&lt; g(xm) &lt;&lt; endl;
     return 0;
 }
 </code></pre>
 
-<h2>🧠 Advanced Problem Solvable by Ternary Search</h2>
+<hr>
 
-<h3>1. Finding the Minimum in a Rotated Sorted Array</h3>
-<p>Given a rotated sorted array, find the minimum element.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
+<h2>5. Hard Problem</h2>
 
-int findMinInRotatedArray(const std::vector&lt;int&gt;&amp; nums) {
-    int low = 0, high = nums.size() - 1;
-    while (low &lt;= high) {
-        mid1 = low + (high - low) / 3;
-        mid2 = high - (high - low) / 3;
-        if (arr[mid1] == target) return mid1;
-        if (arr[mid2] == target) return mid2;
-        if (target < arr[mid1]) high = mid1 - 1;
-        else if (target > arr[mid2]) low = mid2 + 1;
-        else {
-            low = mid1 + 1;
-            high = mid2 - 1;
-        }
-   }
-  return -1;
-}
+<h3>5.1. Optimize <code>h(x) = x * sin(x)</code> on <code>[0, 10]</code></h3>
+<p>
+  Find the global maximum of <code>h(x) = x·sin(x)</code> on <code>[0,10]</code> to within <code>1e-6</code> precision.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
 
-int main() {
-    std::vector<int> arr = {1, 3, 5, 7, 9, 11};
-    int target = 7;
-    int result = ternarySearch(arr, target);
-    if (result != -1) std::cout << "Element found at index " << result << std::endl;
-    else std::cout << "Element not found" << std::endl;
-    return 0;
-}
-</code></pre>
+double h(double x) { return x * sin(x); }
 
-<h2>🧠 Advanced Problem Solvable by Ternary Search</h2>
-
-<h3>1. Finding the Minimum in a Rotated Sorted Array</h3>
-<p>Given a rotated sorted array, find the minimum element.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-
-int findMinInRotatedArray(const std::vector&lt;int&gt;&amp; nums) {
-    int low = 0, high = nums.size() - 1;
-    while (low &lt;= high) {
-        int mid1 = low + (high - low) / 3;
-        int mid2 = high - (high - low) / 3;
-        if (nums[mid1] &gt; nums[mid2]) low = mid1 + 1;
-        else high = mid2 - 1;
+double ternaryOptimize(double l, double r) {
+    double eps = 1e-6;
+    while (r - l &gt; eps) {
+        double m1 = l + (r - l) / 3;
+        double m2 = r - (r - l) / 3;
+        if (h(m1) &lt; h(m2))
+            l = m1;
+        else
+            r = m2;
     }
-    return nums[low];
+    return (l + r) / 2;
 }
 
 int main() {
-    std::vector&lt;int&gt; nums = {4, 5, 6, 7, 0, 1, 2};
-    std::cout &lt;&lt; "Minimum element is " &lt;&lt; findMinInRotatedArray(nums) &lt;&lt; std::endl;
+    double x_opt = ternaryOptimize(0.0, 10.0);
+    cout &lt;&lt; "Optimal x ≈ " &lt;&lt; x_opt
+         &lt;&lt; ", h(x) ≈ " &lt;&lt; h(x_opt) &lt;&lt; endl;
     return 0;
 }
 </code></pre>
-
-<h2>📚 Further Reading</h2>
-<ul>
-<li><a href="https://www.geeksforgeeks.org/ternary-search/">Ternary Search - GeeksforGeeks</a></li>
-<li><a href="https://www.geeksforgeeks.org/ternary-search-in-cpp/">Ternary Search in C++ - GeeksforGeeks</a></li>
-<li><a href="https://cp-algorithms.com/num_methods/ternary_search.html">Ternary Search - CP-Algorithms</a></li>
-</ul>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-<script>hljs.highlightAll();</script>
-
-</body>
-</html>

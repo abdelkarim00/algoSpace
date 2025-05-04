@@ -1,193 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linear Search Algorithm - C++ Examples</title>
-</head>
-<body>
+<html>
+  <body>
+    <h1>Linear Search Algorithm</h1>
 
-<h1>Linear Search Algorithm</h1>
+    <h2>1. Algorithm Explanation</h2>
+    <p>
+      Linear search (also called sequential search) is the simplest search algorithm.
+      Given a list of <em>n</em> elements and a target value <strong>T</strong>, it
+      checks each element in order, from the first to the last, until it finds
+      <strong>T</strong> or reaches the end of the list.
+    </p>
 
-<h2>📘 Overview</h2>
-<p>
-  Linear Search, also known as Sequential Search, is a simple algorithm that checks each element of a list sequentially until the desired element is found or the list is exhausted.
-</p>
+    <h3>1.1 Pseudocode</h3>
+    <pre><code>
+function linearSearch(array A, integer n, value T):
+    for i = 0 to n - 1:
+        if A[i] == T:
+            return i      // found at index i
+    return -1             // not found
+    </code></pre>
 
-<h2>🔍 How It Works</h2>
-<ol>
-  <li>Start from the first element of the list.</li>
-  <li>Compare the current element with the target value.</li>
-  <li>If they match, return the index of the current element.</li>
-  <li>If they don't match, move to the next element and repeat the process.</li>
-  <li>If the end of the list is reached without finding the target, return -1 to indicate the element is not present.</li>
-</ol>
+    <h3>1.2 Time Complexity</h3>
+    <ul>
+      <li>Best case: <strong>O(1)</strong> (target at first position)</li>
+      <li>Average case: <strong>O(n)</strong> (target roughly in the middle)</li>
+      <li>Worst case: <strong>O(n)</strong> (target at the end or not present)</li>
+    </ul>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(1) — when the target element is the first element in the list.</li>
-  <li><strong>Average Case:</strong> O(n) — when the target element is somewhere in the middle.</li>
-  <li><strong>Worst Case:</strong> O(n) — when the target element is the last element or not present at all.</li>
-</ul>
+    <h3>1.3 Space Complexity</h3>
+    <p>
+      In-place algorithm using only a few extra variables: <strong>O(1)</strong>.
+    </p>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Space Complexity:</strong> O(1) — since it only requires a constant amount of extra space for variables.</li>
-</ul>
+    <h2>2. Easy Problems</h2>
 
-<h2>✅ Easy Problems Solvable by Linear Search</h2>
-
-<h3>1. Find the Index of an Element in an Array</h3>
-<p>Given an array of integers, find the index of a specific element.</p>
-<pre><code>
+    <h3>2.1 Problem 1: Check if Target Exists in Array</h3>
+    <p>
+      Given an integer array and a target value, return <code>true</code> if the
+      target exists, otherwise <code>false</code>.
+    </p>
+    <pre><code>
 #include &lt;iostream&gt;
+#include &lt;vector&gt;
 using namespace std;
 
-int linearSearch(int arr[], int size, int target) {
-    for (int i = 0; i &lt; size; i++) {
-        if (arr[i] == target) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int main() {
-    int arr[] = {10, 20, 30, 40, 50};
-    int size = sizeof(arr) / sizeof(arr[0]);
-    int target = 30;
-    int result = linearSearch(arr, size, target);
-    if (result != -1) {
-        cout &lt;&lt; "Element found at index: " &lt;&lt; result &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; "Element not found" &lt;&lt; endl;
-    }
-    return 0;
-}
-</code></pre>
-
-<h3>2. Check if an Element Exists in an Array</h3>
-<p>Given an array of integers, check if a specific element exists.</p>
-<pre><code>
-#include &lt;iostream&gt;
-using namespace std;
-
-bool linearSearch(int arr[], int size, int target) {
-    for (int i = 0; i &lt; size; i++) {
-        if (arr[i] == target) {
-            return true;
-        }
+bool exists(const vector&lt;int&gt;&amp; A, int T) {
+    for (int x : A) {
+        if (x == T) return true;
     }
     return false;
 }
 
 int main() {
-    int arr[] = {10, 20, 30, 40, 50};
-    int size = sizeof(arr) / sizeof(arr[0]);
-    int target = 60;
-    if (linearSearch(arr, size, target)) {
-        cout &lt;&lt; "Element found" &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; "Element not found" &lt;&lt; endl;
-    }
+    vector&lt;int&gt; A = {1, 3, 5, 7, 9};
+    cout &lt;&lt; (exists(A, 5) ? "Found" : "Not Found") &lt;&lt; endl;
     return 0;
 }
-</code></pre>
+    </code></pre>
 
-<h2>🔁 Intermediate Problems Solvable by Linear Search</h2>
-
-<h3>1. Count the Occurrences of an Element in an Array</h3>
-<p>Given an array of integers, count how many times a specific element appears.</p>
-<pre><code>
+    <h3>2.2 Problem 2: Find Maximum Value in Array</h3>
+    <p>
+      Given an integer array, return the maximum element.
+    </p>
+    <pre><code>
 #include &lt;iostream&gt;
+#include &lt;vector&gt;
 using namespace std;
 
-int countOccurrences(int arr[], int size, int target) {
-    int count = 0;
-    for (int i = 0; i &lt; size; i++) {
-        if (arr[i] == target) {
-            count++;
-        }
+int findMax(const vector&lt;int&gt;&amp; A) {
+    if (A.empty()) throw runtime_error("Empty array");
+    int mx = A[0];
+    for (int x : A) {
+        if (x &gt; mx) mx = x;
     }
-    return count;
+    return mx;
 }
 
 int main() {
-    int arr[] = {10, 20, 30, 20, 40, 20};
-    int size = sizeof(arr) / sizeof(arr[0]);
-    int target = 20;
-    int result = countOccurrences(arr, size, target);
-    cout &lt;&lt; "Element " &lt;&lt; target &lt;&lt; " occurs " &lt;&lt; result &lt;&lt; " times." &lt;&lt; endl;
+    vector&lt;int&gt; A = {2, 8, 4, 1, 6};
+    cout &lt;&lt; "Max = " &lt;&lt; findMax(A) &lt;&lt; endl;
     return 0;
 }
-</code></pre>
+    </code></pre>
 
-<h3>2. Find the Maximum Element in an Array</h3>
-<p>Given an array of integers, find the maximum element.</p>
-<pre><code>
+    <h2>3. Intermediate Problems</h2>
+
+    <h3>3.1 Problem 1: Search in a Singly Linked List</h3>
+    <p>
+      Given the head of a singly linked list and a value, return the node index
+      (0-based) if found, else -1.
+    </p>
+    <pre><code>
 #include &lt;iostream&gt;
 using namespace std;
 
-int findMax(int arr[], int size) {
-    int max = arr[0];
-    for (int i = 1; i &lt; size; i++) {
-        if (arr[i] &gt; max) {
-            max = arr[i];
-        }
+struct Node {
+    int val;
+    Node* next;
+    Node(int v): val(v), next(nullptr) {}
+};
+
+int searchList(Node* head, int T) {
+    int idx = 0;
+    for (Node* cur = head; cur; cur = cur-&gt;next, ++idx) {
+        if (cur-&gt;val == T) return idx;
     }
-    return max;
+    return -1;
 }
 
 int main() {
-    int arr[] = {10, 20, 30, 40, 50};
-    int size = sizeof(arr) / sizeof(arr[0]);
-    int result = findMax(arr, size);
-    cout &lt;&lt; "Maximum element is: " &lt;&lt; result &lt;&lt; endl;
+    // Build list: 10 → 20 → 30 → nullptr
+    Node* head = new Node(10);
+    head->next = new Node(20);
+    head->next->next = new Node(30);
+
+    cout &lt;&lt; searchList(head, 20) &lt;&lt; endl;  // prints 1
     return 0;
 }
-</code></pre>
+    </code></pre>
 
-<h2>🧠 Advanced Problem Solvable by Linear Search</h2>
-
-<h3>1. Find the First Non-Repeating Character in a String</h3>
-<p>Given a string, find the first character that does not repeat.</p>
-<pre><code>
+    <h3>3.2 Problem 2: First Non-Repeating Character in a String</h3>
+    <p>
+      Given a string <code>s</code>, find the first character that does not repeat.
+      Use linear search to check each character’s count by scanning the string.
+    </p>
+    <pre><code>
 #include &lt;iostream&gt;
-#include &lt;unordered_map&gt;
 #include &lt;string&gt;
 using namespace std;
 
-char firstNonRepeatingChar(string str) {
-    unordered_map&lt;char, int&gt; freq;
-    for (char c : str) {
-        freq[c]++;
-    }
-    for (char c : str) {
-        if (freq[c] == 1) {
-            return c;
+char firstUnique(const string&amp; s) {
+    int n = s.size();
+    for (int i = 0; i &lt; n; ++i) {
+        bool unique = true;
+        for (int j = 0; j &lt; n; ++j) {
+            if (i != j && s[j] == s[i]) {
+                unique = false;
+                break;
+            }
         }
+        if (unique) return s[i];
     }
-    return '\0'; // No non-repeating character
+    return '#';  // indicates none found
 }
 
 int main() {
-    string str = "swiss";
-    char result = firstNonRepeatingChar(str);
-    if (result != '\0') {
-        cout &lt;&lt; "First non-repeating character is: " &lt;&lt; result &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; "No non-repeating character found" &lt;&lt; endl;
-    }
+    cout &lt;&lt; firstUnique("swiss") &lt;&lt; endl;  // prints 'w'
     return 0;
 }
-</code></pre>
+    </code></pre>
 
-<h2>📌 Summary</h2>
-<ul>
-  <li><strong>Linear Search</strong> is a straightforward algorithm ideal for small datasets or unsorted collections.</li>
-  <li>It is easy to implement but becomes inefficient for large datasets due to its O(n) time complexity.</li>
-  <li>Despite its simplicity, it remains a fundamental algorithm in computer science education and practical applications where data is small or unsorted.</li>
-</ul>
+    <h2>4. Hard Problem</h2>
 
-</body>
+    <h3>4.1 Problem: Two-Sum (Naïve Approach)</h3>
+    <p>
+      Given an unsorted array and target <strong>T</strong>, return indices of the
+      two numbers such that they add up to <strong>T</strong>. Brute-force uses
+      nested linear searches.
+    </p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;utility&gt;
+using namespace std;
+
+pair&lt;int,int&gt; twoSum(const vector&lt;int&gt;&amp; A, int T) {
+    int n = A.size();
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = i + 1; j &lt; n; ++j) {
+            if (A[i] + A[j] == T) {
+                return make_pair(i, j);
+            }
+        }
+    }
+    return make_pair(-1, -1);  // no solution
+}
+
+int main() {
+    vector&lt;int&gt; A = {2, 7, 11, 15};
+    auto res = twoSum(A, 9);
+    cout &lt;&lt; res.first &lt;&lt; ", " &lt;&lt; res.second &lt;&lt; endl;  // prints "0, 1"
+    return 0;
+}
+    </code></pre>
+  </body>
 </html>

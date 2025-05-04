@@ -1,55 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Binary Search Algorithm - C++ Examples</title>
-</head>
+<html>
 <body>
 
-<h1>Binary Search Algorithm</h1>
+  <h2>Binary Search Algorithm</h2>
+  <p>
+    Binary Search is a divide-and-conquer algorithm to find the position of a target value within a sorted array. 
+    It works by repeatedly dividing the search interval in half:
+  </p>
+  <ol>
+    <li>Initialize two pointers, <code>low = 0</code> and <code>high = n-1</code>.</li>
+    <li>While <code>low ≤ high</code>:
+      <ul>
+        <li>Compute <code>mid = low + (high - low) / 2</code>.</li>
+        <li>If <code>arr[mid] == target</code>, return <code>mid</code>.</li>
+        <li>If <code>arr[mid] < target</code>, set <code>low = mid + 1</code>.</li>
+        <li>Else, set <code>high = mid - 1</code>.</li>
+      </ul>
+    </li>
+    <li>If the loop ends without finding <code>target</code>, it is not in the array.</li>
+  </ol>
 
-<h2>📘 Overview</h2>
-<p>
-  Binary Search is an efficient algorithm for finding an item from a sorted list of items. It works by repeatedly dividing the search interval in half. If the value of the search key is less than the item in the middle of the interval, the search continues in the lower half, or if the value is greater, it continues in the upper half. This process repeats until the value is found or the interval is empty.
-</p>
+  <h3>Time Complexity</h3>
+  <p>
+    Each step halves the search interval. In the worst case, you perform <code>O(log n)</code> comparisons.
+  </p>
 
-<h2>🔍 How It Works</h2>
-<ol>
-  <li>Start with the middle element of the sorted array.</li>
-  <li>If the target value is equal to the middle element, return its index.</li>
-  <li>If the target value is less than the middle element, repeat the search on the left subarray.</li>
-  <li>If the target value is greater than the middle element, repeat the search on the right subarray.</li>
-  <li>If the search interval is empty, the target is not in the array.</li>
-</ol>
+  <h3>Memory Complexity</h3>
+  <p>
+    The iterative version uses <code>O(1)</code> extra space. A recursive version would use <code>O(log n)</code> stack space.
+  </p>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(1) — when the target element is the middle element of the array.</li>
-  <li><strong>Average Case:</strong> O(log n) — the search space is halved with each step.</li>
-  <li><strong>Worst Case:</strong> O(log n) — the search continues until the search space is reduced to one element.</li>
-</ul>
-<p>
-  Binary Search is significantly faster than linear search, especially for large datasets, due to its logarithmic time complexity.
-</p>
+  <h2>Easy Problems</h2>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Iterative Implementation:</strong> O(1) — uses a constant amount of extra space.</li>
-  <li><strong>Recursive Implementation:</strong> O(log n) — due to the depth of the recursion stack.</li>
-</ul>
-
-<h2>✅ Easy Problems Solvable by Binary Search</h2>
-
-<h3>1. Finding an Element in a Sorted Array</h3>
-<p>Given a sorted array of integers and a target value, determine if the target exists in the array.</p>
-<pre><code class="cpp">
+  <h3>1. Search in Sorted Array</h3>
+  <p>Given a sorted array <code>arr</code> and a <code>target</code>, return the index of <code>target</code> or <code>-1</code> if not found.</p>
+  <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
+using namespace std;
 
-int binarySearch(const std::vector&lt;int&gt;&amp; arr, int target) {
+int binarySearch(const vector&lt;int&gt;&amp; arr, int target) {
     int low = 0, high = arr.size() - 1;
-    while (low &lt;= high) {
+    while (low <= high) {
         int mid = low + (high - low) / 2;
         if (arr[mid] == target) return mid;
         else if (arr[mid] &lt; target) low = mid + 1;
@@ -59,129 +51,156 @@ int binarySearch(const std::vector&lt;int&gt;&amp; arr, int target) {
 }
 
 int main() {
-    std::vector&lt;int&gt; arr = {1, 3, 5, 7, 9, 11};
-    int target = 7;
-    int result = binarySearch(arr, target);
-    if (result != -1) std::cout &lt;&lt; "Element found at index " &lt;&lt; result &lt;&lt; std::endl;
-    else std::cout &lt;&lt; "Element not found" &lt;&lt; std::endl;
+    vector&lt;int&gt; arr = {1, 3, 5, 7, 9};
+    cout &lt;&lt; binarySearch(arr, 7) &lt;&lt; endl; // Output: 3
     return 0;
 }
-</code></pre>
+  </code></pre>
 
-<h3>2. Finding the First Occurrence of an Element</h3>
-<p>Given a sorted array with duplicate elements, find the index of the first occurrence of a given target value.</p>
-<pre><code class="cpp">
+  <h3>2. First Occurrence of Target</h3>
+  <p>Given a sorted array that may contain duplicates, find the first index where <code>arr[i] == target</code>, or <code>-1</code> if absent.</p>
+  <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
+using namespace std;
 
-int findFirstOccurrence(const std::vector&lt;int&gt;&amp; arr, int target) {
+int firstOccurrence(const vector&lt;int&gt;&amp; arr, int target) {
     int low = 0, high = arr.size() - 1, result = -1;
-    while (low &lt;= high) {
+    while (low <= high) {
         int mid = low + (high - low) / 2;
         if (arr[mid] == target) {
             result = mid;
-            high = mid - 1; // Move left to find first occurrence
-        } else if (arr[mid] &lt; target) low = mid + 1;
-        else high = mid - 1;
-    }
-    return result;
-}
-
-int main() {
-    std::vector&lt;int&gt; arr = {1, 2, 2, 2, 3, 4};
-    int target = 2;
-    int result = findFirstOccurrence(arr, target);
-    if (result != -1) std::cout &lt;&lt; "First occurrence at index " &lt;&lt; result &lt;&lt; std::endl;
-    else std::cout &lt;&lt; "Element not found" &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-<h2>🔁 Intermediate Problems Solvable by Binary Search</h2>
-
-<h3>1. Finding the Square Root of a Number</h3>
-<p>Given a non-negative integer, find its square root without using built-in functions.</p>
-<pre><code class="cpp">
-#include &lt;iostream&gt;
-
-int sqrtBinarySearch(int x) {
-    if (x == 0 || x == 1) return x;
-    int low = 1, high = x, result = -1;
-    while (low &lt;= high) {
-        int mid = low + (high - low) / 2;
-        if (mid * mid == x) return mid;
-        else if (mid * mid &lt; x) {
+            high = mid - 1;  // continue searching left half
+        } else if (arr[mid] &lt; target) {
             low = mid + 1;
-            result = mid;
-        } else high = mid - 1;
+        } else {
+            high = mid - 1;
+        }
     }
     return result;
 }
 
 int main() {
-    int x = 16;
-    std::cout &lt;&lt; "Square root of " &lt;&lt; x &lt;&lt; " is " &lt;&lt; sqrtBinarySearch(x) &lt;&lt; std::endl;
+    vector&lt;int&gt; arr = {1, 2, 2, 2, 3};
+    cout &lt;&lt; firstOccurrence(arr, 2) &lt;&lt; endl; // Output: 1
     return 0;
 }
-</code></pre>
+  </code></pre>
 
-<h3>2. Finding the Peak Element in an Array</h3>
-<p>Given an array where each element is greater than or equal to its neighbors, find a peak element.</p>
-<pre><code class="cpp">
+  <h2>Intermediate Problems</h2>
+
+  <h3>1. Search Insert Position</h3>
+  <p>Given a sorted array and a <code>target</code>, return the index if the <code>target</code> is found. 
+     If not, return the index where it would be if inserted in order.</p>
+  <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
+using namespace std;
 
-int findPeakElement(const std::vector&lt;int&gt;&amp; nums) {
-    int low = 0, high = nums.size() - 1;
-    while (low &lt;= high) {
+int searchInsert(const vector&lt;int&gt;&amp; arr, int target) {
+    int low = 0, high = arr.size();
+    while (low &lt; high) {
         int mid = low + (high - low) / 2;
-        if ((mid == 0 || nums[mid - 1] &lt;= nums[mid]) &&
-            (mid == nums.size() - 1 || nums[mid + 1] &lt;= nums[mid]))
-            return mid;
-        else if (mid &gt; 0 && nums[mid - 1] &gt; nums[mid]) high = mid - 1;
-        else low = mid + 1;
+        if (arr[mid] &lt; target) low = mid + 1;
+        else high = mid;
+    }
+    return low;
+}
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 5, 6};
+    cout &lt;&lt; searchInsert(arr, 5) &lt;&lt; endl; // Output: 2
+    cout &lt;&lt; searchInsert(arr, 2) &lt;&lt; endl; // Output: 1
+    return 0;
+}
+  </code></pre>
+
+  <h3>2. Search in Rotated Sorted Array</h3>
+  <p>Given a rotated sorted array (no duplicates) and a <code>target</code>, find its index or <code>-1</code> if not found.</p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int searchRotated(const vector&lt;int&gt;&amp; arr, int target) {
+    int low = 0, high = arr.size() - 1;
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+        if (arr[mid] == target) return mid;
+
+        // left half is sorted
+        if (arr[low] &lt;= arr[mid]) {
+            if (arr[low] &lt;= target &amp;&amp; target &lt; arr[mid])
+                high = mid - 1;
+            else
+                low = mid + 1;
+        }
+        // right half is sorted
+        else {
+            if (arr[mid] &lt; target &amp;&amp; target &lt;= arr[high])
+                low = mid + 1;
+            else
+                high = mid - 1;
+        }
     }
     return -1;
 }
 
 int main() {
-    std::vector&lt;int&gt; nums = {1, 3, 20, 4, 1};
-    std::cout &lt;&lt; "Peak element at index " &lt;&lt; findPeakElement(nums) &lt;&lt; std::endl;
+    vector&lt;int&gt; arr = {4,5,6,7,0,1,2};
+    cout &lt;&lt; searchRotated(arr, 0) &lt;&lt; endl; // Output: 4
     return 0;
 }
-</code></pre>
+  </code></pre>
 
-<h2>🧠 Advanced Problem Solvable by Binary Search</h2>
+  <h2>Hard Problem</h2>
 
-<h3>1. Finding the Minimum in a Rotated Sorted Array</h3>
-<p>Given a rotated sorted array, find the minimum element.</p>
-<pre><code class="cpp">
+  <h3>Median of Two Sorted Arrays</h3>
+  <p>Given two sorted arrays of size <code>m</code> and <code>n</code>, find the median of the combined sorted array in <code>O(log(min(m,n)))</code> time.</p>
+  <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
 
-int findMinInRotatedArray(const std::vector&lt;int&gt;&amp; nums) {
-    int low = 0, high = nums.size() - 1;
+double findMedianSortedArrays(const vector&lt;int&gt;&amp; A, const vector&lt;int&gt;&amp; B) {
+    if (A.size() &gt; B.size()) return findMedianSortedArrays(B, A);
+
+    int m = A.size(), n = B.size();
+    int low = 0, high = m, half = (m + n + 1) / 2;
+
     while (low &lt;= high) {
-        int mid = low + (high - low) / 2;
-        if (nums[mid] &lt; nums[high]) high = mid;
-        else low = mid + 1;
+        int i = (low + high) / 2;
+        int j = half - i;
+
+        int Aleft  = (i == 0 ? INT_MIN : A[i-1]);
+        int Aright = (i == m ? INT_MAX : A[i]);
+        int Bleft  = (j == 0 ? INT_MIN : B[j-1]);
+        int Bright = (j == n ? INT_MAX : B[j]);
+
+        if (Aleft &lt;= Bright && Bleft &lt;= Aright) {
+            if ((m + n) % 2 == 0)
+                return (max(Aleft, Bleft) + min(Aright, Bright)) / 2.0;
+            else
+                return max(Aleft, Bleft);
+        }
+        else if (Aleft &gt; Bright) {
+            high = i - 1;
+        }
+        else {
+            low = i + 1;
+        }
     }
-    return nums[low];
+    return 0.0;
 }
 
 int main() {
-    std::vector&lt;int&gt; nums = {4, 5, 6, 7, 0, 1, 2};
-    std::cout &lt;&lt; "Minimum element is " &lt;&lt; findMinInRotatedArray(nums) &lt;&lt; std::endl;
+    vector&lt;int&gt; A = {1, 3};
+    vector&lt;int&gt; B = {2};
+    cout &lt;&lt; findMedianSortedArrays(A, B) &lt;&lt; endl; // Output: 2.0
     return 0;
 }
-</code></pre>
+  </code></pre>
 
-<h2>📌 Summary</h2>
-<ul>
-  <li><strong>Binary Search</strong> is an efficient algorithm for finding an item from a sorted list of items.</li>
-  <li>It has a time complexity of O(log n), making it faster than linear search for large datasets.</li>
-  <li>Its space complexity is O(1) for iterative implementations and O(log n) for recursive implementations.</li>
-  <li>Binary Search can be applied to various problems, including finding elements, computing square roots, and identifying peak elements.</li>
-</ul>
 </body>
 </html>
