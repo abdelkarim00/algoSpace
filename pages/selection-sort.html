@@ -1,131 +1,247 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Selection Sort Algorithm - Analysis and Examples</title>
-</head>
-<body>
-
 <h1>Selection Sort Algorithm</h1>
 
-<h2>📌 Overview</h2>
-<p>
-  Selection Sort is a simple, comparison-based sorting algorithm. It works by dividing the array into two parts: the sorted part at the beginning and the unsorted part. It repeatedly selects the smallest (or largest) element from the unsorted portion and swaps it with the first element of the unsorted portion.
-</p>
-
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Start from the first element.</li>
-  <li>Find the minimum element in the unsorted part.</li>
-  <li>Swap it with the first unsorted element.</li>
-  <li>Repeat the process for the remaining unsorted part.</li>
-</ol>
-
-<h2>⏱️ Time Complexity</h2>
+<h2>1. Algorithm Explanation</h2>
+<p>Selection Sort is an in-place comparison-based sorting algorithm. It divides the input array into two parts:</p>
 <ul>
-  <li><strong>Best Case:</strong> O(n²)</li>
-  <li><strong>Average Case:</strong> O(n²)</li>
-  <li><strong>Worst Case:</strong> O(n²)</li>
+  <li>The subarray which is already sorted (initially empty).</li>
+  <li>The subarray which remains to be sorted.</li>
+</ul>
+<p>On each pass, it selects the smallest (or largest, for descending order) element from the unsorted portion and swaps it with the first element of that portion, growing the sorted region by one.</p>
+
+<pre><code>procedure selectionSort(A : array of items, n : integer)
+    for i ← 0 to n – 2 do
+        // Find index of minimum element in A[i…n–1]
+        minIndex ← i
+        for j ← i + 1 to n – 1 do
+            if A[j] &lt; A[minIndex] then
+                minIndex ← j
+            end if
+        end for
+        // Swap the found minimum with A[i]
+        swap A[i] and A[minIndex]
+    end for
+end procedure
+</code></pre>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li>Best case: O(n²) — the inner loop always runs full length, regardless of input order.</li>
+  <li>Average case: O(n²)</li>
+  <li>Worst case: O(n²)</li>
 </ul>
 
-<h2>💾 Space Complexity</h2>
+<h3>Memory Complexity</h3>
 <ul>
-  <li><strong>Space:</strong> O(1) – In-place sort</li>
+  <li>Auxiliary space: O(1) — only a few variables for indices and swapping.</li>
+  <li>Not stable by default (equal elements may change relative order).</li>
 </ul>
 
 <hr>
 
-<h2>✅ Easy Problems Solvable by Selection Sort</h2>
+<h2>2. Easy Problems Solvable by Selection Sort</h2>
 
-<h3>1. Sort Small List of Integers</h3>
-<p>Perfect for arrays with small size where algorithm simplicity is more important than performance.</p>
-<pre><code>
-void selectionSort(int arr[], int n) {
-    for (int i = 0; i &lt; n - 1; i++) {
-        int minIdx = i;
-        for (int j = i + 1; j &lt; n; j++) {
-            if (arr[j] &lt; arr[minIdx])
-                minIdx = j;
-        }
-        swap(arr[minIdx], arr[i]);
+<h3>2.1. Sort an Array of Integers</h3>
+<p><strong>Problem:</strong> Given an array of integers, sort it in ascending order.</p>
+<pre><code>// C++ Implementation
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void selectionSort(vector&lt;int&gt;&amp; A) {
+    int n = A.size();
+    for (int i = 0; i &lt; n - 1; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j &lt; n; ++j)
+            if (A[j] &lt; A[minIndex])
+                minIndex = j;
+        swap(A[i], A[minIndex]);
     }
+}
+
+int main() {
+    vector&lt;int&gt; arr = {64, 25, 12, 22, 11};
+    selectionSort(arr);
+    cout &lt;&lt; "Sorted array: ";
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    return 0;
 }
 </code></pre>
 
-<h3>2. Find Minimum Element Without Sorting Fully</h3>
-<pre><code>
-int findMinimum(int arr[], int n) {
-    int min = arr[0];
-    for (int i = 1; i &lt; n; i++) {
-        if (arr[i] &lt; min)
-            min = arr[i];
+<h3>2.2. Sort Characters in a String</h3>
+<p><strong>Problem:</strong> Given a string, sort its characters in alphabetical order.</p>
+<pre><code>// C++ Implementation
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+void selectionSort(string &s) {
+    int n = s.length();
+    for (int i = 0; i &lt; n - 1; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j &lt; n; ++j)
+            if (s[j] &lt; s[minIndex])
+                minIndex = j;
+        swap(s[i], s[minIndex]);
     }
-    return min;
+}
+
+int main() {
+    string str = "selectionsort";
+    selectionSort(str);
+    cout &lt;&lt; "Sorted string: " &lt;&lt; str &lt;&lt; endl;
+    return 0;
 }
 </code></pre>
 
 <hr>
 
-<h2>🔁 Intermediate Problems Solvable by Selection Sort</h2>
+<h2>3. Intermediate Problems Solvable by Selection Sort</h2>
 
-<h3>1. Sort Names Alphabetically (Small Class)</h3>
-<pre><code>
-void selectionSortStrings(string arr[], int n) {
-    for (int i = 0; i &lt; n - 1; i++) {
-        int minIdx = i;
-        for (int j = i + 1; j &lt; n; j++) {
-            if (arr[j] &lt; arr[minIdx])
-                minIdx = j;
-        }
-        swap(arr[minIdx], arr[i]);
+<h3>3.1. Find the k-th Smallest Element</h3>
+<p><strong>Problem:</strong> Given an array and integer k, find the k-th smallest element using partial selection sort.</p>
+<pre><code>// C++ Implementation
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// Perform only k passes of selection sort
+int kthSmallest(vector&lt;int&gt;&amp; A, int k) {
+    int n = A.size();
+    for (int i = 0; i &lt; k; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j &lt; n; ++j)
+            if (A[j] &lt; A[minIndex])
+                minIndex = j;
+        swap(A[i], A[minIndex]);
     }
+    return A[k - 1];
+}
+
+int main() {
+    vector&lt;int&gt; arr = {7, 10, 4, 3, 20, 15};
+    int k = 3;
+    cout &lt;&lt; "3rd smallest element is "
+         &lt;&lt; kthSmallest(arr, k)
+         &lt;&lt; endl;
+    return 0;
 }
 </code></pre>
 
-<h3>2. Sort Student Marks (≤ 100 records)</h3>
-<pre><code>
-struct Student {
-    string name;
-    int marks;
+<h3>3.2. Sort a Singly Linked List</h3>
+<p><strong>Problem:</strong> Given a singly linked list, sort its nodes in ascending order of value.</p>
+<pre><code>// C++ Implementation
+#include &lt;iostream&gt;
+using namespace std;
+
+struct Node {
+    int data;
+    Node* next;
+    Node(int v) : data(v), next(nullptr) {}
 };
 
-void selectionSortStudents(Student arr[], int n) {
-    for (int i = 0; i &lt; n - 1; i++) {
-        int minIdx = i;
-        for (int j = i + 1; j &lt; n; j++) {
-            if (arr[j].marks &lt; arr[minIdx].marks)
-                minIdx = j;
+// Swap data fields of two nodes
+void swapNodeData(Node* a, Node* b) {
+    int temp = a->data;
+    a->data = b->data;
+    b->data = temp;
+}
+
+void selectionSortList(Node* head) {
+    for (Node* i = head; i != nullptr; i = i->next) {
+        Node* minNode = i;
+        for (Node* j = i->next; j != nullptr; j = j->next) {
+            if (j->data &lt; minNode->data)
+                minNode = j;
         }
-        swap(arr[i], arr[minIdx]);
+        swapNodeData(i, minNode);
     }
+}
+
+void printList(Node* head) {
+    while (head) {
+        cout &lt;&lt; head->data &lt;&lt; " ";
+        head = head->next;
+    }
+    cout &lt;&lt; endl;
+}
+
+int main() {
+    // 4 -> 2 -> 1 -> 3
+    Node* head = new Node(4);
+    head->next = new Node(2);
+    head->next->next = new Node(1);
+    head->next->next->next = new Node(3);
+
+    selectionSortList(head);
+    cout &lt;&lt; "Sorted list: ";
+    printList(head);
+    return 0;
 }
 </code></pre>
 
 <hr>
 
-<h2>🧠 Hard Problem Solvable by Selection Sort</h2>
+<h2>4. Hard Problem Solvable by Selection Sort</h2>
 
-<h3>1. In-Place Sorting with Stable Memory Constraints (No Dynamic Allocation)</h3>
-<p>
-  For embedded systems with tight memory where performance is secondary to predictability and space usage, Selection Sort is useful due to O(1) space.
-</p>
-<pre><code>
-void inplaceStableSelectionSort(int arr[], int n) {
-    for (int i = 0; i &lt; n - 1; i++) {
+<h3>4.1. Sort a Deck of Cards by Suit and Rank (Stable)</h3>
+<p><strong>Problem:</strong> You have a deck of cards, each with a suit (♣, ♦, ♥, ♠) and rank (1–13). Sort the deck first by suit in the order ♣, ♦, ♥, ♠, then by rank ascending, while preserving the relative order of cards with identical suit and rank (stable).</p>
+<pre><code>// C++ Implementation (Stable Selection Sort)
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct Card {
+    char suit;   // 'C', 'D', 'H', 'S'
+    int rank;    // 1–13
+};
+
+// Map suit to its order
+int suitOrder(char s) {
+    switch (s) {
+        case 'C': return 0;
+        case 'D': return 1;
+        case 'H': return 2;
+        case 'S': return 3;
+    }
+    return 4;
+}
+
+// Comparator for cards
+bool lessCard(const Card &a, const Card &b) {
+    if (suitOrder(a.suit) != suitOrder(b.suit))
+        return suitOrder(a.suit) &lt; suitOrder(b.suit);
+    return a.rank &lt; b.rank;
+}
+
+// Stable selection sort: extract & shift
+void stableSelectionSort(vector&lt;Card&gt;&amp; deck) {
+    int n = deck.size();
+    for (int i = 0; i &lt; n; ++i) {
         int minIdx = i;
-        for (int j = i + 1; j &lt; n; j++) {
-            if (arr[j] &lt; arr[minIdx])
+        for (int j = i + 1; j &lt; n; ++j) {
+            if (lessCard(deck[j], deck[minIdx]))
                 minIdx = j;
         }
-
-        int minValue = arr[minIdx];
-        // Shift elements right to preserve stability
-        for (int k = minIdx; k &gt; i; k--)
-            arr[k] = arr[k - 1];
-        arr[i] = minValue;
+        // Extract deck[minIdx] and shift right
+        Card key = deck[minIdx];
+        for (int j = minIdx; j &gt; i; --j)
+            deck[j] = deck[j - 1];
+        deck[i] = key;
     }
 }
-</code></pre>
 
-</body>
-</html>
+int main() {
+    vector&lt;Card&gt; deck = {
+        {'H', 12}, {'C', 5}, {'D', 5}, {'H', 1},
+        {'S', 13}, {'C', 12}, {'D', 1}, {'S', 1}
+    };
+    stableSelectionSort(deck);
+    cout &lt;&lt; "Sorted deck:\n";
+    for (auto &c : deck) {
+        cout &lt;&lt; c.suit &lt;&lt; c.rank &lt;&lt; "  ";
+    }
+    cout &lt;&lt; endl;
+    return 0;
+}
+</code></pre>

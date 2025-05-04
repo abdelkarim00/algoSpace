@@ -1,172 +1,267 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Merge Sort Algorithm - Analysis and Examples</title>
-</head>
-<body>
+<html>
+  <body>
+    <h1>Merge Sort Algorithm</h1>
 
-<h1>Merge Sort Algorithm</h1>
+    <h2>1. Algorithm Description</h2>
+    <p>
+      Merge Sort is a classic divide-and-conquer sorting algorithm. It works by:
+      <ol>
+        <li>
+          <strong>Divide:</strong> Split the array into two roughly equal halves.
+        </li>
+        <li>
+          <strong>Conquer:</strong> Recursively sort each half.
+        </li>
+        <li>
+          <strong>Merge:</strong> Merge the two sorted halves into a single sorted array.
+        </li>
+      </ol>
+    </p>
+    <p>
+      Pseudocode:
+      <pre><code>
+function mergeSort(A, left, right):
+    if left >= right:
+        return
+    mid = (left + right) / 2
+    mergeSort(A, left, mid)
+    mergeSort(A, mid+1, right)
+    merge(A, left, mid, right)
+      </code></pre>
+    </p>
 
-<h2>📌 Overview</h2>
-<p>
-  Merge Sort is a classic divide-and-conquer algorithm that splits an array into halves, recursively sorts each half, and merges the sorted halves back together. It's known for its predictable O(n log n) time complexity and is a stable sort.
-</p>
+    <h3>Time Complexity</h3>
+    <p>
+      At each level of recursion, we do O(n) work to merge. There are O(log n) levels.  
+      Therefore, the overall time complexity is <strong>O(n log n)</strong>.
+    </p>
 
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Divide the array into two halves.</li>
-  <li>Recursively sort each half.</li>
-  <li>Merge the two sorted halves.</li>
-</ol>
+    <h3>Memory Complexity</h3>
+    <p>
+      Merge step requires an auxiliary array of size n. The recursion uses O(log n) stack space.  
+      Overall additional memory is <strong>O(n)</strong>.
+    </p>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(n log n)</li>
-  <li><strong>Average Case:</strong> O(n log n)</li>
-  <li><strong>Worst Case:</strong> O(n log n)</li>
-</ul>
+    <h2>2. Easy Problems</h2>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Auxiliary Space:</strong> O(n) due to temporary arrays during merging</li>
-</ul>
+    <h3>2.1 Problem: Sort an Array of Integers</h3>
+    <p>
+      <em>Given an unsorted array of integers, return it sorted in non-decreasing order.</em>
+    </p>
+    <pre><code class="language-cpp">
+// Merge Sort for array of ints
+#include <bits/stdc++.h>
+using namespace std;
 
-<hr>
-
-<h2>✅ Easy Problems Solvable by Merge Sort</h2>
-
-<h3>1. Sort a List of Integers</h3>
-<pre><code>
-void merge(int arr[], int l, int m, int r) {
-    int n1 = m - l + 1, n2 = r - m;
-    int L[n1], R[n2];
-
-    for (int i = 0; i &lt; n1; i++) L[i] = arr[l + i];
-    for (int j = 0; j &lt; n2; j++) R[j] = arr[m + 1 + j];
-
-    int i = 0, j = 0, k = l;
-    while (i &lt; n1 &amp;&amp; j &lt; n2)
-        arr[k++] = (L[i] &lt;= R[j]) ? L[i++] : R[j++];
-
-    while (i &lt; n1) arr[k++] = L[i++];
-    while (j &lt; n2) arr[k++] = R[j++];
-}
-
-void mergeSort(int arr[], int l, int r) {
-    if (l &lt; r) {
-        int m = l + (r - l) / 2;
-        mergeSort(arr, l, m);
-        mergeSort(arr, m + 1, r);
-        merge(arr, l, m, r);
+void merge(vector<int>& A, int l, int m, int r) {
+    vector<int> tmp(r - l + 1);
+    int i = l, j = m + 1, k = 0;
+    while (i <= m && j <= r) {
+        tmp[k++] = (A[i] <= A[j] ? A[i++] : A[j++]);
     }
+    while (i <= m) tmp[k++] = A[i++];
+    while (j <= r) tmp[k++] = A[j++];
+    for (int p = 0; p < tmp.size(); ++p)
+        A[l + p] = tmp[p];
 }
-</code></pre>
 
-<h3>2. Merge Two Sorted Arrays</h3>
-<pre><code>
-void mergeTwoSortedArrays(int A[], int n, int B[], int m, int C[]) {
-    int i = 0, j = 0, k = 0;
-    while (i &lt; n &amp;&amp; j &lt; m)
-        C[k++] = (A[i] &lt; B[j]) ? A[i++] : B[j++];
-    while (i &lt; n) C[k++] = A[i++];
-    while (j &lt; m) C[k++] = B[j++];
+void mergeSort(vector<int>& A, int l, int r) {
+    if (l >= r) return;
+    int m = l + (r - l) / 2;
+    mergeSort(A, l, m);
+    mergeSort(A, m + 1, r);
+    merge(A, l, m, r);
 }
-</code></pre>
 
-<hr>
+int main() {
+    vector<int> A = {5, 2, 8, 1, 3};
+    mergeSort(A, 0, A.size() - 1);
+    for (int x : A) cout << x << " ";
+    return 0;
+}
+    </code></pre>
 
-<h2>🔁 Intermediate Problems Solvable by Merge Sort</h2>
+    <h3>2.2 Problem: Find the k-th Smallest Element in an Array</h3>
+    <p>
+      <em>Given an array and integer k, return the k<sup>th</sup> smallest element by first sorting.</em>
+    </p>
+    <pre><code class="language-cpp">
+// Find k-th smallest by sorting with merge sort
+#include <bits/stdc++.h>
+using namespace std;
 
-<h3>1. Count Inversions in an Array</h3>
-<pre><code>
-int mergeAndCount(int arr[], int l, int m, int r) {
-    int n1 = m - l + 1, n2 = r - m;
-    int L[n1], R[n2];
-    for (int i = 0; i &lt; n1; i++) L[i] = arr[l + i];
-    for (int j = 0; j &lt; n2; j++) R[j] = arr[m + 1 + j];
+// (reuse merge and mergeSort from above)
 
-    int i = 0, j = 0, k = l, inv_count = 0;
-    while (i &lt; n1 &amp;&amp; j &lt; n2) {
-        if (L[i] &lt;= R[j]) arr[k++] = L[i++];
-        else {
-            arr[k++] = R[j++];
-            inv_count += (n1 - i); // elements remaining in L[]
+int kthSmallest(vector<int>& A, int k) {
+    mergeSort(A, 0, A.size() - 1);
+    return A[k - 1];
+}
+
+int main() {
+    vector<int> A = {7, 10, 4, 3, 20, 15};
+    int k = 3;
+    cout << "3rd smallest is " << kthSmallest(A, k);
+    return 0;
+}
+    </code></pre>
+
+    <h2>3. Intermediate Problems</h2>
+
+    <h3>3.1 Problem: Count Inversions in an Array</h3>
+    <p>
+      <em>An inversion is a pair (i, j) with i &lt; j and A[i] &gt; A[j]. Count total inversions in O(n log n).</em>
+    </p>
+    <pre><code class="language-cpp">
+// Count inversions using modified merge sort
+#include <bits/stdc++.h>
+using namespace std;
+
+long long mergeCount(vector<int>& A, int l, int m, int r) {
+    vector<int> tmp;
+    int i = l, j = m + 1;
+    long long inv = 0;
+    while (i <= m && j <= r) {
+        if (A[i] <= A[j]) {
+            tmp.push_back(A[i++]);
+        } else {
+            tmp.push_back(A[j++]);
+            inv += (m - i + 1);
         }
     }
-    while (i &lt; n1) arr[k++] = L[i++];
-    while (j &lt; n2) arr[k++] = R[j++];
-    return inv_count;
+    while (i <= m) tmp.push_back(A[i++]);
+    while (j <= r) tmp.push_back(A[j++]);
+    for (int k = 0; k < tmp.size(); ++k)
+        A[l + k] = tmp[k];
+    return inv;
 }
 
-int mergeSortAndCount(int arr[], int l, int r) {
-    int count = 0;
-    if (l &lt; r) {
-        int m = l + (r - l) / 2;
-        count += mergeSortAndCount(arr, l, m);
-        count += mergeSortAndCount(arr, m + 1, r);
-        count += mergeAndCount(arr, l, m, r);
-    }
-    return count;
+long long sortCount(vector<int>& A, int l, int r) {
+    if (l >= r) return 0;
+    int m = l + (r - l) / 2;
+    long long inv = sortCount(A, l, m);
+    inv += sortCount(A, m + 1, r);
+    inv += mergeCount(A, l, m, r);
+    return inv;
 }
-</code></pre>
 
-<h3>2. Sort Linked List (Merge Sort for Linked List)</h3>
-<pre><code>
+int main() {
+    vector<int> A = {2, 4, 1, 3, 5};
+    cout << "Inversions: " << sortCount(A, 0, A.size() - 1);
+    return 0;
+}
+    </code></pre>
+
+    <h3>3.2 Problem: Sort a Singly Linked List</h3>
+    <p>
+      <em>Given the head of a singly linked list, sort it in ascending order in O(n log n) time and O(log n) space.</em>
+    </p>
+    <pre><code class="language-cpp">
+// Merge Sort on linked list
+#include <bits/stdc++.h>
+using namespace std;
+
 struct ListNode {
     int val;
     ListNode* next;
+    ListNode(int x): val(x), next(nullptr) {}
 };
 
-ListNode* merge(ListNode* l1, ListNode* l2) {
-    if (!l1) return l2;
-    if (!l2) return l1;
-
-    if (l1-&gt;val &lt;= l2-&gt;val) {
-        l1-&gt;next = merge(l1-&gt;next, l2);
-        return l1;
-    } else {
-        l2-&gt;next = merge(l1, l2-&gt;next);
-        return l2;
+ListNode* mergeList(ListNode* a, ListNode* b) {
+    ListNode dummy(0), *tail = &dummy;
+    while (a && b) {
+        if (a->val <= b->val) { tail->next = a; a = a->next; }
+        else { tail->next = b; b = b->next; }
+        tail = tail->next;
     }
+    tail->next = a ? a : b;
+    return dummy.next;
 }
 
-ListNode* mergeSort(ListNode* head) {
-    if (!head || !head-&gt;next) return head;
-
-    ListNode *slow = head, *fast = head-&gt;next;
-    while (fast &amp;&amp; fast-&gt;next) {
-        slow = slow-&gt;next;
-        fast = fast-&gt;next-&gt;next;
+ListNode* sortList(ListNode* head) {
+    if (!head || !head->next) return head;
+    // find middle
+    ListNode *slow = head, *fast = head->next;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
     }
-
-    ListNode* mid = slow-&gt;next;
-    slow-&gt;next = nullptr;
-
-    ListNode* left = mergeSort(head);
-    ListNode* right = mergeSort(mid);
-
-    return merge(left, right);
+    ListNode* mid = slow->next;
+    slow->next = nullptr;
+    return mergeList(sortList(head), sortList(mid));
 }
-</code></pre>
 
-<hr>
+int main() {
+    // Example: 4->2->1->3
+    ListNode* head = new ListNode(4);
+    head->next = new ListNode(2);
+    head->next->next = new ListNode(1);
+    head->next->next->next = new ListNode(3);
 
-<h2>🧠 Hard Problem Solvable by Merge Sort</h2>
+    head = sortList(head);
+    for (ListNode* p = head; p; p = p->next) {
+        cout << p->val << " ";
+    }
+    return 0;
+}
+    </code></pre>
 
-<h3>1. External Sorting (Sorting Big Files That Don’t Fit in Memory)</h3>
-<p>
-  Merge Sort is ideal for external sorting due to its sequential access pattern. Files are split into chunks that are sorted in memory, then merged using a k-way merge.
-</p>
-<pre><code>
-// Pseudocode representation of external merge sort logic
-// Real implementation would involve file I/O and buffers
+    <h2>4. Hard Problem</h2>
 
-// Step 1: Sort chunks and store as temporary files
-// Step 2: Perform k-way merge to combine sorted chunks
+    <h3>4.1 Problem: Merge <em>k</em> Sorted Lists</h3>
+    <p>
+      <em>Given k sorted linked lists, merge them into one sorted list in O(n log k) time by divide-and-conquer (generalized merge sort).</em>
+    </p>
+    <pre><code class="language-cpp">
+// Merge k sorted lists using divide and conquer
+#include <bits/stdc++.h>
+using namespace std;
 
-// Use priority_queue (min-heap) for k-way merging
-</code></pre>
+struct ListNode {
+    int val;
+    ListNode* next;
+    ListNode(int x): val(x), next(nullptr) {}
+};
 
-</body>
+ListNode* mergeTwo(ListNode* a, ListNode* b) {
+    ListNode dummy(0), *tail = &dummy;
+    while (a && b) {
+        if (a->val <= b->val) { tail->next = a; a = a->next; }
+        else { tail->next = b; b = b->next; }
+        tail = tail->next;
+    }
+    tail->next = a ? a : b;
+    return dummy.next;
+}
+
+ListNode* mergeK(vector<ListNode*>& lists, int l, int r) {
+    if (l > r) return nullptr;
+    if (l == r) return lists[l];
+    int m = l + (r - l) / 2;
+    return mergeTwo(mergeK(lists, l, m), mergeK(lists, m+1, r));
+}
+
+ListNode* mergeKLists(vector<ListNode*>& lists) {
+    return mergeK(lists, 0, lists.size() - 1);
+}
+
+int main() {
+    // Example: [[1->4->5], [1->3->4], [2->6]]
+    vector<ListNode*> lists;
+    lists.push_back(new ListNode(1));
+    lists[0]->next = new ListNode(4);
+    lists[0]->next->next = new ListNode(5);
+    lists.push_back(new ListNode(1));
+    lists[1]->next = new ListNode(3);
+    lists[1]->next->next = new ListNode(4);
+    lists.push_back(new ListNode(2));
+    lists[2]->next = new ListNode(6);
+
+    ListNode* head = mergeKLists(lists);
+    for (ListNode* p = head; p; p = p->next) {
+        cout << p->val << " ";
+    }
+    return 0;
+}
+    </code></pre>
+  </body>
 </html>

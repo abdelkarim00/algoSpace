@@ -1,124 +1,223 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Insertion Sort Algorithm - Analysis and Examples</title>
+  <meta charset="UTF-8">
+  <title>Insertion Sort Algorithm</title>
 </head>
 <body>
 
-<h1>Insertion Sort Algorithm</h1>
+  <h1>Insertion Sort Algorithm</h1>
 
-<h2>📌 Overview</h2>
-<p>Insertion Sort is a simple sorting algorithm that builds the sorted list one element at a time. It is efficient for small datasets and partially sorted data.</p>
+  <h2>1. Algorithm Explanation</h2>
+  <p>
+    Insertion Sort builds the sorted array one element at a time. It maintains a “sorted” subarray on the left and iteratively inserts the next element from the unsorted portion into its correct position in the sorted portion.
+  </p>
+  <ol>
+    <li>Start with the second element (index 1). Assume the first element is a sorted subarray of size 1.</li>
+    <li>Save the current element (<code>key</code>).</li>
+    <li>Compare <code>key</code> with elements in the sorted subarray (from rightmost to leftmost).</li>
+    <li>Shift elements that are greater than <code>key</code> one position to the right.</li>
+    <li>Insert <code>key</code> into its correct position.</li>
+    <li>Repeat for all elements until the entire array is sorted.</li>
+  </ol>
 
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Start from the second element (index 1).</li>
-  <li>Compare it with elements before it and insert it into the correct position.</li>
-  <li>Repeat for all remaining elements.</li>
-</ol>
+  <h2>2. Time and Memory Complexity</h2>
+  <ul>
+    <li><strong>Worst-case time:</strong> O(<em>n</em><sup>2</sup>) — occurs when the input is in reverse order; each insertion requires shifting all previous elements.</li>
+    <li><strong>Average-case time:</strong> O(<em>n</em><sup>2</sup>).</li>
+    <li><strong>Best-case time:</strong> O(<em>n</em>) — occurs when the input is already sorted; only one comparison per element.</li>
+    <li><strong>Memory (auxiliary):</strong> O(1) — in-place sorting, uses only a constant amount of extra memory.</li>
+  </ul>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(n) — when the array is already sorted</li>
-  <li><strong>Average Case:</strong> O(n²)</li>
-  <li><strong>Worst Case:</strong> O(n²) — when the array is sorted in reverse</li>
-</ul>
+  <h2>3. Easy Problems</h2>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Space:</strong> O(1) — in-place sorting</li>
-</ul>
+  <h3>3.1. Problem 1: Insert Element Into Sorted Array</h3>
+  <p>
+    Given a sorted array and a value <code>x</code>, insert <code>x</code> into the array so that it remains sorted.
+  </p>
+  <pre><code>
+// C++ solution
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
 
-<hr>
-
-<h2>✅ Easy Problems Solvable by Insertion Sort</h2>
-
-<h3>1. Sort Small Integer Array</h3>
-<pre><code>
-void insertionSort(int arr[], int n) {
-    for (int i = 1; i &lt; n; i++) {
-        int key = arr[i];
-        int j = i - 1;
-        while (j &gt;= 0 && arr[j] &gt; key) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
-    }
+void insertIntoSorted(vector<int>& arr, int x) {
+  arr.push_back(x);  // make space
+  int i = arr.size() - 2;
+  while (i >= 0 && arr[i] > x) {
+    arr[i + 1] = arr[i];
+    i--;
+  }
+  arr[i + 1] = x;
 }
-</code></pre>
 
-<h3>2. Insert Element into a Sorted Array</h3>
-<pre><code>
-// Insert 'val' into sorted array 'arr' of size n
-void insertIntoSortedArray(int arr[], int &n, int val) {
-    int i = n - 1;
-    while (i &gt;= 0 && arr[i] &gt; val) {
-        arr[i + 1] = arr[i];
-        i--;
-    }
-    arr[i + 1] = val;
-    n++;
+int main() {
+  vector<int> arr = {1, 3, 5, 7};
+  int x = 4;
+  insertIntoSorted(arr, x);
+  for (int v : arr) cout &lt;&lt; v &lt;&lt; " ";
+  return 0;
 }
-</code></pre>
+  </code></pre>
 
-<hr>
+  <h3>3.2. Problem 2: Sort Small Array</h3>
+  <p>
+    Given an array of at most 100 elements, sort it using insertion sort.
+  </p>
+  <pre><code>
+// C++ solution
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
 
-<h2>🔁 Intermediate Problems Solvable by Insertion Sort</h2>
-
-<h3>1. Sort Array of Strings Alphabetically</h3>
-<pre><code>
-void insertionSortStrings(string arr[], int n) {
-    for (int i = 1; i &lt; n; i++) {
-        string key = arr[i];
-        int j = i - 1;
-        while (j &gt;= 0 && arr[j] &gt; key) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
+void insertionSort(vector<int>& arr) {
+  int n = arr.size();
+  for (int i = 1; i &lt; n; i++) {
+    int key = arr[i];
+    int j = i - 1;
+    while (j >= 0 && arr[j] &gt; key) {
+      arr[j + 1] = arr[j];
+      j--;
     }
+    arr[j + 1] = key;
+  }
 }
-</code></pre>
 
-<h3>2. Sort Students by Score (Small Data)</h3>
-<pre><code>
-struct Student {
-    string name;
-    int score;
+int main() {
+  vector<int> arr = {9, 2, 7, 3, 6};
+  insertionSort(arr);
+  for (int v : arr) cout &lt;&lt; v &lt;&lt; " ";
+  return 0;
+}
+  </code></pre>
+
+  <h2>4. Intermediate Problems</h2>
+
+  <h3>4.1. Problem 3: Count Inversions for Nearly Sorted Array</h3>
+  <p>
+    Given an array where each element is at most <code>k</code> positions away from its sorted position, count the number of inversions by using insertion sort to accumulate shifts.
+  </p>
+  <pre><code>
+// C++ solution
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// Returns number of shifts ≡ inversions for a nearly sorted array.
+long long countInversions(vector<int>& arr) {
+  int n = arr.size();
+  long long inv = 0;
+  for (int i = 1; i &lt; n; i++) {
+    int key = arr[i];
+    int j = i - 1;
+    while (j >= 0 && arr[j] &gt; key) {
+      arr[j + 1] = arr[j];
+      j--;
+      inv++;
+    }
+    arr[j + 1] = key;
+  }
+  return inv;
+}
+
+int main() {
+  vector<int> arr = {2, 1, 3, 5, 4};
+  cout &lt;&lt; "Inversions: " &lt;&lt; countInversions(arr);
+  return 0;
+}
+  </code></pre>
+
+  <h3>4.2. Problem 4: Sort a Linked List of Small Size</h3>
+  <p>
+    Given a singly linked list with at most 1000 nodes, sort it in-place using insertion sort on the list nodes.
+  </p>
+  <pre><code>
+// C++ solution
+#include &lt;iostream&gt;
+using namespace std;
+
+struct Node {
+  int val;
+  Node* next;
+  Node(int v): val(v), next(nullptr) {}
 };
 
-void insertionSortStudents(Student arr[], int n) {
-    for (int i = 1; i &lt; n; i++) {
-        Student key = arr[i];
-        int j = i - 1;
-        while (j &gt;= 0 && arr[j].score &gt; key.score) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
-    }
+Node* insertionSortList(Node* head) {
+  Node dummy(0);
+  Node* tail = &dummy;
+  Node* cur = head;
+  while (cur) {
+    Node* next = cur->next;
+    // find insertion position
+    Node* p = &dummy;
+    while (p->next && p->next->val &lt; cur->val)
+      p = p->next;
+    // insert cur between p and p->next
+    cur->next = p->next;
+    p->next = cur;
+    cur = next;
+  }
+  return dummy.next;
 }
-</code></pre>
 
-<hr>
-
-<h2>🧠 Hard Problem Solvable by Insertion Sort</h2>
-
-<h3>1. Real-time Sorting of Streaming Data (e.g. in Sensor Devices)</h3>
-<p>Insertion Sort works well when elements are coming in one at a time and must be sorted immediately (e.g. microcontroller).</p>
-<pre><code>
-void insertSensorReading(int sorted[], int &n, int newReading) {
-    int i = n - 1;
-    while (i &gt;= 0 && sorted[i] &gt; newReading) {
-        sorted[i + 1] = sorted[i];
-        i--;
-    }
-    sorted[i + 1] = newReading;
-    n++;
+int main() {
+  Node* head = new Node(4);
+  head->next = new Node(2);
+  head->next->next = new Node(5);
+  head->next->next->next = new Node(1);
+  Node* sorted = insertionSortList(head);
+  while (sorted) {
+    cout &lt;&lt; sorted->val &lt;&lt; " ";
+    sorted = sorted->next;
+  }
+  return 0;
 }
-</code></pre>
+  </code></pre>
+
+  <h2>5. Hard Problem</h2>
+
+  <h3>5.1. Problem 5: Online Median Maintenance for Small Streams</h3>
+  <p>
+    Maintain a running median of a stream of integers where the stream length is at most 10<sup>4</sup>. Insert each new element into a sorted structure via insertion sort logic and compute the median in O(<em>n</em><sup>2</sup>) worst-case, acceptable for small <em>n</em>.
+  </p>
+  <pre><code>
+// C++ solution
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+class RunningMedian {
+  vector<int> data;
+public:
+  void insert(int x) {
+    // insertion sort step
+    data.push_back(x);
+    int i = data.size() - 2;
+    while (i >= 0 && data[i] &gt; x) {
+      data[i + 1] = data[i];
+      i--;
+    }
+    data[i + 1] = x;
+  }
+  double getMedian() {
+    int n = data.size();
+    if (n % 2)
+      return data[n/2];
+    else
+      return (data[n/2 - 1] + data[n/2]) / 2.0;
+  }
+};
+
+int main() {
+  RunningMedian rm;
+  vector<int> stream = {5, 15, 1, 3};
+  for (int x : stream) {
+    rm.insert(x);
+    cout &lt;&lt; "Median after " &lt;&lt; x &lt;&lt; ": " &lt;&lt; rm.getMedian() &lt;&lt; "\n";
+  }
+  return 0;
+}
+  </code></pre>
 
 </body>
 </html>

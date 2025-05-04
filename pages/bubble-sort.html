@@ -2,57 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bubble Sort Algorithm - Analysis and Examples</title>
+    <title>Bubble Sort Algorithm</title>
 </head>
 <body>
 
 <h1>Bubble Sort Algorithm</h1>
 
-<h2>📌 Overview</h2>
-<p>Bubble Sort is a simple comparison-based sorting algorithm. It repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The process continues until no swaps are needed, indicating the list is sorted.</p>
+<p>Bubble Sort is a simple comparison-based sorting algorithm. It repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order. The pass through the list is repeated until the list is sorted.</p>
 
-<h2>⏱️ Time Complexity</h2>
+<h2>Detailed Steps</h2>
+<ol>
+    <li>Start at the first element of the array.</li>
+    <li>Compare the current element with the next element.</li>
+    <li>If the current element is greater than the next element, swap them.</li>
+    <li>Move to the next element and repeat the comparison until the end of the array.</li>
+    <li>After each pass, the largest element among the unsorted portion "bubbles up" to its correct position.</li>
+    <li>Repeat the passes until no swaps are needed in a complete pass (the array is sorted).</li>
+</ol>
+
+<h2>Time and Memory Complexity</h2>
 <ul>
-    <li><strong>Best Case:</strong> O(n) (when the array is already sorted)</li>
-    <li><strong>Average Case:</strong> O(n²)</li>
-    <li><strong>Worst Case:</strong> O(n²) (when the array is in reverse order)</li>
+    <li><strong>Best Case:</strong> O(n) — occurs if the array is already sorted (optimized implementation stops early).</li>
+    <li><strong>Average Case:</strong> O(n<sup>2</sup>).</li>
+    <li><strong>Worst Case:</strong> O(n<sup>2</sup>).</li>
+    <li><strong>Memory Usage:</strong> O(1) — in-place sorting, only a few extra variables.</li>
 </ul>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-    <li><strong>Space:</strong> O(1) – It is an in-place algorithm and does not require additional memory.</li>
-</ul>
+<h2>Easy Problems</h2>
 
-<h2>✅ Easy Problems Solvable by Bubble Sort</h2>
-<ol>
-    <li><strong>Sorting Small Arrays:</strong> Bubble Sort is sufficient for sorting arrays of ≤100 elements for simplicity and readability.</li>
-    <li><strong>Check if an Array is Sorted:</strong> One pass of Bubble Sort can determine if any swaps are needed.</li>
-</ol>
-
-<h2>🔁 Intermediate Problems Solvable by Bubble Sort</h2>
-<ol>
-    <li><strong>Find the k-th Largest Element:</strong> Sort the array fully with Bubble Sort and return the k-th largest.</li>
-    <li><strong>Sort Students by Marks:</strong> For ≤100 records, Bubble Sort works fine in stable environments with minimal requirements.</li>
-</ol>
-
-<h2>🧠 Hard Problem Solvable by Bubble Sort</h2>
-<ol>
-    <li><strong>Stable Sorting with Strict Memory Constraints:</strong> When a stable sort with O(1) space is required and dataset size is small, Bubble Sort is a viable option.</li>
-</ol>
-
-<h2>🧾 C++ Code Examples</h2>
-
-<h3>1. Bubble Sort Function</h3>
-<pre><code>
-#include &lt;iostream&gt;
+<h3>Problem 1: Sort an Array of Integers</h3>
+<p>Given an array of integers, sort it in non-decreasing order using Bubble Sort.</p>
+<pre><code class="language-cpp">#include <iostream>
+#include <vector>
 using namespace std;
 
-void bubbleSort(int arr[], int n) {
-    bool swapped;
-    for (int i = 0; i &lt; n - 1; i++) {
-        swapped = false;
-        for (int j = 0; j &lt; n - i - 1; j++) {
-            if (arr[j] &gt; arr[j + 1]) {
+void bubbleSort(vector<int>& arr) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; ++i) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
                 swap(arr[j], arr[j + 1]);
                 swapped = true;
             }
@@ -60,33 +49,125 @@ void bubbleSort(int arr[], int n) {
         if (!swapped) break;
     }
 }
-</code></pre>
 
-<h3>2. Print Array Function</h3>
-<pre><code>
-void printArray(int arr[], int size) {
-    for (int i = 0; i &lt; size; i++)
-        cout &lt;&lt; arr[i] &lt;&lt; " ";
-    cout &lt;&lt; endl;
+int main() {
+    vector<int> data = {5, 2, 8, 3, 1};
+    bubbleSort(data);
+    for (int x : data) cout << x << " ";
+    return 0;
 }
 </code></pre>
 
-<h3>3. Find K-th Largest Element</h3>
-<pre><code>
-int findKthLargest(int arr[], int n, int k) {
-    bubbleSort(arr, n);
-    return arr[n - k];
-}
-</code></pre>
+<h3>Problem 2: Sort Characters in a String</h3>
+<p>Given a string, sort its characters in ascending order.</p>
+<pre><code class="language-cpp">#include <iostream>
+#include <string>
+using namespace std;
 
-<h3>4. Check if Array is Sorted</h3>
-<pre><code>
-bool isSorted(int arr[], int n) {
-    for(int i = 0; i &lt; n - 1; i++) {
-        if(arr[i] &gt; arr[i+1])
-            return false;
+void bubbleSortString(string& s) {
+    int n = s.length();
+    for (int i = 0; i < n - 1; ++i) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (s[j] > s[j + 1]) {
+                swap(s[j], s[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
     }
-    return true;
+}
+
+int main() {
+    string str = "bubble";
+    bubbleSortString(str);
+    cout << str;
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Sort a Nearly Sorted Array</h3>
+<p>An array where each element is at most <em>k</em> positions away from its target position. Use Bubble Sort to fix local inversions efficiently for small <em>k</em>.</p>
+<pre><code class="language-cpp">#include <iostream>
+#include <vector>
+using namespace std;
+
+void bubbleSortNearlySorted(vector<int>& arr, int k) {
+    int n = arr.size();
+    for (int i = 0; i < n - 1; ++i) {
+        bool swapped = false;
+        for (int j = 0; j < n - i - 1 && j < i + k; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;
+    }
+}
+
+int main() {
+    vector<int> data = {3, 1, 2, 6, 4, 5}; // k=2
+    bubbleSortNearlySorted(data, 2);
+    for (int x : data) cout << x << " ";
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Detect if Array Can Be Sorted with One Swap</h3>
+<p>Determine if the array can be sorted by performing at most one swap. Use one pass of Bubble Sort to count out-of-order pairs.</p>
+<pre><code class="language-cpp">#include <iostream>
+#include <vector>
+using namespace std;
+
+bool canSortWithOneSwap(vector<int>& arr) {
+    int n = arr.size();
+    vector<pair<int,int>> bad;
+    for (int i = 0; i < n - 1; ++i) {
+        if (arr[i] > arr[i + 1]) bad.emplace_back(i, i + 1);
+        if (bad.size() > 1) return false;
+    }
+    if (bad.empty()) return true;
+    int i = bad[0].first, j = bad[0].second;
+    swap(arr[i], arr[j]);
+    return is_sorted(arr.begin(), arr.end());
+}
+
+int main() {
+    vector<int> data = {1, 3, 2, 4};
+    cout << (canSortWithOneSwap(data) ? "Yes" : "No");
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Count Number of Swaps to Sort an Array</h3>
+<p>Given an array, count the total number of swaps Bubble Sort would perform to sort it. Useful as a measure of "inversion count."</p>
+<pre><code class="language-cpp">#include <iostream>
+#include <vector>
+using namespace std;
+
+long long countBubbleSortSwaps(vector<int>& arr) {
+    int n = arr.size();
+    long long swapCount = 0;
+    for (int i = 0; i < n - 1; ++i) {
+        for (int j = 0; j < n - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                ++swapCount;
+            }
+        }
+    }
+    return swapCount;
+}
+
+int main() {
+    vector<int> data = {5, 1, 4, 2, 8};
+    cout << "Total swaps: " << countBubbleSortSwaps(data);
+    return 0;
 }
 </code></pre>
 

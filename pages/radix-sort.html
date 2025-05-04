@@ -1,134 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Radix Sort - Explanation and C++ Examples</title>
+    <meta charset="UTF-8">
+    <title>Radix Sort Algorithm</title>
 </head>
 <body>
+    <h1>Radix Sort Algorithm</h1>
 
-<h1>Radix Sort Algorithm</h1>
+    <h2>1. Overview</h2>
+    <p>
+        Radix Sort is a non-comparative integer sorting algorithm that sorts data with integer keys by grouping keys by individual digits which share the same significant position and value. It processes the digits either from least significant digit (LSD) to most significant digit (MSD), or vice versa. The most common implementation is LSD Radix Sort.
+    </p>
 
-<h2>📘 Overview</h2>
-<p>
-  Radix Sort is a non-comparative sorting algorithm that sorts integers by processing individual digits. It processes digits from the least significant (LSD) to the most significant digit (MSD), often using Counting Sort as a stable subroutine.
-</p>
+    <h2>2. Algorithm Details</h2>
+    <ol>
+        <li>Find the maximum number <code>maxVal</code> in the array to know the number of digits.</li>
+        <li>Initialize <code>exp = 1</code> (10<sup>0</sup> place).</li>
+        <li>While <code>maxVal / exp &gt; 0</code>:
+            <ul>
+                <li>Perform a stable counting sort on the array based on the digit at <code>exp</code>.</li>
+                <li>Multiply <code>exp</code> by the base (10 for decimal).</li>
+            </ul>
+        </li>
+    </ol>
 
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Find the maximum number to determine the number of digits.</li>
-  <li>Perform a stable sort (e.g., Counting Sort) on each digit, starting from the least significant.</li>
-  <li>Repeat for every digit until the most significant digit is processed.</li>
-</ol>
+    <h2>3. Time and Memory Complexity</h2>
+    <ul>
+        <li><strong>Time Complexity:</strong> O(d · (n + b)), where:
+            <ul>
+                <li>n = number of elements</li>
+                <li>d = number of digits in the maximum number</li>
+                <li>b = base (e.g., 10 for decimal)</li>
+            </ul>
+        </li>
+        <li><strong>Memory Complexity:</strong> O(n + b), for the output array and the count array.</li>
+    </ul>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(nk)</li>
-  <li><strong>Average Case:</strong> O(nk)</li>
-  <li><strong>Worst Case:</strong> O(nk), where n is the number of elements and k is the number of digits</li>
-</ul>
+    <h2>4. Easy Problems</h2>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Auxiliary Space:</strong> O(n + k)</li>
-</ul>
+    <h3>4.1. Sort an Array of Non-Negative Integers</h3>
+    <p>Given an array of non-negative integers, sort them in ascending order.</p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
 
-<hr>
-
-<h2>✅ Easy Problems Solvable by Radix Sort</h2>
-
-<h3>1. Sort Non-Negative Integers</h3>
-<pre><code>
-int getMax(int arr[], int n) {
-    int mx = arr[0];
-    for (int i = 1; i < n; i++)
-        if (arr[i] > mx) mx = arr[i];
-    return mx;
-}
-
-void countSort(int arr[], int n, int exp) {
-    int output[n], count[10] = {0};
-    for (int i = 0; i < n; i++)
-        count[(arr[i] / exp) % 10]++;
-    for (int i = 1; i < 10; i++)
-        count[i] += count[i - 1];
-    for (int i = n - 1; i >= 0; i--) {
-        output[count[(arr[i] / exp) % 10] - 1] = arr[i];
-        count[(arr[i] / exp) % 10]--;
-    }
-    for (int i = 0; i < n; i++)
-        arr[i] = output[i];
-}
-
-void radixSort(int arr[], int n) {
-    int m = getMax(arr, n);
-    for (int exp = 1; m / exp > 0; exp *= 10)
-        countSort(arr, n, exp);
-}
-</code></pre>
-
-<h3>2. Sort IDs (e.g. Student IDs)</h3>
-<p>Use radix sort on integer IDs for stable and fast sorting:</p>
-<pre><code>
-void sortStudentIDs(int ids[], int n) {
-    radixSort(ids, n);
-}
-</code></pre>
-
-<hr>
-
-<h2>🔁 Intermediate Problems Solvable by Radix Sort</h2>
-
-<h3>1. Sort Floating Point Numbers (After Normalization)</h3>
-<pre><code>
-void radixSortFloat(std::vector<float>& arr, int precision = 2) {
-    std::vector<int> scaledArr;
-    int scale = pow(10, precision);
-    for (float f : arr) scaledArr.push_back((int)(f * scale));
-    radixSort(&scaledArr[0], scaledArr.size());
-    for (int i = 0; i < arr.size(); i++)
-        arr[i] = (float)scaledArr[i] / scale;
-}
-</code></pre>
-
-<h3>2. Sort Dates in Format YYYYMMDD</h3>
-<p>Since dates in this format are integers, radix sort works well:</p>
-<pre><code>
-void sortDates(int dates[], int n) {
-    radixSort(dates, n);
-}
-</code></pre>
-
-<hr>
-
-<h2>🧠 Hard Problem Solvable by Radix Sort</h2>
-
-<h3>1. Sort Strings of Same Length (LSD Radix Sort)</h3>
-<pre><code>
-void countingSortStrings(std::vector&lt;std::string&gt;&amp; arr, int index) {
+void countingSort(vector&lt;int&gt;&amp; arr, int exp) {
     int n = arr.size();
-    std::vector&lt;std::string&gt; output(n);
-    int count[256] = {0};
+    vector&lt;int&gt; output(n);
+    int count[10] = {0};
 
-    for (auto&amp; str : arr)
-        count[str[index]]++;
+    for (int i = 0; i &lt; n; i++)
+        count[(arr[i] / exp) % 10]++;
 
-    for (int i = 1; i &lt; 256; i++)
+    for (int i = 1; i &lt; 10; i++)
         count[i] += count[i - 1];
 
     for (int i = n - 1; i &gt;= 0; i--) {
-        output[--count[arr[i][index]]] = arr[i];
+        int digit = (arr[i] / exp) % 10;
+        output[count[digit] - 1] = arr[i];
+        count[digit]--;
     }
 
-    arr = output;
+    for (int i = 0; i &lt; n; i++)
+        arr[i] = output[i];
 }
 
-void radixSortStrings(std::vector&lt;std::string&gt;&amp; arr, int length) {
-    for (int i = length - 1; i &gt;= 0; i--)
-        countingSortStrings(arr, i);
+void radixSort(vector&lt;int&gt;&amp; arr) {
+    int maxVal = *max_element(arr.begin(), arr.end());
+    for (int exp = 1; maxVal / exp &gt; 0; exp *= 10)
+        countingSort(arr, exp);
 }
-</code></pre>
 
-<p><strong>Use case:</strong> Sort a list of fixed-length strings like 3-letter airport codes, serials, etc.</p>
+int main() {
+    vector&lt;int&gt; arr = {170, 45, 75, 90, 802, 24, 2, 66};
+    radixSort(arr);
+    for (int num : arr)
+        cout &lt;&lt; num &lt;&lt; " ";
+    return 0;
+}</code></pre>
 
+    <h3>4.2. Sort Strings of Equal Length</h3>
+    <p>Given an array of lowercase strings of equal length, sort them lexicographically.</p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+void countingSortByChar(vector&lt;string&gt;&amp; arr, int pos) {
+    int n = arr.size();
+    vector&lt;string&gt; output(n);
+    int count[26] = {0};
+
+    for (int i = 0; i &lt; n; i++)
+        count[arr[i][pos] - 'a']++;
+
+    for (int i = 1; i &lt; 26; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i &gt;= 0; i--) {
+        int idx = arr[i][pos] - 'a';
+        output[count[idx] - 1] = arr[i];
+        count[idx]--;
+    }
+
+    for (int i = 0; i &lt; n; i++)
+        arr[i] = output[i];
+}
+
+void radixSortStrings(vector&lt;string&gt;&amp; arr) {
+    if (arr.empty()) return;
+    int length = arr[0].size();
+    for (int pos = length - 1; pos &gt;= 0; pos--)
+        countingSortByChar(arr, pos);
+}
+
+int main() {
+    vector&lt;string&gt; arr = {"bca", "acb", "abc", "bac", "cab", "cba"};
+    radixSortStrings(arr);
+    for (auto &amp;s : arr)
+        cout &lt;&lt; s &lt;&lt; " ";
+    return 0;
+}</code></pre>
+
+    <h2>5. Intermediate Problems</h2>
+
+    <h3>5.1. Sort Large Range of Integers with Negative Values</h3>
+    <p>Modify Radix Sort to handle negative integers by offsetting.</p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+void countingSortOffset(vector&lt;int&gt;&amp; arr, int exp, int offset) {
+    int n = arr.size();
+    vector&lt;int&gt; output(n);
+    vector&lt;int&gt; count(10, 0);
+
+    for (int i = 0; i &lt; n; i++)
+        count[((arr[i] + offset) / exp) % 10]++;
+
+    for (int i = 1; i &lt; 10; i++)
+        count[i] += count[i - 1];
+
+    for (int i = n - 1; i &gt;= 0; i--) {
+        int idx = ((arr[i] + offset) / exp) % 10;
+        output[count[idx] - 1] = arr[i];
+        count[idx]--;
+    }
+
+    for (int i = 0; i &lt; n; i++)
+        arr[i] = output[i];
+}
+
+void radixSortWithNegatives(vector&lt;int&gt;&amp; arr) {
+    int minVal = *min_element(arr.begin(), arr.end());
+    int maxVal = *max_element(arr.begin(), arr.end());
+    int offset = -minVal;
+    maxVal += offset;
+
+    for (int exp = 1; maxVal / exp &gt; 0; exp *= 10)
+        countingSortOffset(arr, exp, offset);
+}
+
+int main() {
+    vector&lt;int&gt; arr = { -10, 7, 3, -1, 0, -20, 5 };
+    radixSortWithNegatives(arr);
+    for (int x : arr)
+        cout &lt;&lt; x &lt;&lt; " ";
+    return 0;
+}</code></pre>
+
+    <h3>5.2. Sort Floating-Point Numbers (Fixed Decimal Places)</h3>
+    <p>Sort floats by scaling to integers.</p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+void radixSortFloats(vector&lt;double&gt;&amp; arr, int places) {
+    int n = arr.size();
+    double scale = pow(10, places);
+    vector&lt;int&gt; intArr(n);
+    for (int i = 0; i &lt; n; i++)
+        intArr[i] = int(arr[i] * scale);
+
+    // reuse previous radix for ints
+    int maxVal = *max_element(intArr.begin(), intArr.end());
+    for (int exp = 1; maxVal / exp &gt; 0; exp *= 10) {
+        vector&lt;int&gt; output(n);
+        int count[10] = {0};
+        for (int i = 0; i &lt; n; i++)
+            count[(intArr[i] / exp) % 10]++;
+        for (int i = 1; i &lt; 10; i++)
+            count[i] += count[i - 1];
+        for (int i = n - 1; i &gt;= 0; i--) {
+            int d = (intArr[i] / exp) % 10;
+            output[count[d] - 1] = intArr[i];
+            count[d]--;
+        }
+        for (int i = 0; i &lt; n; i++)
+            intArr[i] = output[i];
+    }
+
+    for (int i = 0; i &lt; n; i++)
+        cout &lt;&lt; (double)intArr[i] / scale &lt;&lt; " ";
+}
+
+int main() {
+    vector&lt;double&gt; arr = { 3.14, 2.71, 1.41, 0.57 };
+    radixSortFloats(arr, 2);
+    return 0;
+}</code></pre>
+
+    <h2>6. Hard Problem</h2>
+    <h3>6.1. Sort Very Large Numbers (Strings of Up to 10<sup>6</sup> Digits)</h3>
+    <p>When numbers exceed built-in types, treat them as strings and use MSD Radix Sort recursively.</p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+void msdRadixSort(vector&lt;string&gt;&amp; arr, int left, int right, int d) {
+    if (left &gt;= right) return;
+    vector&lt;int&gt; count(11, 0); // 0-9 digits + 1 for shorter strings
+    vector&lt;string&gt; output(right - left + 1);
+
+    for (int i = left; i &lt;= right; i++) {
+        int c = (d &lt; arr[i].size()) ? arr[i][d] - '0' + 1 : 0;
+        count[c]++;
+    }
+    for (int i = 1; i &lt; 11; i++)
+        count[i] += count[i - 1];
+
+    for (int i = right; i &gt;= left; i--) {
+        int c = (d &lt; arr[i].size()) ? arr[i][d] - '0' + 1 : 0;
+        output[count[c] - 1] = arr[i];
+        count[c]--;
+    }
+    for (int i = left; i &lt;= right; i++)
+        arr[i] = output[i - left];
+
+    int start = left;
+    for (int i = 0; i &lt; 11; i++) {
+        int end = left + count[i] - (i &gt; 0 ? count[i-1] : 0) - 1;
+        if (start &lt;= end)
+            msdRadixSort(arr, start, end, d + 1);
+        start = end + 1;
+    }
+}
+
+int main() {
+    vector&lt;string&gt; arr = {
+        "12345678901234567890",
+        "1234567890",
+        "98765432109876543210",
+        "1234567890123456789"
+    };
+    msdRadixSort(arr, 0, arr.size() - 1, 0);
+    for (auto &amp;s : arr)
+        cout &lt;&lt; s &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+
+    <h2>7. Conclusion</h2>
+    <p>
+        Radix Sort is very efficient for keys that can be represented as digits or fixed-length strings. Its linear time behavior makes it useful for large datasets where comparison-based sorts may be slower.
+    </p>
 </body>
 </html>

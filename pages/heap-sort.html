@@ -1,168 +1,227 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Heap Sort Algorithm - Analysis and Examples</title>
-</head>
+<html>
 <body>
 
 <h1>Heap Sort Algorithm</h1>
 
-<h2>📘 Overview</h2>
-<p>
-  Heap Sort is a comparison-based sorting algorithm that uses a binary heap data structure. It first builds a max-heap, then repeatedly extracts the maximum element to sort the array.
+<p><strong>Description:</strong>  
+Heap sort is an in‐place comparison‐based sorting algorithm. It works in two phases:
+<ol>
+  <li><strong>Build Max‐Heap:</strong> View the input array as a binary tree and rearrange it so that it satisfies the max‐heap property: every parent ≥ its children. This can be done by “heapifying” all internal nodes from the bottom up in O(n).</li>
+  <li><strong>Extract Elements:</strong> Repeatedly swap the root (maximum) with the last element of the heap, reduce the heap size by one, and restore the heap property by sift‐down from the root. Each extraction takes O(log n), for total O(n log n).</li>
+</ol>
 </p>
 
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Build a max-heap from the input data.</li>
-  <li>Swap the first element (max) with the last element.</li>
-  <li>Reduce heap size and heapify the root again.</li>
-  <li>Repeat until heap size becomes 1.</li>
-</ol>
-
-<h2>⏱️ Time Complexity</h2>
+<p><strong>Time Complexity:</strong>  
 <ul>
-  <li><strong>Best Case:</strong> O(n log n)</li>
-  <li><strong>Average Case:</strong> O(n log n)</li>
-  <li><strong>Worst Case:</strong> O(n log n)</li>
+  <li>Best case: O(n log n)</li>
+  <li>Average case: O(n log n)</li>
+  <li>Worst case: O(n log n)</li>
 </ul>
-
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Auxiliary Space:</strong> O(1) (in-place)</li>
-</ul>
+<strong>Space Complexity:</strong> O(1) auxiliary (in‐place).</p>
 
 <hr>
 
-<h2>✅ Easy Problems Solvable by Heap Sort</h2>
+<h2>Easy Problems</h2>
 
-<h3>1. Sort a List of Integers</h3>
-<pre><code>
-void heapify(int arr[], int n, int i) {
-    int largest = i;
-    int l = 2*i + 1;
-    int r = 2*i + 2;
-
-    if (l &lt; n &amp;&amp; arr[l] &gt; arr[largest]) largest = l;
-    if (r &lt; n &amp;&amp; arr[r] &gt; arr[largest]) largest = r;
-
-    if (largest != i) {
-        std::swap(arr[i], arr[largest]);
-        heapify(arr, n, largest);
-    }
-}
-
-void heapSort(int arr[], int n) {
-    for (int i = n / 2 - 1; i &gt;= 0; i--)
-        heapify(arr, n, i);
-
-    for (int i = n - 1; i &gt; 0; i--) {
-        std::swap(arr[0], arr[i]);
-        heapify(arr, i, 0);
-    }
-}
-</code></pre>
-
-<h3>2. Find the Largest k Elements (Sort & Slice)</h3>
-<pre><code>
-void topKElements(int arr[], int n, int k) {
-    heapSort(arr, n);  // Sort the array
-    for (int i = n - 1; i &gt;= n - k; i--)
-        std::cout &lt;&lt; arr[i] &lt;&lt; " ";
-}
-</code></pre>
-
-<hr>
-
-<h2>🔁 Intermediate Problems Solvable by Heap Sort</h2>
-
-<h3>1. Sort a Nearly Sorted (K-Sorted) Array</h3>
-<pre><code>
-#include &lt;queue&gt;
-
-void sortKSortedArray(int arr[], int n, int k) {
-    std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; pq;
-    int index = 0;
-
-    for (int i = 0; i &lt;= k; i++)
-        pq.push(arr[i]);
-
-    for (int i = k + 1; i &lt; n; i++) {
-        arr[index++] = pq.top(); pq.pop();
-        pq.push(arr[i]);
-    }
-
-    while (!pq.empty()) {
-        arr[index++] = pq.top();
-        pq.pop();
-    }
-}
-</code></pre>
-
-<h3>2. Merge K Sorted Arrays (via Min-Heap)</h3>
-<pre><code>
-#include &lt;queue&gt;
+<h3>1. Sort an array of integers</h3>
+<p>Use heap sort directly to sort any array.</p>
+<pre><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
 
-struct Element {
-    int val, i, j;
-    bool operator&gt;(const Element&amp; e) const {
-        return val &gt; e.val;
+using namespace std;
+
+void heapify(vector&lt;int&gt;&amp; A, int n, int i) {
+    int largest = i;
+    int l = 2*i + 1, r = 2*i + 2;
+    if (l &lt; n && A[l] &gt; A[largest]) largest = l;
+    if (r &lt; n && A[r] &gt; A[largest]) largest = r;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);
     }
-};
+}
 
-std::vector&lt;int&gt; mergeKSortedArrays(std::vector&lt;std::vector&lt;int&gt;&gt;&amp; arrays) {
-    std::priority_queue&lt;Element, std::vector&lt;Element&gt;, std::greater&lt;Element&gt;&gt; pq;
-    std::vector&lt;int&gt; result;
-
-    for (int i = 0; i &lt; arrays.size(); i++)
-        if (!arrays[i].empty())
-            pq.push({arrays[i][0], i, 0});
-
-    while (!pq.empty()) {
-        Element cur = pq.top(); pq.pop();
-        result.push_back(cur.val);
-
-        if (cur.j + 1 &lt; arrays[cur.i].size())
-            pq.push({arrays[cur.i][cur.j + 1], cur.i, cur.j + 1});
+void heapSort(vector&lt;int&gt;&amp; A) {
+    int n = A.size();
+    for (int i = n/2 - 1; i &gt;= 0; --i)
+        heapify(A, n, i);
+    for (int i = n - 1; i &gt; 0; --i) {
+        swap(A[0], A[i]);
+        heapify(A, i, 0);
     }
+}
 
-    return result;
+int main() {
+    vector&lt;int&gt; arr = {3, 1, 4, 1, 5, 9, 2};
+    heapSort(arr);
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+
+<h3>2. Find the maximum element</h3>
+<p>After building a max‐heap, the largest element is at the root <code>A[0]</code>.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+void heapify(vector&lt;int&gt;&amp; A, int n, int i) {
+    int largest = i, l = 2*i + 1, r = 2*i + 2;
+    if (l &lt; n && A[l] &gt; A[largest]) largest = l;
+    if (r &lt; n && A[r] &gt; A[largest]) largest = r;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);
+    }
+}
+
+int findMax(vector&lt;int&gt; A) {
+    int n = A.size();
+    for (int i = n/2 - 1; i &gt;= 0; --i)
+        heapify(A, n, i);
+    return A[0];
+}
+
+int main() {
+    vector&lt;int&gt; arr = {10, 40, 20, 30};
+    cout &lt;&lt; "Maximum = " &lt;&lt; findMax(arr) &lt;&lt; endl;
+    return 0;
 }
 </code></pre>
 
 <hr>
 
-<h2>🧠 Hard Problem Solvable by Heap Sort</h2>
+<h2>Intermediate Problems</h2>
 
-<h3>1. Median in a Stream</h3>
-<p>Use two heaps (max-heap and min-heap) to maintain the lower and upper halves of the stream.</p>
-<pre><code>
-#include &lt;queue&gt;
+<h3>1. K<sup>th</sup> Largest Element in an Array</h3>
+<p>Build a max‐heap, extract the maximum k–1 times; the root is the k<sup>th</sup> largest.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
 
-std::priority_queue&lt;int&gt; maxHeap; // left half
-std::priority_queue&lt;int, std::vector&lt;int&gt;, std::greater&lt;int&gt;&gt; minHeap; // right half
+using namespace std;
 
-void insertNumber(int num) {
-    if (maxHeap.empty() || num &lt;= maxHeap.top())
-        maxHeap.push(num);
-    else
-        minHeap.push(num);
-
-    if (maxHeap.size() &gt; minHeap.size() + 1) {
-        minHeap.push(maxHeap.top());
-        maxHeap.pop();
-    } else if (minHeap.size() &gt; maxHeap.size()) {
-        maxHeap.push(minHeap.top());
-        minHeap.pop();
+void heapify(vector&lt;int&gt;&amp; A, int n, int i) {
+    int largest = i, l = 2*i + 1, r = 2*i + 2;
+    if (l &lt; n && A[l] &gt; A[largest]) largest = l;
+    if (r &lt; n && A[r] &gt; A[largest]) largest = r;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);
     }
 }
 
-double getMedian() {
-    if (maxHeap.size() == minHeap.size())
-        return (maxHeap.top() + minHeap.top()) / 2.0;
-    return maxHeap.top();
+int findKthLargest(vector&lt;int&gt; A, int k) {
+    int n = A.size();
+    for (int i = n/2 - 1; i &gt;= 0; --i)
+        heapify(A, n, i);
+    for (int i = 0; i &lt; k-1; ++i) {
+        swap(A[0], A[n-1-i]);
+        heapify(A, n-1-i, 0);
+    }
+    return A[0];
+}
+
+int main() {
+    vector&lt;int&gt; arr = {7, 10, 4, 3, 20, 15};
+    cout &lt;&lt; findKthLargest(arr, 3) &lt;&lt; endl; // 3rd largest
+    return 0;
+}
+</code></pre>
+
+<h3>2. Top K Frequent Elements</h3>
+<p>Count frequencies, store pairs &lt;element,freq&gt;, then heap‐sort by frequency and take top k.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+
+using namespace std;
+
+// reuse heapify from above
+void heapify(vector&lt;pair&lt;int,int&gt;&gt;&amp; A, int n, int i) {
+    int largest = i, l = 2*i + 1, r = 2*i + 2;
+    if (l &lt; n && A[l].second &gt; A[largest].second) largest = l;
+    if (r &lt; n && A[r].second &gt; A[largest].second) largest = r;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);
+    }
+}
+
+vector&lt;int&gt; topKFrequent(vector&lt;int&gt;&amp; nums, int k) {
+    unordered_map&lt;int,int&gt; freq;
+    for (int x : nums) freq[x]++;
+    vector&lt;pair&lt;int,int&gt;&gt; A(freq.begin(), freq.end());
+    int n = A.size();
+    for (int i = n/2 - 1; i &gt;= 0; --i)
+        heapify(A, n, i);
+    vector&lt;int&gt; result;
+    for (int i = 0; i &lt; k; ++i) {
+        result.push_back(A[0].first);
+        swap(A[0], A[n-1-i]);
+        heapify(A, n-1-i, 0);
+    }
+    return result;
+}
+
+int main() {
+    vector&lt;int&gt; nums = {1,1,1,2,2,3};
+    auto res = topKFrequent(nums, 2);
+    for (int x : res) cout &lt;&lt; x &lt;&lt; " ";
+    cout &lt;&lt; endl;
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>Hard Problem</h2>
+
+<h3>K Closest Points to Origin</h3>
+<p>Given points (x,y), find k points with smallest Euclidean distance. Use heap sort by distance, then take first k.</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+using namespace std;
+
+struct Point { int x, y; };
+
+void heapify(vector&lt;Point&gt;&amp; A, int n, int i) {
+    int largest = i, l = 2*i + 1, r = 2*i + 2;
+    auto dist = [&](const Point&amp; p){ return p.x*1LL*p.x + p.y*1LL*p.y; };
+    if (l &lt; n && dist(A[l]) &gt; dist(A[largest])) largest = l;
+    if (r &lt; n && dist(A[r]) &gt; dist(A[largest])) largest = r;
+    if (largest != i) {
+        swap(A[i], A[largest]);
+        heapify(A, n, largest);
+    }
+}
+
+void heapSortByDist(vector&lt;Point&gt;&amp; A) {
+    int n = A.size();
+    for (int i = n/2 - 1; i &gt;= 0; --i)
+        heapify(A, n, i);
+    for (int i = n - 1; i &gt; 0; --i) {
+        swap(A[0], A[i]);
+        heapify(A, i, 0);
+    }
+}
+
+vector&lt;Point&gt; kClosest(vector&lt;Point&gt;&amp; points, int k) {
+    heapSortByDist(points);
+    return vector&lt;Point&gt;(points.begin(), points.begin() + k);
+}
+
+int main() {
+    vector&lt;Point&gt; pts = {{1,3},{-2,2},{5,8},{0,1}};
+    int k = 2;
+    auto res = kClosest(pts, k);
+    for (auto&p : res) cout &lt;&lt; "(" &lt;&lt; p.x &lt;&lt; "," &lt;&lt; p.y &lt;&lt; ") ";
+    cout &lt;&lt; endl;
+    return 0;
 }
 </code></pre>
 
