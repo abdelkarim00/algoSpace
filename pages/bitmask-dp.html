@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmask DP Explanation</title>
+</head>
+<body>
+
+<h1>Bitmask Dynamic Programming (DP)</h1>
+
+<p>
+    Bitmask DP is a technique used for solving problems where you need to explore subsets of a set and optimize some result based on those subsets. The core idea behind Bitmask DP is using an integer (bitmask) to represent subsets of a set, where each bit in the integer corresponds to whether a particular element of the set is included in the subset.
+</p>
+
+<h2>Algorithm Explanation</h2>
+
+<p>
+    In Bitmask DP, we use a bitmask to represent a subset of elements from a set. A bitmask is simply an integer where each bit represents whether a particular element is present (1) or absent (0) in the subset. This allows us to efficiently store and compute results for different subsets of a set.
+</p>
+
+<p>
+    The general approach involves:
+</p>
+<ol>
+    <li>Representing the problem state with a bitmask.</li>
+    <li>Using dynamic programming to calculate results for all possible subsets.</li>
+    <li>Iterating over all possible bitmasks (from 0 to 2<sup>n</sup> - 1), and for each bitmask, making decisions based on the inclusion or exclusion of elements.</li>
+    <li>Using the precomputed results of smaller subsets to build up the solution for larger subsets.</li>
+</ol>
+
+<h2>Time and Space Complexity</h2>
+
+<p>
+    - <strong>Time Complexity:</strong> The time complexity of Bitmask DP is typically O(2<sup>n</sup> * n), where n is the size of the set. This comes from the fact that we may need to process 2<sup>n</sup> subsets and, for each subset, potentially do O(n) work (for example, checking or updating the state for each element).
+</p>
+<p>
+    - <strong>Space Complexity:</strong> The space complexity is typically O(2<sup>n</sup>), as we need to store the results of all possible subsets of size n.
+</p>
+
+<h2>Easy Problems Solvable by Bitmask DP</h2>
+
+<h3>1. Subset Sum Problem</h3>
+<p>Given a set of numbers, determine if there exists a subset whose sum equals a given value.</p>
+
+<pre>
+C++ Code Solution:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool subsetSum(const vector<int>& nums, int target) {
+    int n = nums.size();
+    vector<bool> dp(target + 1, false);
+    dp[0] = true;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = target; j >= nums[i]; --j) {
+            dp[j] = dp[j] || dp[j - nums[i]];
+        }
+    }
+
+    return dp[target];
+}
+
+int main() {
+    vector<int> nums = {3, 34, 4, 12, 5, 2};
+    int target = 9;
+    cout << (subsetSum(nums, target) ? "Yes" : "No") << endl;
+    return 0;
+}
+</pre>
+
+<h3>2. Counting Subsets with a Given XOR</h3>
+<p>Given an array of integers, find the number of subsets that result in a specific XOR value.</p>
+
+<pre>
+C++ Code Solution:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int countSubsetsWithXor(const vector<int>& nums, int targetXor) {
+    int n = nums.size();
+    vector<int> dp(1025, 0);  // 1024 + 1 to cover all XOR values from 0 to 1024
+    dp[0] = 1;
+
+    for (int num : nums) {
+        for (int i = 1024; i >= 0; --i) {
+            dp[i ^ num] += dp[i];
+        }
+    }
+
+    return dp[targetXor];
+}
+
+int main() {
+    vector<int> nums = {1, 2, 3};
+    int targetXor = 3;
+    cout << "Number of subsets with XOR = " << targetXor << ": " << countSubsetsWithXor(nums, targetXor) << endl;
+    return 0;
+}
+</pre>
+
+<h2>Intermediate Problems Solvable by Bitmask DP</h2>
+
+<h3>1. Travelling Salesman Problem (TSP)</h3>
+<p>Given a list of cities and distances between each pair of cities, find the minimum distance required to visit all cities and return to the starting city.</p>
+
+<pre>
+C++ Code Solution:
+
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+int tsp(int mask, int pos, const vector<vector<int>>& dist, vector<vector<int>>& dp) {
+    int n = dist.size();
+    if (mask == (1 << n) - 1) return dist[pos][0];
+    if (dp[mask][pos] != -1) return dp[mask][pos];
+
+    int ans = INT_MAX;
+    for (int city = 0; city < n; ++city) {
+        if ((mask & (1 << city)) == 0) {
+            int newAns = dist[pos][city] + tsp(mask | (1 << city), city, dist, dp);
+            ans = min(ans, newAns);
+        }
+    }
+
+    return dp[mask][pos] = ans;
+}
+
+int main() {
+    vector<vector<int>> dist = {{0, 10, 15, 20}, {10, 0, 35, 25}, {15, 35, 0, 30}, {20, 25, 30, 0}};
+    int n = dist.size();
+    vector<vector<int>> dp(1 << n, vector<int>(n, -1));
+    cout << "Minimum distance: " << tsp(1, 0, dist, dp) << endl;
+    return 0;
+}
+</pre>
+
+<h3>2. Partitioning Problem</h3>
+<p>Determine if a set can be partitioned into two subsets such that the sum of the elements in both subsets is the same.</p>
+
+<pre>
+C++ Code Solution:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool canPartition(const vector<int>& nums) {
+    int sum = 0;
+    for (int num : nums) sum += num;
+    if (sum % 2 != 0) return false;
+
+    int target = sum / 2;
+    vector<bool> dp(target + 1, false);
+    dp[0] = true;
+
+    for (int num : nums) {
+        for (int i = target; i >= num; --i) {
+            dp[i] = dp[i] || dp[i - num];
+        }
+    }
+
+    return dp[target];
+}
+
+int main() {
+    vector<int> nums = {1, 5, 11, 5};
+    cout << (canPartition(nums) ? "Yes" : "No") << endl;
+    return 0;
+}
+</pre>
+
+<h2>Hard Problem Solvable by Bitmask DP</h2>
+
+<h3>1. Maximum Independent Set</h3>
+<p>Given a graph, find the maximum independent set (the largest set of vertices such that no two vertices are adjacent).</p>
+
+<pre>
+C++ Code Solution:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int maxIndependentSet(int n, const vector<vector<int>>& graph) {
+    vector<int> dp(1 << n, 0);
+
+    for (int mask = 1; mask < (1 << n); ++mask) {
+        bool valid = true;
+        for (int i = 0; i < n; ++i) {
+            if ((mask & (1 << i)) != 0) {
+                for (int j = 0; j < n; ++j) {
+                    if (i != j && (mask & (1 << j)) != 0 && graph[i][j] == 1) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+            if (!valid) break;
+        }
+
+        if (valid) {
+            dp[mask] = __builtin_popcount(mask);  // Count number of 1s in mask
+            for (int submask = mask; submask; submask = (submask - 1) & mask) {
+                dp[mask] = max(dp[mask], dp[submask] + dp[mask ^ submask]);
+            }
+        }
+    }
+
+    return dp[(1 << n) - 1];
+}
+
+int main() {
+    vector<vector<int>> graph = {{0, 1, 1, 0}, {1, 0, 1, 1}, {1, 1, 0, 1}, {0, 1, 1, 0}};
+    int n = graph.size();
+    cout << "Maximum Independent Set Size: " << maxIndependentSet(n, graph) << endl;
+    return 0;
+}
+</pre>
+
+</body>
+</html>

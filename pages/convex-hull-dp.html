@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convex Hull DP Trick</title>
+</head>
+<body>
+    <h1>Convex Hull DP Trick: Detailed Explanation and Code Examples</h1>
+
+    <h2>Introduction to Convex Hull DP Trick</h2>
+    <p>The Convex Hull DP Trick is a technique used to optimize dynamic programming solutions, particularly for problems involving linear recurrence relations or monotonic convexity. It is used to maintain a set of convex curves, where each curve represents a line equation in the form <b>y = mx + c</b>, and the goal is to find the minimum or maximum value at each point of <b>x</b>. The trick allows us to efficiently query and update these curves to get the optimal answer.</p>
+    
+    <h2>Time and Space Complexity</h2>
+    <p>The time complexity of the Convex Hull DP Trick depends on how we maintain and query the convex hull. Specifically, for each new line added to the hull, we may need to remove some previous lines to maintain the convexity of the set. Thus, the overall time complexity is typically <b>O(N log N)</b> for inserting and querying all the lines, where <b>N</b> is the number of lines being processed.</p>
+    <p>The space complexity is <b>O(N)</b>, as we need to store all the lines that are part of the convex hull.</p>
+
+    <h2>Easy Problems Solvable Using Convex Hull DP Trick</h2>
+
+    <h3>1. Problem: Maximum Profit with Constraints</h3>
+    <p>Given an array <b>prices</b>, where <b>prices[i]</b> is the price of a stock on the <b>i-th</b> day, and a maximum number of transactions <b>K</b>, calculate the maximum profit you can make by buying and selling stocks. A transaction consists of buying and then selling a stock.</p>
+    
+    <h4>Solution</h4>
+    <pre>
+    <code>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+    using namespace std;
+
+    struct Line {
+        long long m, c;
+        long long eval(long long x) {
+            return m * x + c;
+        }
+    };
+
+    bool is_bad(Line& l1, Line& l2, Line& l3) {
+        return (l3.c - l1.c) * (l1.m - l2.m) >= (l2.c - l1.c) * (l1.m - l3.m);
+    }
+
+    long long convexHullDP(int K, vector<int>& prices) {
+        int n = prices.size();
+        vector<vector<Line>> dp(K + 1);
+
+        for (int k = 1; k <= K; ++k) {
+            deque<Line> hull;
+            for (int i = 0; i < n; ++i) {
+                Line newLine = { -prices[i], dp[k - 1][i].eval(i) };
+                while (hull.size() >= 2 && is_bad(hull[hull.size() - 2], hull[hull.size() - 1], newLine)) {
+                    hull.pop_back();
+                }
+                hull.push_back(newLine);
+                dp[k].push_back(hull.front().eval(i));
+            }
+        }
+
+        return dp[K][n - 1];
+    }
+
+    int main() {
+        vector<int> prices = {1, 2, 3, 4, 5};
+        int K = 2;
+        cout << "Maximum Profit: " << convexHullDP(K, prices) << endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <h3>2. Problem: Knapsack Problem (0/1 Knapsack with Convex Hull Optimization)</h3>
+    <p>Given a set of items, each with a weight and a value, and a knapsack that can carry a maximum weight, find the maximum value that can be placed in the knapsack. The Convex Hull DP Trick can help optimize dynamic programming solutions when the items have linear dependencies.</p>
+
+    <h4>Solution</h4>
+    <pre>
+    <code>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+    using namespace std;
+
+    struct Line {
+        long long m, c;
+        long long eval(long long x) {
+            return m * x + c;
+        }
+    };
+
+    bool is_bad(Line& l1, Line& l2, Line& l3) {
+        return (l3.c - l1.c) * (l1.m - l2.m) >= (l2.c - l1.c) * (l1.m - l3.m);
+    }
+
+    long long knapsackConvexHull(int W, vector<int>& weights, vector<int>& values) {
+        int n = weights.size();
+        vector<vector<Line>> dp(2);
+
+        for (int i = 0; i < n; ++i) {
+            deque<Line> hull;
+            for (int w = 0; w <= W; ++w) {
+                Line newLine = { -weights[i], dp[0][w].eval(w) };
+                while (hull.size() >= 2 && is_bad(hull[hull.size() - 2], hull[hull.size() - 1], newLine)) {
+                    hull.pop_back();
+                }
+                hull.push_back(newLine);
+                dp[1].push_back(hull.front().eval(w));
+            }
+        }
+
+        return dp[1][W];
+    }
+
+    int main() {
+        vector<int> weights = {1, 2, 3, 8};
+        vector<int> values = {1, 2, 3, 8};
+        int W = 5;
+        cout << "Maximum Value: " << knapsackConvexHull(W, weights, values) << endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <h2>Intermediate Problems Solvable Using Convex Hull DP Trick</h2>
+
+    <h3>1. Problem: Minimum Cost to Hire K Workers</h3>
+    <p>Given <b>N</b> workers and their costs and abilities, you need to hire <b>K</b> workers to minimize the total cost. The problem can be efficiently solved using Convex Hull DP Trick by maintaining a convex hull of lines where each line represents a worker's cost and ability.</p>
+    
+    <h4>Solution</h4>
+    <pre>
+    <code>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+    using namespace std;
+
+    struct Line {
+        long long m, c;
+        long long eval(long long x) {
+            return m * x + c;
+        }
+    };
+
+    bool is_bad(Line& l1, Line& l2, Line& l3) {
+        return (l3.c - l1.c) * (l1.m - l2.m) >= (l2.c - l1.c) * (l1.m - l3.m);
+    }
+
+    long long hireWorkers(int K, vector<int>& costs, vector<int>& abilities) {
+        int n = costs.size();
+        vector<vector<Line>> dp(K + 1);
+
+        for (int k = 1; k <= K; ++k) {
+            deque<Line> hull;
+            for (int i = 0; i < n; ++i) {
+                Line newLine = { -abilities[i], dp[k - 1][i].eval(i) };
+                while (hull.size() >= 2 && is_bad(hull[hull.size() - 2], hull[hull.size() - 1], newLine)) {
+                    hull.pop_back();
+                }
+                hull.push_back(newLine);
+                dp[k].push_back(hull.front().eval(i));
+            }
+        }
+
+        return dp[K][n - 1];
+    }
+
+    int main() {
+        vector<int> costs = {1, 2, 3, 4, 5};
+        vector<int> abilities = {2, 3, 4, 5, 6};
+        int K = 3;
+        cout << "Minimum Cost to Hire Workers: " << hireWorkers(K, costs, abilities) << endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <h3>2. Problem: Maximum Subarray Sum with Constraints</h3>
+    <p>Given an array <b>nums</b> and a constraint <b>K</b>, find the maximum sum of a subarray where the difference between the maximum and minimum element in the subarray is at most <b>K</b>. This problem can be solved efficiently using Convex Hull DP Trick by maintaining a dynamic programming solution that updates with each valid subarray.</p>
+
+    <h4>Solution</h4>
+    <pre>
+    <code>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+    using namespace std;
+
+    struct Line {
+        long long m, c;
+        long long eval(long long x) {
+            return m * x + c;
+        }
+    };
+
+    bool is_bad(Line& l1, Line& l2, Line& l3) {
+        return (l3.c - l1.c) * (l1.m - l2.m) >= (l2.c - l1.c) * (l1.m - l3.m);
+    }
+
+    long long maxSubarraySumWithConstraints(int K, vector<int>& nums) {
+        int n = nums.size();
+        vector<vector<Line>> dp(2);
+
+        for (int i = 0; i < n; ++i) {
+            deque<Line> hull;
+            for (int j = 0; j <= K; ++j) {
+                Line newLine = { -nums[i], dp[0][j].eval(j) };
+                while (hull.size() >= 2 && is_bad(hull[hull.size() - 2], hull[hull.size() - 1], newLine)) {
+                    hull.pop_back();
+                }
+                hull.push_back(newLine);
+                dp[1].push_back(hull.front().eval(j));
+            }
+        }
+
+        return dp[1][K];
+    }
+
+    int main() {
+        vector<int> nums = {1, 2, 3, 4, 5};
+        int K = 3;
+        cout << "Maximum Subarray Sum: " << maxSubarraySumWithConstraints(K, nums) << endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <h2>Hard Problem Solvable Using Convex Hull DP Trick</h2>
+
+    <h3>Problem: Data Mining with Convex Hull Trick</h3>
+    <p>This problem involves finding the best fit line for a given set of data points. By using Convex Hull DP Trick, we can efficiently calculate the best fit line by considering each point as a potential addition to the convex hull and calculating the line's slope and intercept.</p>
+
+    <h4>Solution</h4>
+    <pre>
+    <code>
+    #include <iostream>
+    #include <vector>
+    #include <deque>
+    using namespace std;
+
+    struct Line {
+        long long m, c;
+        long long eval(long long x) {
+            return m * x + c;
+        }
+    };
+
+    bool is_bad(Line& l1, Line& l2, Line& l3) {
+        return (l3.c - l1.c) * (l1.m - l2.m) >= (l2.c - l1.c) * (l1.m - l3.m);
+    }
+
+    long long dataMiningWithConvexHull(int N, vector<int>& data) {
+        vector<Line> hull;
+        for (int i = 0; i < N; ++i) {
+            Line newLine = { -data[i], data[i] };
+            while (hull.size() >= 2 && is_bad(hull[hull.size() - 2], hull[hull.size() - 1], newLine)) {
+                hull.pop_back();
+            }
+            hull.push_back(newLine);
+        }
+
+        return hull.back().eval(N);
+    }
+
+    int main() {
+        vector<int> data = {1, 2, 3, 4};
+        cout << "Best Fit Line: " << dataMiningWithConvexHull(4, data) << endl;
+        return 0;
+    }
+    </code>
+    </pre>
+</body>
+</html>

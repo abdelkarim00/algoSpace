@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Longest Increasing Subsequence (LIS) Algorithm</title>
+</head>
+<body>
+    <h1>Longest Increasing Subsequence (LIS)</h1>
+
+    <h2>Algorithm Explanation</h2>
+    <p>
+        The Longest Increasing Subsequence (LIS) problem involves finding the longest subsequence of a sequence 
+        such that all elements of the subsequence are sorted in increasing order.
+    </p>
+    <h3>Dynamic Programming (O(n<sup>2</sup>)) Approach</h3>
+    <p>
+        - Initialize a dp[] array of size n where dp[i] represents the length of the LIS ending at index i.<br>
+        - For each i from 1 to n-1, iterate over all j from 0 to i-1:<br>
+        &nbsp;&nbsp;If arr[i] > arr[j], update dp[i] = max(dp[i], dp[j] + 1).<br>
+        - The answer is the maximum value in dp[].
+    </p>
+
+    <h3>Efficient Binary Search Approach (O(n log n))</h3>
+    <p>
+        - Maintain a tail[] array that stores the smallest possible tail value for all increasing subsequences 
+        with length i+1 in tail[i].<br>
+        - For each element x in the input, use binary search to find the smallest index in tail where tail[i] >= x, 
+        and replace or append accordingly.
+    </p>
+
+    <h2>Complexity Analysis</h2>
+    <ul>
+        <li>Time Complexity: O(n log n) using binary search approach</li>
+        <li>Space Complexity: O(n) for the tail array</li>
+    </ul>
+
+    <h2>Easy Problems Solvable Using LIS</h2>
+
+    <h3>1. Find Length of LIS</h3>
+    <p><strong>Problem:</strong> Given an array, find the length of the LIS.</p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int lengthOfLIS(std::vector&lt;int&gt;& nums) {
+    std::vector&lt;int&gt; tail;
+    for (int num : nums) {
+        auto it = std::lower_bound(tail.begin(), tail.end(), num);
+        if (it == tail.end()) tail.push_back(num);
+        else *it = num;
+    }
+    return tail.size();
+}
+
+int main() {
+    std::vector&lt;int&gt; nums = {10, 9, 2, 5, 3, 7, 101, 18};
+    std::cout &lt;&lt; lengthOfLIS(nums);
+    return 0;
+}
+    </code></pre>
+
+    <h3>2. Check If Subsequence Is Increasing</h3>
+    <p><strong>Problem:</strong> Given a sequence, determine if it's an increasing subsequence of another array.</p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+bool isIncreasingSubsequence(const std::vector&lt;int&gt;& arr, const std::vector&lt;int&gt;& seq) {
+    int i = 0;
+    for (int num : arr) {
+        if (i &lt; seq.size() &amp;&amp; seq[i] == num) i++;
+    }
+    return i == seq.size();
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {1, 3, 5, 6, 7};
+    std::vector&lt;int&gt; seq = {1, 5, 7};
+    std::cout &lt;&lt; isIncreasingSubsequence(arr, seq);
+    return 0;
+}
+    </code></pre>
+
+    <h2>Intermediate Problems Solvable Using LIS</h2>
+
+    <h3>1. Maximum Sum Increasing Subsequence</h3>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int maxSumIS(std::vector&lt;int&gt;& arr) {
+    int n = arr.size();
+    std::vector&lt;int&gt; dp = arr;
+
+    for (int i = 1; i &lt; n; i++) {
+        for (int j = 0; j &lt; i; j++) {
+            if (arr[i] &gt; arr[j]) {
+                dp[i] = std::max(dp[i], dp[j] + arr[i]);
+            }
+        }
+    }
+
+    return *std::max_element(dp.begin(), dp.end());
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {1, 101, 2, 3, 100, 4, 5};
+    std::cout &lt;&lt; maxSumIS(arr);
+    return 0;
+}
+    </code></pre>
+
+    <h3>2. Number of LIS</h3>
+    <p><strong>Problem:</strong> Count how many distinct LIS are there.</p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int findNumberOfLIS(std::vector&lt;int&gt;& nums) {
+    int n = nums.size(), maxLen = 0, res = 0;
+    std::vector&lt;int&gt; len(n, 1), cnt(n, 1);
+    
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; i; ++j) {
+            if (nums[i] &gt; nums[j]) {
+                if (len[j] + 1 &gt; len[i]) {
+                    len[i] = len[j] + 1;
+                    cnt[i] = cnt[j];
+                } else if (len[j] + 1 == len[i]) {
+                    cnt[i] += cnt[j];
+                }
+            }
+        }
+        if (len[i] &gt; maxLen) {
+            maxLen = len[i];
+            res = cnt[i];
+        } else if (len[i] == maxLen) {
+            res += cnt[i];
+        }
+    }
+    return res;
+}
+
+int main() {
+    std::vector&lt;int&gt; nums = {1, 3, 5, 4, 7};
+    std::cout &lt;&lt; findNumberOfLIS(nums);
+    return 0;
+}
+    </code></pre>
+
+    <h2>Hard Problem Solvable Using LIS</h2>
+
+    <h3>Russian Doll Envelopes</h3>
+    <p><strong>Problem:</strong> Given envelopes with widths and heights, find the max number that can be nested.</p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int maxEnvelopes(std::vector&lt;std::vector&lt;int&gt;&gt;& envelopes) {
+    std::sort(envelopes.begin(), envelopes.end(), [](auto&amp; a, auto&amp; b) {
+        return a[0] == b[0] ? a[1] &gt; b[1] : a[0] &lt; b[0];
+    });
+
+    std::vector&lt;int&gt; dp;
+    for (auto&amp; env : envelopes) {
+        auto it = std::lower_bound(dp.begin(), dp.end(), env[1]);
+        if (it == dp.end()) dp.push_back(env[1]);
+        else *it = env[1];
+    }
+
+    return dp.size();
+}
+
+int main() {
+    std::vector&lt;std::vector&lt;int&gt;&gt; envelopes = {{5,4}, {6,4}, {6,7}, {2,3}};
+    std::cout &lt;&lt; maxEnvelopes(envelopes);
+    return 0;
+}
+    </code></pre>
+</body>
+</html>

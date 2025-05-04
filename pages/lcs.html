@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Longest Common Subsequence (LCS) Algorithm</title>
+</head>
+<body>
+
+<h1>Longest Common Subsequence (LCS) Algorithm</h1>
+
+<h2>Overview</h2>
+<p>
+    The Longest Common Subsequence (LCS) problem is a classic problem in computer science. Given two sequences, the goal is to find the length of their longest subsequence that appears in both of them in the same order (but not necessarily contiguously).
+</p>
+
+<h2>Algorithm</h2>
+<p>
+    The LCS problem is typically solved using Dynamic Programming. Let strings <code>X</code> and <code>Y</code> have lengths <code>m</code> and <code>n</code>, respectively. We define a 2D array <code>dp</code> where <code>dp[i][j]</code> stores the length of LCS of <code>X[0..i-1]</code> and <code>Y[0..j-1]</code>.
+</p>
+
+<pre>
+if X[i-1] == Y[j-1]:
+    dp[i][j] = dp[i-1][j-1] + 1
+else:
+    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+</pre>
+
+<p>
+    The value at <code>dp[m][n]</code> gives the length of the LCS.
+</p>
+
+<h3>Time Complexity</h3>
+<p>
+    O(m * n), where m and n are lengths of the input strings.
+</p>
+
+<h3>Space Complexity</h3>
+<p>
+    O(m * n), or O(n) with space optimization using rolling arrays.
+</p>
+
+<h2>Easy Problems</h2>
+
+<h3>1. Length of LCS</h3>
+<p>Given two strings, return the length of their LCS.</p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+using namespace std;
+
+int lcsLength(string X, string Y) {
+    int m = X.size(), n = Y.size();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    for (int i = 1; i &lt;= m; ++i) {
+        for (int j = 1; j &lt;= n; ++j) {
+            if (X[i - 1] == Y[j - 1])
+                dp[i][j] = 1 + dp[i - 1][j - 1];
+            else
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+        }
+    }
+    return dp[m][n];
+}
+</code></pre>
+
+<h3>2. Check if one string is a subsequence of another</h3>
+<p>Using LCS to determine if a string is a subsequence of another.</p>
+
+<pre><code>
+bool isSubsequence(string s, string t) {
+    return lcsLength(s, t) == s.length();
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>1. Print the LCS</h3>
+<p>Instead of just the length, return the actual LCS string.</p>
+
+<pre><code>
+string printLCS(string X, string Y) {
+    int m = X.length(), n = Y.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m+1, vector&lt;int&gt;(n+1, 0));
+
+    for (int i = 1; i &lt;= m; i++) {
+        for (int j = 1; j &lt;= n; j++) {
+            if (X[i-1] == Y[j-1])
+                dp[i][j] = dp[i-1][j-1] + 1;
+            else
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+
+    string lcs;
+    int i = m, j = n;
+    while (i &gt; 0 && j &gt; 0) {
+        if (X[i-1] == Y[j-1]) {
+            lcs = X[i-1] + lcs;
+            i--; j--;
+        } else if (dp[i-1][j] &gt; dp[i][j-1])
+            i--;
+        else
+            j--;
+    }
+    return lcs;
+}
+</code></pre>
+
+<h3>2. Minimum number of deletions and insertions to transform one string into another</h3>
+
+<pre><code>
+pair&lt;int, int&gt; minDelInsert(string X, string Y) {
+    int lcs = lcsLength(X, Y);
+    int deletions = X.size() - lcs;
+    int insertions = Y.size() - lcs;
+    return {deletions, insertions};
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Shortest Common Supersequence</h3>
+<p>Find the shortest string that has both strings as subsequences.</p>
+
+<pre><code>
+string shortestCommonSupersequence(string X, string Y) {
+    int m = X.length(), n = Y.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+
+    for (int i = 1; i &lt;= m; i++) {
+        for (int j = 1; j &lt;= n; j++) {
+            if (X[i-1] == Y[j-1])
+                dp[i][j] = dp[i-1][j-1] + 1;
+            else
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+
+    string result;
+    int i = m, j = n;
+    while (i &gt; 0 && j &gt; 0) {
+        if (X[i-1] == Y[j-1]) {
+            result = X[i-1] + result;
+            i--; j--;
+        } else if (dp[i-1][j] &gt; dp[i][j-1]) {
+            result = X[i-1] + result;
+            i--;
+        } else {
+            result = Y[j-1] + result;
+            j--;
+        }
+    }
+
+    while (i &gt; 0) {
+        result = X[i-1] + result;
+        i--;
+    }
+    while (j &gt; 0) {
+        result = Y[j-1] + result;
+        j--;
+    }
+
+    return result;
+}
+</code></pre>
+
+<h2>Conclusion</h2>
+<p>
+    The LCS algorithm is a powerful tool for comparing sequences, applicable in diff tools, DNA analysis, and file comparison utilities. It scales well with optimizations and is foundational in dynamic programming.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DP on Trees</title>
+</head>
+<body>
+
+<h1>DP on Trees</h1>
+
+<h2>What is DP on Trees?</h2>
+<p>
+Dynamic Programming (DP) on Trees is a technique used to solve optimization problems on tree data structures. 
+Unlike linear DP where we iterate over arrays, tree DP processes the tree in a post-order (bottom-up) or pre-order (top-down) fashion. 
+It often involves storing results for subtrees at each node and combining them to solve larger subproblems.
+</p>
+
+<h2>General Algorithm</h2>
+<ol>
+    <li>Choose a root (arbitrary for unrooted trees).</li>
+    <li>Traverse the tree using DFS (post-order for bottom-up DP).</li>
+    <li>At each node, compute the result based on its children's results.</li>
+    <li>Store the result in a DP array indexed by node.</li>
+</ol>
+
+<h2>Time and Memory Complexity</h2>
+<ul>
+    <li><strong>Time Complexity:</strong> O(N), where N is the number of nodes. Each node and edge is visited once.</li>
+    <li><strong>Space Complexity:</strong> O(N) for the tree representation and the DP array.</li>
+</ul>
+
+<h2>Easy Problem 1: Find Height of Each Subtree</h2>
+<p><strong>Problem:</strong> Given a tree, find the height of each node's subtree.</p>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+const int N = 100005;
+vector&lt;int&gt; tree[N];
+int height[N];
+
+void dfs(int node, int parent) {
+    height[node] = 0;
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        dfs(child, node);
+        height[node] = max(height[node], 1 + height[child]);
+    }
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs(1, -1);
+    for (int i = 1; i &lt;= n; i++) {
+        cout &lt;&lt; "Height of node " &lt;&lt; i &lt;&lt; " is " &lt;&lt; height[i] &lt;&lt; endl;
+    }
+}
+</code></pre>
+
+<h2>Easy Problem 2: Count Number of Nodes in Subtree</h2>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+const int N = 100005;
+vector&lt;int&gt; tree[N];
+int subtree_size[N];
+
+void dfs(int node, int parent) {
+    subtree_size[node] = 1;
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        dfs(child, node);
+        subtree_size[node] += subtree_size[child];
+    }
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs(1, -1);
+    for (int i = 1; i &lt;= n; i++) {
+        cout &lt;&lt; "Subtree size of node " &lt;&lt; i &lt;&lt; " is " &lt;&lt; subtree_size[i] &lt;&lt; endl;
+    }
+}
+</code></pre>
+
+<h2>Intermediate Problem 1: Diameter of Tree</h2>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+const int N = 100005;
+vector&lt;int&gt; tree[N];
+int max_diameter = 0;
+
+int dfs(int node, int parent) {
+    int max1 = 0, max2 = 0;
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        int depth = dfs(child, node) + 1;
+        if (depth &gt; max1) {
+            max2 = max1;
+            max1 = depth;
+        } else if (depth &gt; max2) {
+            max2 = depth;
+        }
+    }
+    max_diameter = max(max_diameter, max1 + max2);
+    return max1;
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs(1, -1);
+    cout &lt;&lt; "Diameter of the tree is " &lt;&lt; max_diameter &lt;&lt; endl;
+}
+</code></pre>
+
+<h2>Intermediate Problem 2: Tree DP - Max Sum of Independent Set</h2>
+<p>Select nodes such that no two adjacent nodes are selected and the sum is maximum.</p>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+const int N = 100005;
+vector&lt;int&gt; tree[N];
+int value[N], dp[N][2];
+
+void dfs(int node, int parent) {
+    dp[node][0] = 0;
+    dp[node][1] = value[node];
+
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        dfs(child, node);
+        dp[node][0] += max(dp[child][0], dp[child][1]);
+        dp[node][1] += dp[child][0];
+    }
+}
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; i++) cin &gt;&gt; value[i];
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs(1, -1);
+    cout &lt;&lt; "Max sum of independent set: " &lt;&lt; max(dp[1][0], dp[1][1]) &lt;&lt; endl;
+}
+</code></pre>
+
+<h2>Hard Problem: Rerooting Technique - Sum of Distances in Tree</h2>
+
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+using namespace std;
+
+const int N = 100005;
+vector&lt;int&gt; tree[N];
+int dp[N], subtree_size[N], ans[N];
+int n;
+
+void dfs1(int node, int parent) {
+    subtree_size[node] = 1;
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        dfs1(child, node);
+        subtree_size[node] += subtree_size[child];
+        dp[node] += dp[child] + subtree_size[child];
+    }
+}
+
+void dfs2(int node, int parent) {
+    for (int child : tree[node]) {
+        if (child == parent) continue;
+        ans[child] = ans[node] - subtree_size[child] + (n - subtree_size[child]);
+        dfs2(child, node);
+    }
+}
+
+int main() {
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n - 1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        tree[u].push_back(v);
+        tree[v].push_back(u);
+    }
+    dfs1(1, -1);
+    ans[1] = dp[1];
+    dfs2(1, -1);
+    for (int i = 1; i &lt;= n; i++) {
+        cout &lt;&lt; "Sum of distances from node " &lt;&lt; i &lt;&lt; ": " &lt;&lt; ans[i] &lt;&lt; endl;
+    }
+}
+</code></pre>
+
+<h2>Conclusion</h2>
+<p>
+DP on Trees is a powerful technique to solve many hierarchical or recursive structure problems efficiently. 
+By using bottom-up or rerooting strategies, even complex dependencies in trees can be handled within linear time.
+</p>
+
+</body>
+</html>

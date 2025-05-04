@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>0/1 Knapsack Explanation and Problems</title>
+</head>
+<body>
+
+<h1>0/1 Knapsack Problem</h1>
+
+<h2>1. Problem Description</h2>
+<p>
+    The 0/1 Knapsack problem is a classic dynamic programming problem. Given a set of items, each with a weight and a value, determine the maximum value that can be put in a knapsack of capacity <code>W</code> such that each item can be chosen at most once (hence "0/1").
+</p>
+
+<h2>2. Algorithm</h2>
+<p>
+    We use dynamic programming to build a table <code>dp[i][w]</code> where:
+    <ul>
+        <li><code>i</code> is the index of the item being considered</li>
+        <li><code>w</code> is the current capacity of the knapsack</li>
+        <li><code>dp[i][w]</code> stores the maximum value achievable using the first <code>i</code> items and capacity <code>w</code></li>
+    </ul>
+</p>
+<p>
+    Transition:
+    <pre>
+        if weight[i] &lt;= w:
+            dp[i][w] = max(dp[i-1][w], dp[i-1][w - weight[i]] + value[i])
+        else:
+            dp[i][w] = dp[i-1][w]
+    </pre>
+</p>
+
+<h3>Time and Space Complexity</h3>
+<ul>
+    <li>Time Complexity: <code>O(N * W)</code>, where <code>N</code> is the number of items and <code>W</code> is the knapsack capacity.</li>
+    <li>Space Complexity: <code>O(N * W)</code> (can be optimized to <code>O(W)</code> using a 1D array).</li>
+</ul>
+
+<h2>3. Easy Problems</h2>
+
+<h3>Problem 1: Basic Knapsack</h3>
+<p>Given weights and values of items and a maximum weight capacity, return the max value possible.</p>
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int knapsack(int W, vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int n) {
+    vector&lt;vector&lt;int&gt;&gt; dp(n+1, vector&lt;int&gt;(W+1, 0));
+    for (int i = 1; i &lt;= n; i++) {
+        for (int w = 0; w &lt;= W; w++) {
+            if (weights[i-1] &lt;= w)
+                dp[i][w] = max(dp[i-1][w], dp[i-1][w - weights[i-1]] + values[i-1]);
+            else
+                dp[i][w] = dp[i-1][w];
+        }
+    }
+    return dp[n][W];
+}
+</code></pre>
+
+<h3>Problem 2: Can Fill Exactly?</h3>
+<p>Can you exactly fill the knapsack to its capacity?</p>
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+bool canFillExact(int W, vector&lt;int&gt;& weights, int n) {
+    vector&lt;vector&lt;bool&gt;&gt; dp(n+1, vector&lt;bool&gt;(W+1, false));
+    dp[0][0] = true;
+
+    for (int i = 1; i &lt;= n; i++) {
+        for (int w = 0; w &lt;= W; w++) {
+            dp[i][w] = dp[i-1][w];
+            if (w &gt;= weights[i-1])
+                dp[i][w] |= dp[i-1][w - weights[i-1]];
+        }
+    }
+    return dp[n][W];
+}
+</code></pre>
+
+<h2>4. Intermediate Problems</h2>
+
+<h3>Problem 3: Count Number of Ways to Fill Knapsack</h3>
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int countWays(int W, vector&lt;int&gt;& weights, int n) {
+    vector&lt;vector&lt;int&gt;&gt; dp(n+1, vector&lt;int&gt;(W+1, 0));
+    dp[0][0] = 1;
+
+    for (int i = 1; i &lt;= n; i++) {
+        for (int w = 0; w &lt;= W; w++) {
+            dp[i][w] = dp[i-1][w];
+            if (w &gt;= weights[i-1])
+                dp[i][w] += dp[i-1][w - weights[i-1]];
+        }
+    }
+    return dp[n][W];
+}
+</code></pre>
+
+<h3>Problem 4: Subset with Given Difference</h3>
+<p>Given a set, find the number of subsets with a given difference between sums.</p>
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+using namespace std;
+
+int subsetWithDiff(vector&lt;int&gt;& nums, int diff) {
+    int sum = accumulate(nums.begin(), nums.end(), 0);
+    if ((sum + diff) % 2 != 0) return 0;
+    int target = (sum + diff) / 2;
+
+    vector&lt;int&gt; dp(target+1, 0);
+    dp[0] = 1;
+
+    for (int num : nums) {
+        for (int j = target; j &gt;= num; j--) {
+            dp[j] += dp[j - num];
+        }
+    }
+    return dp[target];
+}
+</code></pre>
+
+<h2>5. Hard Problem</h2>
+
+<h3>Problem 5: 0/1 Knapsack with Item Reconstruction</h3>
+<p>Return not just the max value but also which items are selected.</p>
+<pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+pair&lt;int, vector&lt;int&gt;&gt; knapsackWithItems(int W, vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int n) {
+    vector&lt;vector&lt;int&gt;&gt; dp(n+1, vector&lt;int&gt;(W+1, 0));
+
+    for (int i = 1; i &lt;= n; i++) {
+        for (int w = 0; w &lt;= W; w++) {
+            if (weights[i-1] &lt;= w)
+                dp[i][w] = max(dp[i-1][w], dp[i-1][w - weights[i-1]] + values[i-1]);
+            else
+                dp[i][w] = dp[i-1][w];
+        }
+    }
+
+    // Backtrack to find selected items
+    vector&lt;int&gt; selectedItems;
+    int w = W;
+    for (int i = n; i &gt; 0 &amp;&amp; w &gt; 0; i--) {
+        if (dp[i][w] != dp[i-1][w]) {
+            selectedItems.push_back(i-1);
+            w -= weights[i-1];
+        }
+    }
+
+    return {dp[n][W], selectedItems};
+}
+</code></pre>
+
+</body>
+</html>

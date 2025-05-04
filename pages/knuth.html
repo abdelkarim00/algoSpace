@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knuth Optimization</title>
+</head>
+<body>
+    <h1>Knuth Optimization</h1>
+    <p>
+        Knuth Optimization is a dynamic programming optimization technique used to solve problems involving optimization over a sequence of choices. It is particularly useful for problems that exhibit certain properties, allowing us to reduce the time complexity of the naive dynamic programming approach. Specifically, it is helpful in problems where the state transitions depend on quadratic cost functions and when the problem has a monotonicity property. This optimization technique is often applied in problems related to optimal matrix chain multiplication, segmentation, and the shortest path.
+    </p>
+
+    <h2>Algorithm</h2>
+    <p>
+        The main idea behind Knuth Optimization is to reduce the time complexity of dynamic programming (DP) problems. The naive DP solution has a time complexity of O(n^2), but Knuth Optimization can reduce it to O(n) or O(n log n) under certain conditions. The general idea is based on the observation that in many dynamic programming problems, the optimal solution for a subproblem only depends on a "range" of prior subproblems, and the problem exhibits a form of "monotonicity".
+    </p>
+    <p>
+        In simple terms, Knuth Optimization works by reducing the number of unnecessary recalculations in the DP recurrence. The key observation is that for certain types of recurrences, the dynamic programming state transitions are "monotonic", allowing us to avoid re-evaluating certain states and improving the efficiency of the algorithm.
+    </p>
+
+    <h3>Time Complexity</h3>
+    <p>
+        The time complexity of the Knuth Optimization technique is O(n) in the best case, where the state transitions exhibit monotonic behavior. For the general case, the complexity can be O(n log n). The time complexity improvement is achieved by reducing the number of recalculations required in the DP process, particularly when dealing with quadratic recurrences.
+    </p>
+
+    <h3>Memory Complexity</h3>
+    <p>
+        The memory complexity is generally O(n) since you only need to store the DP table and any auxiliary arrays required for the state transitions.
+    </p>
+
+    <h2>Easy Problems Solvable by Knuth Optimization</h2>
+
+    <h3>1. Matrix Chain Multiplication</h3>
+    <p>
+        The Matrix Chain Multiplication problem involves finding the optimal order to multiply a sequence of matrices to minimize the number of scalar multiplications. The naive DP solution has a time complexity of O(n^3), but Knuth Optimization can reduce this to O(n^2) by exploiting the monotonicity of the subproblem solutions.
+    </p>
+
+    <h4>Code Example (C++):</h4>
+    <pre>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void knuthOptimizationMatrixChain(const vector<int>& p) {
+    int n = p.size() - 1;
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    vector<vector<int>> s(n, vector<int>(n, 0));
+
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i < n - len + 1; i++) {
+            int j = i + len - 1;
+            dp[i][j] = INT_MAX;
+            for (int k = s[i][j-1]; k <= s[i+1][j]; k++) {
+                int q = dp[i][k] + dp[k+1][j] + p[i]*p[k+1]*p[j+1];
+                if (q < dp[i][j]) {
+                    dp[i][j] = q;
+                    s[i][j] = k;
+                }
+            }
+        }
+    }
+
+    cout << "Minimum cost of multiplication: " << dp[0][n-1] << endl;
+}
+
+int main() {
+    vector<int> p = {30, 35, 15, 5, 10, 20, 25};
+    knuthOptimizationMatrixChain(p);
+    return 0;
+}
+    </pre>
+
+    <h3>2. Optimal Binary Search Tree</h3>
+    <p>
+        The Optimal Binary Search Tree problem involves finding a binary search tree with minimum expected search cost, given a set of keys and their associated search probabilities. The naive DP approach has a time complexity of O(n^3), but Knuth Optimization can reduce this to O(n^2).
+    </p>
+
+    <h4>Code Example (C++):</h4>
+    <pre>
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+void knuthOptimizationOptimalBST(const vector<int>& keys, const vector<int>& freq) {
+    int n = keys.size();
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    vector<vector<int>> s(n, vector<int>(n, 0));
+
+    for (int len = 1; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            dp[i][j] = INT_MAX;
+            for (int k = s[i][j-1]; k <= s[i+1][j]; k++) {
+                int cost = (k == i) ? 0 : dp[i][k-1] + freq[k];
+                cost += (k == j) ? 0 : dp[k+1][j] + freq[k];
+                if (cost < dp[i][j]) {
+                    dp[i][j] = cost;
+                    s[i][j] = k;
+                }
+            }
+        }
+    }
+
+    cout << "Minimum cost of Binary Search Tree: " << dp[0][n-1] << endl;
+}
+
+int main() {
+    vector<int> keys = {10, 12, 20};
+    vector<int> freq = {34, 8, 50};
+    knuthOptimizationOptimalBST(keys, freq);
+    return 0;
+}
+    </pre>
+
+    <h2>Intermediate Problems Solvable by Knuth Optimization</h2>
+
+    <h3>1. 0/1 Knapsack Problem</h3>
+    <p>
+        In the 0/1 Knapsack problem, you are given a set of items, each with a weight and a value, and you need to determine the maximum value that can be obtained without exceeding a given weight limit. Using dynamic programming, the time complexity is typically O(nW), but Knuth Optimization can reduce the time complexity to O(n log W).
+    </p>
+
+    <h4>Code Example (C++):</h4>
+    <pre>
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+void knuthOptimizationKnapsack(const vector<int>& weight, const vector<int>& value, int W) {
+    int n = weight.size();
+    vector<vector<int>> dp(n+1, vector<int>(W+1, 0));
+    vector<vector<int>> s(n+1, vector<int>(W+1, 0));
+
+    for (int i = 1; i <= n; i++) {
+        for (int w = 1; w <= W; w++) {
+            dp[i][w] = dp[i-1][w];
+            for (int k = s[i-1][w-1]; k <= w; k++) {
+                dp[i][w] = max(dp[i][w], dp[i-1][w-k] + value[i-1]);
+            }
+        }
+    }
+
+    cout << "Maximum value in Knapsack: " << dp[n][W] << endl;
+}
+
+int main() {
+    vector<int> weight = {2, 3, 4, 5};
+    vector<int> value = {3, 4, 5, 6};
+    int W = 5;
+    knuthOptimizationKnapsack(weight, value, W);
+    return 0;
+}
+    </pre>
+
+    <h3>2. Coin Change Problem</h3>
+    <p>
+        The Coin Change problem involves finding the minimum number of coins required to make a given amount, using a set of available denominations. The naive approach has a time complexity of O(nA), but Knuth Optimization can reduce it to O(n log A), where A is the total amount.
+    </p>
+
+    <h4>Code Example (C++):</h4>
+    <pre>
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+void knuthOptimizationCoinChange(const vector<int>& coins, int amount) {
+    int n = coins.size();
+    vector<vector<int>> dp(n+1, vector<int>(amount+1, INT_MAX));
+    
+    for (int i = 0; i <= n; i++) dp[i][0] = 0;
+    
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= amount; j++) {
+            dp[i][j] = dp[i-1][j];
+            for (int k = dp[i-1][j-1]; k <= j; k++) {
+                dp[i][j] = min(dp[i][j], dp[i-1][j-k] + 1);
+            }
+        }
+    }
+
+    cout << "Minimum coins required: " << dp[n][amount] << endl;
+}
+
+int main() {
+    vector<int> coins = {1, 2, 3};
+    int amount = 5;
+    knuthOptimizationCoinChange(coins, amount);
+    return 0;
+}
+    </pre>
+
+    <h2>Hard Problem Solvable by Knuth Optimization</h2>
+
+    <h3>1. Sequence Alignment</h3>
+    <p>
+        The Sequence Alignment problem involves finding the optimal alignment of two sequences, typically used in bioinformatics for comparing DNA or protein sequences. The problem can be solved using dynamic programming, and Knuth Optimization is used to reduce the time complexity when dealing with large sequences, from O(n^2) to O(n log n).
+    </p>
+
+    <h4>Code Example (C++):</h4>
+    <pre>
+#include <iostream>
+#include <vector>
+#include <climits>
+using namespace std;
+
+void knuthOptimizationSequenceAlignment(const string& s1, const string& s2) {
+    int n = s1.size();
+    int m = s2.size();
+    vector<vector<int>> dp(n+1, vector<int>(m+1, INT_MAX));
+    vector<vector<int>> s(n+1, vector<int>(m+1, 0));
+
+    for (int i = 0; i <= n; i++) dp[i][0] = i;
+    for (int j = 0; j <= m; j++) dp[0][j] = j;
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            dp[i][j] = min(dp[i-1][j] + 1, dp[i][j-1] + 1);
+            for (int k = s[i-1][j-1]; k <= j; k++) {
+                dp[i][j] = min(dp[i][j], dp[i-1][k-1] + (s1[i-1] == s2[k-1] ? 0 : 1));
+            }
+        }
+    }
+
+    cout << "Minimum alignment cost: " << dp[n][m] << endl;
+}
+
+int main() {
+    string s1 = "AGGTAB";
+    string s2 = "GXTXAYB";
+    knuthOptimizationSequenceAlignment(s1, s2);
+    return 0;
+}
+    </pre>
+</body>
+</html>

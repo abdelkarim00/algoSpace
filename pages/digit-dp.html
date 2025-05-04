@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digit DP Algorithm Explanation</title>
+</head>
+<body>
+    <h1>Digit DP Algorithm</h1>
+    
+    <p>
+        Digit DP (Dynamic Programming) is a technique often used to solve problems related to counting numbers or sequences of numbers that satisfy certain conditions, based on their digits. It can be used to count numbers that fulfill conditions like divisibility, being greater than or less than a certain number, having particular properties in their digits, etc.
+    </p>
+
+    <h2>Basic Idea of Digit DP</h2>
+    <p>
+        The idea behind Digit DP is to consider the digits of the number one by one, typically from left to right, and build up the solution using a DP table where each state in the DP represents the conditions of the digits processed so far. The state transitions depend on whether the current number being considered is strictly less than the target number or if it matches it.
+    </p>
+
+    <h3>Time and Space Complexity</h3>
+    <p>
+        - The time complexity is generally O(n * d * 2), where:
+        <ul>
+            <li>n is the number of digits in the target number (in the worst case, n = 18 for numbers up to 10^18).</li>
+            <li>d is the number of possible states for the digits (e.g., the digits can be from 0 to 9, and whether the number formed so far is smaller or equal to the target).</li>
+            <li>The multiplication by 2 comes from considering two options: tight or loose bounds.</li>
+        </ul>
+        
+        - The space complexity is O(n * d), as the DP table stores states for each digit processed and the state information (tight or not).
+    </p>
+
+    <h2>Examples of Problems Solvable by Digit DP</h2>
+
+    <h3>1. Easy Problem 1: Count numbers with specific digit constraints</h3>
+    <p>
+        Problem: Given a number L, count how many numbers in the range [0, L] contain only even digits.
+    </p>
+
+    <pre>
+    <code>
+    #include &lt;iostream&gt;
+    #include &lt;vector&gt;
+
+    using namespace std;
+
+    int dp[20][2]; // dp[pos][tight]
+
+    bool isEvenDigit(int num) {
+        return num == 0 || num == 2 || num == 4 || num == 6 || num == 8;
+    }
+
+    int solve(string &str, int pos, bool tight) {
+        if (pos == str.size()) return 1;
+        if (dp[pos][tight] != -1) return dp[pos][tight];
+
+        int limit = tight ? str[pos] - '0' : 9;
+        int result = 0;
+
+        for (int digit = 0; digit <= limit; ++digit) {
+            if (isEvenDigit(digit)) {
+                result += solve(str, pos + 1, tight && (digit == limit));
+            }
+        }
+        return dp[pos][tight] = result;
+    }
+
+    int countEvenDigits(int L) {
+        string str = to_string(L);
+        memset(dp, -1, sizeof(dp));
+        return solve(str, 0, true);
+    }
+
+    int main() {
+        int L;
+        cin &gt;&gt; L;
+        cout &lt;&lt; countEvenDigits(L) &lt;&lt; endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <p>
+        Explanation: In this problem, we need to count how many numbers from 0 to L contain only even digits. We recursively explore each digit and ensure that we only pick even digits at each step. The tight flag ensures we don't exceed L.
+    </p>
+
+    <h3>2. Easy Problem 2: Count numbers less than N with a certain digit</h3>
+    <p>
+        Problem: Given a number N, count how many numbers less than N contain at least one '3' in their digits.
+    </p>
+
+    <pre>
+    <code>
+    #include &lt;iostream&gt;
+    #include &lt;vector&gt;
+
+    using namespace std;
+
+    int dp[20][2][2]; // dp[pos][tight][found]
+
+    int solve(string &str, int pos, bool tight, bool found) {
+        if (pos == str.size()) return found;
+
+        if (dp[pos][tight][found] != -1) return dp[pos][tight][found];
+
+        int limit = tight ? str[pos] - '0' : 9;
+        int result = 0;
+
+        for (int digit = 0; digit <= limit; ++digit) {
+            result += solve(str, pos + 1, tight && (digit == limit), found || (digit == 3));
+        }
+        return dp[pos][tight][found] = result;
+    }
+
+    int countNumbersWith3(int N) {
+        string str = to_string(N);
+        memset(dp, -1, sizeof(dp));
+        return solve(str, 0, true, false);
+    }
+
+    int main() {
+        int N;
+        cin &gt;&gt; N;
+        cout &lt;&lt; countNumbersWith3(N) &lt;&lt; endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <p>
+        Explanation: In this problem, we want to count how many numbers less than N contain at least one '3'. The recursive function checks each digit, and if we find a '3', we set a flag and return the result accordingly.
+    </p>
+
+    <h3>Intermediate Problem 1: Count numbers with a sum of digits equal to a given number</h3>
+    <p>
+        Problem: Given a number N and a sum S, count how many numbers less than N have a sum of digits equal to S.
+    </p>
+
+    <pre>
+    <code>
+    #include &lt;iostream&gt;
+    #include &lt;vector&gt;
+
+    using namespace std;
+
+    int dp[20][2][200]; // dp[pos][tight][sum]
+
+    int solve(string &str, int pos, bool tight, int sum) {
+        if (sum < 0) return 0;
+        if (pos == str.size()) return sum == 0;
+
+        if (dp[pos][tight][sum] != -1) return dp[pos][tight][sum];
+
+        int limit = tight ? str[pos] - '0' : 9;
+        int result = 0;
+
+        for (int digit = 0; digit <= limit; ++digit) {
+            result += solve(str, pos + 1, tight && (digit == limit), sum - digit);
+        }
+        return dp[pos][tight][sum] = result;
+    }
+
+    int countNumbersWithSum(int N, int S) {
+        string str = to_string(N);
+        memset(dp, -1, sizeof(dp));
+        return solve(str, 0, true, S);
+    }
+
+    int main() {
+        int N, S;
+        cin &gt;&gt; N &gt;&gt; S;
+        cout &lt;&lt; countNumbersWithSum(N, S) &lt;&lt; endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <p>
+        Explanation: This problem involves finding numbers less than N whose digits sum to a specific value S. We explore each digit recursively, adjusting the sum by subtracting the current digit, and use dynamic programming to store already computed states.
+    </p>
+
+    <h3>Intermediate Problem 2: Count numbers divisible by a given divisor</h3>
+    <p>
+        Problem: Given a number N and a divisor D, count how many numbers less than N are divisible by D.
+    </p>
+
+    <pre>
+    <code>
+    #include &lt;iostream&gt;
+    #include &lt;vector&gt;
+
+    using namespace std;
+
+    int dp[20][2][100]; // dp[pos][tight][mod]
+
+    int solve(string &str, int pos, bool tight, int mod, int D) {
+        if (pos == str.size()) return mod == 0;
+
+        if (dp[pos][tight][mod] != -1) return dp[pos][tight][mod];
+
+        int limit = tight ? str[pos] - '0' : 9;
+        int result = 0;
+
+        for (int digit = 0; digit <= limit; ++digit) {
+            result += solve(str, pos + 1, tight && (digit == limit), (mod * 10 + digit) % D, D);
+        }
+        return dp[pos][tight][mod] = result;
+    }
+
+    int countNumbersDivisibleByD(int N, int D) {
+        string str = to_string(N);
+        memset(dp, -1, sizeof(dp));
+        return solve(str, 0, true, 0, D);
+    }
+
+    int main() {
+        int N, D;
+        cin &gt;&gt; N &gt;&gt; D;
+        cout &lt;&lt; countNumbersDivisibleByD(N, D) &lt;&lt; endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <p>
+        Explanation: The goal is to count how many numbers less than N are divisible by D. We use dynamic programming to track the modulus of numbers as we explore the digits, checking if the current number mod D is zero.
+    </p>
+
+    <h3>Hard Problem: Count numbers with specific patterns</h3>
+    <p>
+        Problem: Given a number N, count how many numbers less than N form a palindromic number using only the digits of N.
+    </p>
+
+    <pre>
+    <code>
+    #include &lt;iostream&gt;
+    #include &lt;vector&gt;
+
+    using namespace std;
+
+    int dp[20][2][2][2]; // dp[pos][tight][leftEqualRight][isPalindrome]
+
+    int solve(string &str, int pos, bool tight, bool leftEqualRight, bool isPalindrome) {
+        if (pos == str.size()) return isPalindrome;
+
+        if (dp[pos][tight][leftEqualRight][isPalindrome] != -1) return dp[pos][tight][leftEqualRight][isPalindrome];
+
+        int limit = tight ? str[pos] - '0' : 9;
+        int result = 0;
+
+        for (int digit = 0; digit <= limit; ++digit) {
+            bool newPalindrome = (leftEqualRight && (digit == str[pos]));
+            result += solve(str, pos + 1, tight && (digit == limit), newPalindrome, newPalindrome);
+        }
+
+        return dp[pos][tight][leftEqualRight][isPalindrome] = result;
+    }
+
+    int countPalindromicNumbers(int N) {
+        string str = to_string(N);
+        memset(dp, -1, sizeof(dp));
+        return solve(str, 0, true, true, true);
+    }
+
+    int main() {
+        int N;
+        cin &gt;&gt; N;
+        cout &lt;&lt; countPalindromicNumbers(N) &lt;&lt; endl;
+        return 0;
+    }
+    </code>
+    </pre>
+
+    <p>
+        Explanation: This is a hard problem that counts how many palindromic numbers less than N can be formed using its digits. It uses dynamic programming to explore the digits and track if the number being formed is a palindrome.
+    </p>
+</body>
+</html>

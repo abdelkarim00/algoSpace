@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matrix Chain Multiplication</title>
+</head>
+<body>
+
+<h1>Matrix Chain Multiplication (MCM)</h1>
+
+<h2>1. Algorithm Explanation</h2>
+<p>
+    Matrix Chain Multiplication (MCM) is a classic Dynamic Programming problem that deals with finding the most efficient way to multiply a given sequence of matrices. The goal is to determine the minimum number of scalar multiplications needed to multiply the entire chain.
+</p>
+
+<h3>Problem Statement:</h3>
+<p>
+    Given a sequence of matrices, find the most efficient way to multiply these matrices together. The efficient way is the one that involves the least number of scalar multiplications.
+</p>
+<p>
+    Matrices are compatible for multiplication if the number of columns in one equals the number of rows in the next. Given an array <code>p[]</code> of size <code>n</code>, where the i-th matrix has dimensions <code>p[i-1] x p[i]</code>.
+</p>
+
+<h3>Dynamic Programming Approach:</h3>
+<ol>
+    <li>Let <code>dp[i][j]</code> represent the minimum number of multiplications to compute the product of matrices from index <code>i</code> to <code>j</code>.</li>
+    <li>Initialize <code>dp[i][i] = 0</code> for all <code>i</code>.</li>
+    <li>Fill the table using increasing chain lengths.</li>
+    <li>For each chain length and each subproblem, find the minimum cost by placing parenthesis at all possible positions.</li>
+</ol>
+
+<h3>Time and Space Complexity:</h3>
+<ul>
+    <li><strong>Time Complexity:</strong> O(n³)</li>
+    <li><strong>Space Complexity:</strong> O(n²)</li>
+</ul>
+
+<h2>2. Easy Problems</h2>
+
+<h3>Problem 1: Minimum cost of multiplying a chain of matrices</h3>
+<pre><code>&lt;!-- C++ code --&gt;
+#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int matrixChainOrder(int p[], int n) {
+    int dp[n][n];
+    for (int i = 1; i &lt; n; i++) dp[i][i] = 0;
+
+    for (int len = 2; len &lt; n; len++) {
+        for (int i = 1; i &lt; n - len + 1; i++) {
+            int j = i + len - 1;
+            dp[i][j] = INT_MAX;
+            for (int k = i; k &lt; j; k++) {
+                int cost = dp[i][k] + dp[k + 1][j] + p[i - 1] * p[k] * p[j];
+                dp[i][j] = min(dp[i][j], cost);
+            }
+        }
+    }
+    return dp[1][n - 1];
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout &lt;&lt; "Minimum multiplications: " &lt;&lt; matrixChainOrder(arr, n);
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Count number of ways to parenthesize the product</h3>
+<pre><code>&lt;!-- C++ code --&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+int countWays(int n) {
+    int dp[n][n] = {0};
+    for (int i = 1; i &lt; n; i++) dp[i][i] = 1;
+
+    for (int len = 2; len &lt; n; len++) {
+        for (int i = 1; i &lt; n - len + 1; i++) {
+            int j = i + len - 1;
+            for (int k = i; k &lt; j; k++) {
+                dp[i][j] += dp[i][k] * dp[k + 1][j];
+            }
+        }
+    }
+    return dp[1][n - 1];
+}
+
+int main() {
+    int n = 4; // 3 matrices
+    cout &lt;&lt; "Ways to parenthesize: " &lt;&lt; countWays(n);
+    return 0;
+}
+</code></pre>
+
+<h2>3. Intermediate Problems</h2>
+
+<h3>Problem 1: Optimal Binary Search Tree (OBST)</h3>
+<p>This can be solved using a similar dynamic programming approach to MCM.</p>
+<pre><code>&lt;!-- C++ code --&gt;
+#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int optimalBST(int keys[], int freq[], int n) {
+    int dp[n][n];
+
+    for (int i = 0; i &lt; n; i++) dp[i][i] = freq[i];
+
+    for (int len = 2; len &lt;= n; len++) {
+        for (int i = 0; i &lt;= n - len; i++) {
+            int j = i + len - 1;
+            dp[i][j] = INT_MAX;
+            int sum = 0;
+            for (int k = i; k &lt;= j; k++) sum += freq[k];
+
+            for (int r = i; r &lt;= j; r++) {
+                int cost = ((r &gt; i) ? dp[i][r - 1] : 0) +
+                           ((r &lt; j) ? dp[r + 1][j] : 0) + sum;
+                dp[i][j] = min(dp[i][j], cost);
+            }
+        }
+    }
+    return dp[0][n - 1];
+}
+
+int main() {
+    int keys[] = {10, 12, 20};
+    int freq[] = {34, 8, 50};
+    int n = sizeof(keys) / sizeof(keys[0]);
+    cout &lt;&lt; "Cost of OBST: " &lt;&lt; optimalBST(keys, freq, n);
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Boolean Parenthesization</h3>
+<pre><code>&lt;!-- C++ code --&gt;
+#include &lt;iostream&gt;
+#include &lt;cstring&gt;
+using namespace std;
+
+int dp[101][101][2];
+
+int countWays(string s, int i, int j, bool isTrue) {
+    if (i &gt; j) return 0;
+    if (i == j) {
+        if (isTrue) return s[i] == 'T';
+        else return s[i] == 'F';
+    }
+
+    if (dp[i][j][isTrue] != -1) return dp[i][j][isTrue];
+
+    int ans = 0;
+    for (int k = i + 1; k &lt;= j - 1; k += 2) {
+        int lt = countWays(s, i, k - 1, true);
+        int lf = countWays(s, i, k - 1, false);
+        int rt = countWays(s, k + 1, j, true);
+        int rf = countWays(s, k + 1, j, false);
+
+        if (s[k] == '&amp;') {
+            ans += isTrue ? (lt * rt) : (lt * rf + lf * rt + lf * rf);
+        } else if (s[k] == '|') {
+            ans += isTrue ? (lt * rt + lt * rf + lf * rt) : (lf * rf);
+        } else if (s[k] == '^') {
+            ans += isTrue ? (lt * rf + lf * rt) : (lt * rt + lf * rf);
+        }
+    }
+    return dp[i][j][isTrue] = ans;
+}
+
+int main() {
+    string s = "T|F&T^T";
+    memset(dp, -1, sizeof(dp));
+    cout &lt;&lt; "Ways to parenthesize to True: " &lt;&lt; countWays(s, 0, s.size() - 1, true);
+    return 0;
+}
+</code></pre>
+
+<h2>4. Hard Problem</h2>
+
+<h3>Problem: Evaluate Expression to get Minimum Cost (MCM Variant)</h3>
+<p>Given an array of numbers and operations (e.g., +, *, -), compute the minimum result by changing the parenthesis. Similar to MCM, use DP with cost evaluation based on operation type.</p>
+
+<pre><code>&lt;!-- C++ code --&gt;
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int eval(int a, int b, char op) {
+    if (op == '+') return a + b;
+    if (op == '-') return a - b;
+    return a * b;
+}
+
+pair&lt;int, int&gt; minMax(vector&lt;int&gt;&amp; nums, vector&lt;char&gt;&amp; ops, int i, int j,
+                      vector&lt;vector&lt;int&gt;&gt;&amp; minDp, vector&lt;vector&lt;int&gt;&gt;&amp; maxDp) {
+    if (i == j) return {nums[i], nums[i]};
+    if (minDp[i][j] != INT_MAX) return {minDp[i][j], maxDp[i][j]};
+
+    int mn = INT_MAX, mx = INT_MIN;
+    for (int k = i; k &lt; j; ++k) {
+        auto left = minMax(nums, ops, i, k, minDp, maxDp);
+        auto right = minMax(nums, ops, k + 1, j, minDp, maxDp);
+
+        for (int a : {left.first, left.second})
+            for (int b : {right.first, right.second}) {
+                int val = eval(a, b, ops[k]);
+                mn = min(mn, val);
+                mx = max(mx, val);
+            }
+    }
+
+    minDp[i][j] = mn;
+    maxDp[i][j] = mx;
+    return {mn, mx};
+}
+
+int main() {
+    vector&lt;int&gt; nums = {1, 2, 3, 4};
+    vector&lt;char&gt; ops = {'+', '*', '-'};
+    int n = nums.size();
+
+    vector&lt;vector&lt;int&gt;&gt; minDp(n, vector&lt;int&gt;(n, INT_MAX));
+    vector&lt;vector&lt;int&gt;&gt; maxDp(n, vector&lt;int&gt;(n, INT_MIN));
+
+    auto res = minMax(nums, ops, 0, n - 1, minDp, maxDp);
+    cout &lt;&lt; "Minimum value: " &lt;&lt; res.first &lt;&lt; ", Maximum value: " &lt;&lt; res.second;
+    return 0;
+}
+</code></pre>
+
+</body>
+</html>
