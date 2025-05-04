@@ -1,178 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fermat's Little Theorem</title>
+    <title>Fermat's Little Theorem Explained</title>
 </head>
 <body>
-
     <h1>Fermat's Little Theorem</h1>
+    <p>
+        Fermat's Little Theorem states that if <strong>p</strong> is a prime number and <strong>a</strong> is an integer such that <strong>p does not divide a</strong>, then:
+    </p>
+    <pre>a<sup>p-1</sup> ≡ 1 (mod p)</pre>
+    <p>
+        A practical use of this theorem is in computing modular inverses and modular exponentiation efficiently, especially in number theory and cryptography.
+    </p>
 
-    <p>Fermat's Little Theorem states that if <strong>p</strong> is a prime number and <strong>a</strong> is an integer, then:</p>
-    <p><code>a^p ≡ a (mod p)</code></p>
-    <p>This theorem is used widely in number theory and cryptography, especially in primality testing algorithms and modular arithmetic.</p>
+    <h2>Algorithm</h2>
+    <p>
+        To compute <code>a<sup>p-2</sup> mod p</code>, we use binary exponentiation:
+    </p>
+    <pre>
+modular_pow(a, b, p):
+    result = 1
+    a = a % p
+    while b > 0:
+        if b % 2 == 1:
+            result = (result * a) % p
+        a = (a * a) % p
+        b = b // 2
+    return result
+    </pre>
 
-    <h2>Fermat's Primality Test</h2>
-    <p>Using Fermat's Little Theorem, we can check if a number <strong>n</strong> is prime by testing if:</p>
-    <p><code>a^(n-1) ≡ 1 (mod n)</code></p>
-    <p>where <strong>a</strong> is a randomly chosen integer between 1 and <strong>n-1</strong>. If this condition is true for all chosen <strong>a</strong>, then <strong>n</strong> is likely prime. If not, <strong>n</strong> is composite.</p>
-
-    <h2>Time and Space Complexity</h2>
-    <p>For Fermat's Primality Test, the time complexity depends on how many iterations we perform with different values of <strong>a</strong>.</p>
+    <h3>Time and Space Complexity</h3>
     <ul>
-        <li><strong>Time Complexity:</strong> 
-            <ul>
-                <li>Exponentiation (a^(n-1)): O(log n) for each test using modular exponentiation.</li>
-                <li>For <strong>k</strong> iterations with random <strong>a</strong> values: O(k * log n).</li>
-            </ul>
-        </li>
-        <li><strong>Space Complexity:</strong> O(1) for the basic implementation, as only a constant amount of space is used for storing variables.</li>
+        <li><strong>Time Complexity:</strong> O(log b) for exponentiation</li>
+        <li><strong>Space Complexity:</strong> O(1)</li>
     </ul>
 
-    <h2>Easy Problems Solvable by Fermat's Little Theorem</h2>
+    <h2>Easy Problems</h2>
 
-    <h3>Problem 1: Check if a number is prime (Fermat's Primality Test)</h3>
-    <p>Given a number <strong>n</strong>, determine whether it is prime using Fermat's Little Theorem.</p>
-
+    <h3>1. Compute a<sup>b</sup> mod p</h3>
     <pre>
-    <code>
+// C++
 #include &lt;iostream&gt;
-#include &lt;cmath&gt;
 using namespace std;
 
-bool fermatPrimalityTest(int n, int k) {
-    if (n <= 1) return false;
-    if (n == 2 || n == 3) return true;
-
-    for (int i = 0; i &lt; k; i++) {
-        int a = rand() % (n - 1) + 1;  // Random a between 1 and n-1
-        if (pow(a, n-1) - (int)(pow(a, n-1) / n) * n != 1) {
-            return false; // a^(n-1) % n != 1
-        }
+long long mod_pow(long long a, long long b, long long p) {
+    long long res = 1;
+    a = a % p;
+    while (b > 0) {
+        if (b % 2 == 1)
+            res = (res * a) % p;
+        a = (a * a) % p;
+        b /= 2;
     }
-    return true; // Likely prime
+    return res;
 }
 
 int main() {
-    int n = 11;
-    int k = 5;  // Number of iterations
-    if (fermatPrimalityTest(n, k)) {
-        cout &lt;&lt; n &lt;&lt; " is likely prime." &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; n &lt;&lt; " is composite." &lt;&lt; endl;
-    }
+    cout &lt;&lt; mod_pow(3, 200, 13) &lt;&lt; endl; // Output: 9
     return 0;
 }
-    </code>
     </pre>
 
-    <h3>Problem 2: Fermat's Little Theorem for Modular Exponentiation</h3>
-    <p>Given an integer <strong>a</strong> and a prime <strong>p</strong>, compute <strong>a^(p-1) mod p</strong> using Fermat's Little Theorem.</p>
-
+    <h3>2. Modular Inverse of a number mod p</h3>
     <pre>
-    <code>
+// C++
 #include &lt;iostream&gt;
-#include &lt;cmath&gt;
 using namespace std;
 
-int modExponentiate(int a, int p) {
-    return (int)pow(a, p-1) % p;
+long long mod_inverse(long long a, long long p) {
+    return mod_pow(a, p - 2, p);
 }
 
 int main() {
-    int a = 2, p = 7;
-    cout &lt;&lt; "Result: " &lt;&lt; modExponentiate(a, p) &lt;&lt; endl;
+    long long a = 3, p = 11;
+    cout &lt;&lt; mod_inverse(a, p) &lt;&lt; endl; // Output: 4
     return 0;
 }
-    </code>
     </pre>
 
-    <h2>Intermediate Problems Solvable by Fermat's Little Theorem</h2>
+    <h2>Intermediate Problems</h2>
 
-    <h3>Problem 1: Primality Testing for Large Numbers</h3>
-    <p>Use Fermat's Little Theorem to perform primality testing on large numbers, applying the theorem with multiple random values of <strong>a</strong> to reduce the likelihood of false positives.</p>
-
+    <h3>1. Calculate nCr % p (p is prime)</h3>
     <pre>
-    <code>
+// C++
 #include &lt;iostream&gt;
-#include &lt;cmath&gt;
-#include &lt;cstdlib&gt;
 using namespace std;
 
-bool fermatPrimalityTest(int n, int k) {
-    if (n <= 1) return false;
-    if (n == 2 || n == 3) return true;
-    
-    for (int i = 0; i &lt; k; i++) {
-        int a = rand() % (n - 1) + 1;
-        if (pow(a, n-1) - (int)(pow(a, n-1) / n) * n != 1) {
-            return false;
-        }
+const int MAX = 1000;
+long long fact[MAX];
+
+long long mod_pow(long long a, long long b, long long p) {
+    long long res = 1;
+    a %= p;
+    while (b) {
+        if (b % 2) res = (res * a) % p;
+        a = (a * a) % p;
+        b /= 2;
     }
-    return true;
+    return res;
+}
+
+void compute_factorials(int p) {
+    fact[0] = 1;
+    for (int i = 1; i &lt; MAX; ++i)
+        fact[i] = (fact[i - 1] * i) % p;
+}
+
+long long nCr_mod_p(int n, int r, int p) {
+    if (r &gt; n) return 0;
+    compute_factorials(p);
+    long long num = fact[n];
+    long long denom = (fact[r] * fact[n - r]) % p;
+    return (num * mod_pow(denom, p - 2, p)) % p;
 }
 
 int main() {
-    int n = 104729;  // A large prime number
-    int k = 5;  // Number of iterations
-    if (fermatPrimalityTest(n, k)) {
-        cout &lt;&lt; n &lt;&lt; " is likely prime." &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; n &lt;&lt; " is composite." &lt;&lt; endl;
+    cout &lt;&lt; nCr_mod_p(10, 3, 13) &lt;&lt; endl; // Output: 3
+    return 0;
+}
+    </pre>
+
+    <h3>2. Check if a number is a Fermat pseudoprime to base a</h3>
+    <pre>
+// C++
+#include &lt;iostream&gt;
+using namespace std;
+
+bool is_fermat_pseudoprime(int n, int a) {
+    if (n &lt;= 1 || n == a) return false;
+    return mod_pow(a, n - 1, n) == 1;
+}
+
+int main() {
+    cout &lt;&lt; is_fermat_pseudoprime(561, 2) &lt;&lt; endl; // Output: 1 (true)
+    return 0;
+}
+    </pre>
+
+    <h2>Hard Problem</h2>
+    <h3>Modular Inverse for an Array under Modulo p (where p is prime)</h3>
+    <p>Precompute modular inverses for all numbers from 1 to N efficiently using Fermat's Little Theorem.</p>
+    <pre>
+// C++
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;long long&gt; compute_mod_inverses(int n, int p) {
+    vector&lt;long long&gt; inv(n + 1);
+    inv[1] = 1;
+    for (int i = 2; i &lt;= n; ++i) {
+        inv[i] = mod_pow(i, p - 2, p);
+    }
+    return inv;
+}
+
+int main() {
+    int n = 10, p = 13;
+    vector&lt;long long&gt; inv = compute_mod_inverses(n, p);
+    for (int i = 1; i &lt;= n; ++i) {
+        cout &lt;&lt; "Inverse of " &lt;&lt; i &lt;&lt; " mod " &lt;&lt; p &lt;&lt; " is " &lt;&lt; inv[i] &lt;&lt; endl;
     }
     return 0;
 }
-    </code>
-    </pre>
-
-    <h3>Problem 2: Fermat's Little Theorem for Modular Inverse</h3>
-    <p>Given an integer <strong>a</strong> and a prime <strong>p</strong>, compute the modular inverse of <strong>a</strong> modulo <strong>p</strong> using Fermat's Little Theorem.</p>
-
-    <pre>
-    <code>
-#include &lt;iostream&gt;
-#include &lt;cmath&gt;
-using namespace std;
-
-int modInverse(int a, int p) {
-    return (int)pow(a, p-2) % p;
-}
-
-int main() {
-    int a = 3, p = 7;
-    cout &lt;&lt; "Modular Inverse: " &lt;&lt; modInverse(a, p) &lt;&lt; endl;
-    return 0;
-}
-    </code>
-    </pre>
-
-    <h2>Hard Problem Solvable by Fermat's Little Theorem</h2>
-
-    <h3>Problem 1: Solving a System of Modular Equations Using Fermat's Theorem</h3>
-    <p>Given a system of modular equations, Fermat's Little Theorem can be used as part of a solution process to find values satisfying multiple congruences.</p>
-
-    <pre>
-    <code>
-#include &lt;iostream&gt;
-#include &lt;cmath&gt;
-using namespace std;
-
-int modInverse(int a, int p) {
-    return (int)pow(a, p-2) % p;
-}
-
-int solveSystem(int a1, int m1, int a2, int m2) {
-    int modInv = modInverse(m2, m1);
-    return (a1 * modInv) % m1;
-}
-
-int main() {
-    int a1 = 3, m1 = 5, a2 = 4, m2 = 7;
-    cout &lt;&lt; "Solution: " &lt;&lt; solveSystem(a1, m1, a2, m2) &lt;&lt; endl;
-    return 0;
-}
-    </code>
     </pre>
 
 </body>

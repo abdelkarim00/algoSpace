@@ -1,286 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Euler's Theorem</title>
+    <title>Euler's Theorem Explained</title>
 </head>
 <body>
-
     <h1>Euler's Theorem</h1>
-    <p><strong>Euler's Theorem</strong> is a generalization of Fermat's Little Theorem. It states that if <strong>a</strong> and <strong>n</strong> are coprime (i.e., the greatest common divisor of <strong>a</strong> and <strong>n</strong> is 1), then:</p>
-    <p><code>a^φ(n) ≡ 1 (mod n)</code></p>
-    where <strong>φ(n)</strong> is Euler's Totient Function, which represents the number of integers less than or equal to <strong>n</strong> that are coprime with <strong>n</strong>.
+    <p>
+        Euler's Theorem states that for any integer <code>a</code> and <code>n</code> such that <code>gcd(a, n) = 1</code>, it holds that:
+        <strong>a<sup>φ(n)</sup> ≡ 1 (mod n)</strong>
+    </p>
+    <p>
+        Here, <code>φ(n)</code> is Euler's totient function, which counts the number of integers up to <code>n</code> that are coprime with <code>n</code>.
+    </p>
 
-    <h2>Euler's Totient Function (φ(n))</h2>
-    <p>Euler's Totient Function φ(n) is calculated by:</p>
-    <p><code>φ(n) = n * (1 - 1/p1) * (1 - 1/p2) * ... * (1 - 1/pk)</code></p>
-    where <strong>p1, p2, ..., pk</strong> are the distinct prime factors of <strong>n</strong>.
+    <h2>Algorithm</h2>
+    <ol>
+        <li>Calculate <code>φ(n)</code> using the prime factorization method.</li>
+        <li>Use modular exponentiation to compute <code>a^k mod n</code>, reducing the exponent modulo <code>φ(n)</code>.</li>
+    </ol>
 
-    <h2>Time and Space Complexity</h2>
+    <h3>Time and Memory Complexity</h3>
     <ul>
-        <li><strong>Time Complexity:</strong>
-            <ul>
-                <li>Computing φ(n): The time complexity is O(sqrt(n)) because we need to check all prime divisors of n.</li>
-                <li>Exponentiation by squaring for calculating a^φ(n) % n: The time complexity is O(log(φ(n))) or O(log n).</li>
-                <li>Thus, overall time complexity for Euler’s Theorem becomes O(sqrt(n) + log n) for large numbers.</li>
-            </ul>
-        </li>
-        <li><strong>Space Complexity:</strong> O(1), since we only need a constant amount of space to store the variables.</li>
+        <li><strong>Euler's Totient Function:</strong> O(√n)</li>
+        <li><strong>Modular Exponentiation:</strong> O(log k)</li>
+        <li><strong>Memory Complexity:</strong> O(1)</li>
     </ul>
 
-    <h2>Easy Problems Solvable by Euler's Theorem</h2>
-
-    <h3>Problem 1: Find the modular exponentiation using Euler's Theorem</h3>
-    <p>Given a number <strong>a</strong> and modulus <strong>n</strong>, find <strong>a^φ(n) % n</strong>.</p>
-
-    <pre>
-    <code>
+    <h2>Easy Problem 1: Compute a<sup>b</sup> mod n where gcd(a, n) = 1</h2>
+    <p><strong>Problem:</strong> Compute 3<sup>100</sup> mod 7</p>
+    <pre><code>
 #include &lt;iostream&gt;
-#include &lt;cmath&gt;
 using namespace std;
 
-// Function to compute Euler's Totient Function
-int eulerTotient(int n) {
-    int result = n;
-    for (int i = 2; i * i &lt;= n; i++) {
-        if (n % i == 0) {
-            while (n % i == 0) {
-                n /= i;
-            }
-            result -= result / i;
-        }
-    }
-    if (n &gt; 1) {
-        result -= result / n;
-    }
-    return result;
-}
-
-// Function to calculate a^b % n using modular exponentiation
-int modExponentiation(int a, int b, int n) {
+int power(int a, int b, int mod) {
     int result = 1;
-    a = a % n;
+    a %= mod;
     while (b > 0) {
-        if (b % 2 == 1) {
-            result = (result * a) % n;
-        }
-        b = b / 2;
-        a = (a * a) % n;
+        if (b & 1) result = (1LL * result * a) % mod;
+        a = (1LL * a * a) % mod;
+        b >>= 1;
     }
+    return result;
+}
+
+int phi(int n) {
+    int res = n;
+    for (int i = 2; i * i &lt;= n; ++i) {
+        if (n % i == 0) {
+            while (n % i == 0) n /= i;
+            res -= res / i;
+        }
+    }
+    if (n &gt; 1) res -= res / n;
+    return res;
+}
+
+int main() {
+    int a = 3, b = 100, n = 7;
+    int exponent = b % phi(n);
+    cout &lt;&lt; power(a, exponent, n) &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+    <h2>Easy Problem 2: Find Modular Inverse</h2>
+    <p><strong>Problem:</strong> Find the modular inverse of 3 mod 11</p>
+    <pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int power(int a, int b, int mod) {
+    int res = 1;
+    a %= mod;
+    while (b &gt; 0) {
+        if (b & 1) res = (1LL * res * a) % mod;
+        a = (1LL * a * a) % mod;
+        b &gt;&gt;= 1;
+    }
+    return res;
+}
+
+int inverse(int a, int mod) {
+    return power(a, mod - 2, mod); // Fermat's little theorem (special case of Euler)
+}
+
+int main() {
+    cout &lt;&lt; inverse(3, 11) &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+    <h2>Intermediate Problem 1: Compute large exponent modulo composite number</h2>
+    <p><strong>Problem:</strong> Compute 7<sup>1234567</sup> mod 1000</p>
+    <pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int power(int a, int b, int mod) {
+    int res = 1;
+    a %= mod;
+    while (b) {
+        if (b & 1) res = (1LL * res * a) % mod;
+        a = (1LL * a * a) % mod;
+        b &gt;&gt;= 1;
+    }
+    return res;
+}
+
+int phi(int n) {
+    int result = n;
+    for (int i = 2; i * i &lt;= n; ++i) {
+        if (n % i == 0) {
+            while (n % i == 0) n /= i;
+            result -= result / i;
+        }
+    }
+    if (n &gt; 1) result -= result / n;
     return result;
 }
 
 int main() {
-    int a = 3, n = 11;
-    int phi = eulerTotient(n); // Calculate φ(n)
-    cout &lt;&lt; "Result: " &lt;&lt; modExponentiation(a, phi, n) &lt;&lt; endl; // a^φ(n) % n
+    int a = 7, b = 1234567, n = 1000;
+    int exponent = b % phi(n);
+    cout &lt;&lt; power(a, exponent + phi(n), n) &lt;&lt; endl;
     return 0;
 }
-    </code>
-    </pre>
+    </code></pre>
 
-    <h3>Problem 2: Verify Euler's Theorem</h3>
-    <p>Verify Euler's Theorem for a given number <strong>a</strong> and <strong>n</strong> (i.e., check if <strong>a^φ(n) ≡ 1 (mod n)</strong>).</p>
-
-    <pre>
-    <code>
+    <h2>Intermediate Problem 2: Sum of modular inverses</h2>
+    <p><strong>Problem:</strong> Given n, compute sum of all modular inverses of 1 to n modulo m</p>
+    <pre><code>
 #include &lt;iostream&gt;
-#include &lt;cmath&gt;
 using namespace std;
 
-int eulerTotient(int n) {
+int power(int a, int b, int mod) {
+    int res = 1;
+    a %= mod;
+    while (b) {
+        if (b & 1) res = (1LL * res * a) % mod;
+        a = (1LL * a * a) % mod;
+        b &gt;&gt;= 1;
+    }
+    return res;
+}
+
+int inverse(int a, int mod) {
+    return power(a, mod - 2, mod); // if mod is prime
+}
+
+int main() {
+    int n = 5, mod = 13;
+    int sum = 0;
+    for (int i = 1; i &lt;= n; ++i)
+        sum = (sum + inverse(i, mod)) % mod;
+    cout &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+    <h2>Hard Problem: Large Exponent Tower mod n</h2>
+    <p><strong>Problem:</strong> Compute 3<sup>3<sup>3</sup></sup> mod 1000</p>
+    <p><strong>Solution:</strong> Reduce top exponent using recursive φ(n)</p>
+    <pre><code>
+#include &lt;iostream&gt;
+using namespace std;
+
+int phi(int n) {
     int result = n;
-    for (int i = 2; i * i &lt;= n; i++) {
+    for (int i = 2; i * i &lt;= n; ++i) {
         if (n % i == 0) {
-            while (n % i == 0) {
-                n /= i;
-            }
+            while (n % i == 0) n /= i;
             result -= result / i;
         }
     }
-    if (n &gt; 1) {
-        result -= result / n;
-    }
+    if (n &gt; 1) result -= result / n;
     return result;
 }
 
-int modExponentiation(int a, int b, int n) {
+int power(int a, int b, int mod) {
     int result = 1;
-    a = a % n;
-    while (b > 0) {
-        if (b % 2 == 1) {
-            result = (result * a) % n;
-        }
-        b = b / 2;
-        a = (a * a) % n;
+    a %= mod;
+    while (b) {
+        if (b & 1) result = (1LL * result * a) % mod;
+        a = (1LL * a * a) % mod;
+        b &gt;&gt;= 1;
     }
     return result;
+}
+
+int solve(int a, int depth, int mod) {
+    if (depth == 1) return a % mod;
+    int p = phi(mod);
+    int exp = solve(a, depth - 1, p);
+    return power(a, exp + p, mod); // ensure exponent is ≥ φ(mod)
 }
 
 int main() {
-    int a = 3, n = 11;
-    int phi = eulerTotient(n); // Calculate φ(n)
-    if (modExponentiation(a, phi, n) == 1) {
-        cout &lt;&lt; "Euler's Theorem holds: a^φ(n) ≡ 1 (mod n)" &lt;&lt; endl;
-    } else {
-        cout &lt;&lt; "Euler's Theorem does not hold." &lt;&lt; endl;
-    }
+    cout &lt;&lt; solve(3, 3, 1000) &lt;&lt; endl;
     return 0;
 }
-    </code>
-    </pre>
+    </code></pre>
 
-    <h2>Intermediate Problems Solvable by Euler's Theorem</h2>
-
-    <h3>Problem 1: Modular Inverse Using Euler's Theorem</h3>
-    <p>Given a number <strong>a</strong> and modulus <strong>n</strong>, find the modular inverse of <strong>a</strong> modulo <strong>n</strong> using Euler's Theorem.</p>
-
-    <pre>
-    <code>
-#include &lt;iostream&gt;
-#include &lt;cmath&gt;
-using namespace std;
-
-int eulerTotient(int n) {
-    int result = n;
-    for (int i = 2; i * i &lt;= n; i++) {
-        if (n % i == 0) {
-            while (n % i == 0) {
-                n /= i;
-            }
-            result -= result / i;
-        }
-    }
-    if (n &gt; 1) {
-        result -= result / n;
-    }
-    return result;
-}
-
-// Function to find modular inverse using Euler's Theorem
-int modInverse(int a, int n) {
-    int phi = eulerTotient(n); // Calculate φ(n)
-    return modExponentiation(a, phi - 1, n);
-}
-
-int modExponentiation(int a, int b, int n) {
-    int result = 1;
-    a = a % n;
-    while (b > 0) {
-        if (b % 2 == 1) {
-            result = (result * a) % n;
-        }
-        b = b / 2;
-        a = (a * a) % n;
-    }
-    return result;
-}
-
-int main() {
-    int a = 3, n = 11;
-    cout &lt;&lt; "Modular Inverse: " &lt;&lt; modInverse(a, n) &lt;&lt; endl;
-    return 0;
-}
-    </code>
-    </pre>
-
-    <h3>Problem 2: Find All Numbers Coprime with n Using Euler's Totient Function</h3>
-    <p>Given an integer <strong>n</strong>, find all numbers between 1 and <strong>n</strong> that are coprime with <strong>n</strong> using Euler's Totient Function.</p>
-
-    <pre>
-    <code>
-#include &lt;iostream&gt;
-#include &lt;cmath&gt;
-using namespace std;
-
-int eulerTotient(int n) {
-    int result = n;
-    for (int i = 2; i * i &lt;= n; i++) {
-        if (n % i == 0) {
-            while (n % i == 0) {
-                n /= i;
-            }
-            result -= result / i;
-        }
-    }
-    if (n &gt; 1) {
-        result -= result / n;
-    }
-    return result;
-}
-
-int main() {
-    int n = 10;
-    cout &lt;&lt; "Numbers coprime with " &lt;&lt; n &lt;&lt; ": ";
-    for (int i = 1; i &lt; n; i++) {
-        if (gcd(i, n) == 1) {
-            cout &lt;&lt; i &lt;&lt; " ";
-        }
-    }
-    cout &lt;&lt; endl;
-    return 0;
-}
-    </code>
-    </pre>
-
-    <h2>Hard Problem Solvable by Euler's Theorem</h2>
-
-    <h3>Problem: Solve the Chinese Remainder Theorem Using Euler's Theorem</h3>
-    <p>Given a system of congruences, use Euler's Theorem to solve the system.</p>
-
-    <pre>
-    <code>
-#include &lt;iostream&gt;
-#include &lt;cmath&gt;
-using namespace std;
-
-int eulerTotient(int n) {
-    int result = n;
-    for (int i = 2; i * i &lt;= n; i++) {
-        if (n % i == 0) {
-            while (n % i == 0) {
-                n /= i;
-            }
-            result -= result / i;
-        }
-    }
-    if (n &gt; 1) {
-        result -= result / n;
-    }
-    return result;
-}
-
-int modInverse(int a, int n) {
-    int phi = eulerTotient(n); // Calculate φ(n)
-    return modExponentiation(a, phi - 1, n);
-}
-
-int modExponentiation(int a, int b, int n) {
-    int result = 1;
-    a = a % n;
-    while (b > 0) {
-        if (b % 2 == 1) {
-            result = (result * a) % n;
-        }
-        b = b / 2;
-        a = (a * a) % n;
-    }
-    return result;
-}
-
-int solveChineseRemainder(int a1, int m1, int a2, int m2) {
-    int modInv = modInverse(m2, m1);
-    return (a1 * modInv) % m1;
-}
-
-int main() {
-    int a1 = 2, m1 = 5, a2 = 3, m2 = 7;
-    cout &lt;&lt; "Solution: " &lt;&lt; solveChineseRemainder(a1, m1, a2, m2) &lt;&lt; endl;
-    return 0;
-}
-    </code>
-    </pre>
-
+    <h2>Conclusion</h2>
+    <p>Euler's Theorem is a powerful tool in modular arithmetic, particularly useful in cryptography, modular inverses, and efficient exponentiation.</p>
 </body>
 </html>
