@@ -1,157 +1,206 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Bucket Sort Algorithm - Explanation and C++ Examples</title>
-</head>
+<html>
 <body>
 
-<h1>Bucket Sort Algorithm</h1>
+  <h1>Bucket Sort Algorithm</h1>
 
-<h2>📘 Overview</h2>
-<p>
-  Bucket Sort is a distribution sort that distributes elements into a number of buckets, sorts each bucket individually (often using another algorithm like insertion sort), and then concatenates all sorted buckets.
-</p>
+  <h2>Overview</h2>
+  <p>
+    Bucket Sort is a distribution-based sorting algorithm that works by partitioning an array into a finite number of buckets. 
+    Each bucket holds a subrange of the input values; elements are distributed into these buckets, each bucket is sorted (often with another sorting algorithm, e.g., insertion sort), and then the buckets are concatenated. 
+  </p>
 
-<h2>🧠 Algorithm Steps</h2>
-<ol>
-  <li>Find the range of the input data.</li>
-  <li>Divide the range into a fixed number of buckets.</li>
-  <li>Distribute the input elements into these buckets.</li>
-  <li>Sort each bucket individually.</li>
-  <li>Concatenate all sorted buckets.</li>
-</ol>
+  <h3>Time Complexity</h3>
+  <ul>
+    <li>Average: O(n + k), where n is number of elements and k is number of buckets.</li>
+    <li>Best: O(n + k) (when distribution is uniform and buckets are small).</li>
+    <li>Worst: O(n²) (if all elements fall into one bucket and that bucket is sorted by insertion sort).</li>
+  </ul>
 
-<h2>⏱️ Time Complexity</h2>
-<ul>
-  <li><strong>Best Case:</strong> O(n + k)</li>
-  <li><strong>Average Case:</strong> O(n + k)</li>
-  <li><strong>Worst Case:</strong> O(n²) — when all elements fall into a single bucket and a poor inner sort is used</li>
-</ul>
+  <h3>Memory Complexity</h3>
+  <ul>
+    <li>O(n + k) additional space for buckets.</li>
+  </ul>
 
-<h2>💾 Space Complexity</h2>
-<ul>
-  <li><strong>Auxiliary Space:</strong> O(n + k)</li>
-</ul>
+  <h2>Easy Problems</h2>
 
-<hr>
+  <h3>1. Sort an Array of Floating-Point Numbers in [0,1)</h3>
+  <p>
+    Given an array of floats in [0,1), distribute into n buckets, sort each bucket by insertion sort, then concatenate.
+  </p>
+  <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
 
-<h2>✅ Easy Problems Solvable by Bucket Sort</h2>
-
-<h3>1. Sort Floating-Point Numbers in [0, 1)</h3>
-<pre><code>
-void bucketSort(float arr[], int n) {
+void bucketSort(std::vector&lt;float&gt;&amp; arr) {
+    int n = arr.size();
     std::vector&lt;std::vector&lt;float&gt;&gt; buckets(n);
-
-    for (int i = 0; i &lt; n; i++) {
-        int index = n * arr[i];
-        buckets[index].push_back(arr[i]);
+    for (float x : arr) {
+        int idx = n * x;            // bucket index in [0..n-1]
+        buckets[idx].push_back(x);
     }
+    for (auto &b : buckets)
+        std::sort(b.begin(), b.end());  // insertion sort also works well here
+    int pos = 0;
+    for (auto &b : buckets)
+        for (float x : b)
+            arr[pos++] = x;
+}
 
-    for (int i = 0; i &lt; n; i++)
-        std::sort(buckets[i].begin(), buckets[i].end());
+int main() {
+    std::vector&lt;float&gt; data = {0.42, 0.32, 0.23, 0.52, 0.25, 0.47};
+    bucketSort(data);
+    for (float x : data) std::cout &lt;&lt; x &lt;&lt; " ";
+    return 0;
+}
+  </code></pre>
 
+  <h3>2. Sort Integers Within a Known Small Range [0..k]</h3>
+  <p>
+    If all integers lie in [0..k] with k = O(n), you can use k+1 buckets (one per integer), place each number in its bucket, then read out.
+  </p>
+  <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void bucketSortRange(std::vector&lt;int&gt;&amp; arr, int k) {
+    std::vector&lt;int&gt; buckets(k+1, 0);
+    for (int x : arr)
+        ++buckets[x];
     int idx = 0;
-    for (int i = 0; i &lt; n; i++) {
-        for (float val : buckets[i])
-            arr[idx++] = val;
+    for (int i = 0; i &lt;= k; ++i)
+        while (buckets[i]-- &gt; 0)
+            arr[idx++] = i;
+}
+
+int main() {
+    std::vector&lt;int&gt; data = {3, 6, 4, 1, 3, 4, 1, 4};
+    bucketSortRange(data, 6);
+    for (int x : data) std::cout &lt;&lt; x &lt;&lt; " ";
+    return 0;
+}
+  </code></pre>
+
+  <h2>Intermediate Problems</h2>
+
+  <h3>1. Maximum Gap (LeetCode 164)</h3>
+  <p>
+    Given n numbers, find the maximum difference between successive elements in sorted order. Using bucket sort in O(n) time: place numbers into buckets by interval &#x2248;&#x230A;(max–min)/ (n–1)&#x230B;, track only min/max in each bucket, then scan buckets to compute gaps.
+  </p>
+  <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;limits&gt;
+#include &lt;algorithm&gt;
+
+int maximumGap(const std::vector&lt;int&gt;&amp; nums) {
+    int n = nums.size();
+    if (n &lt; 2) return 0;
+    auto [min_it, max_it] = std::minmax_element(nums.begin(), nums.end());
+    int mn = *min_it, mx = *max_it;
+    int bucketSize = std::max(1, (mx - mn) / (n - 1));
+    int bucketCount = (mx - mn) / bucketSize + 1;
+    struct B { int mn = INT_MAX, mx = INT_MIN; bool used = false; };
+    std::vector&lt;B&gt; buckets(bucketCount);
+    for (int x : nums) {
+        int bi = (x - mn) / bucketSize;
+        buckets[bi].used = true;
+        buckets[bi].mn = std::min(buckets[bi].mn, x);
+        buckets[bi].mx = std::max(buckets[bi].mx, x);
+    }
+    int prevMax = mn, maxGap = 0;
+    for (auto &b : buckets) {
+        if (!b.used) continue;
+        maxGap = std::max(maxGap, b.mn - prevMax);
+        prevMax = b.mx;
+    }
+    return maxGap;
+}
+
+int main() {
+    std::vector&lt;int&gt; data = {3,6,9,1};
+    std::cout &lt;&lt; maximumGap(data);
+    return 0;
+}
+  </code></pre>
+
+  <h3>2. Contains Duplicate III (LeetCode 220)</h3>
+  <p>
+    Given array and two integers k and t, find if there exist indices i,j such that |nums[i]–nums[j]| ≤ t and |i–j| ≤ k. Use buckets of width t+1 to map each number to a bucket and check neighboring buckets in O(n) time.
+  </p>
+  <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;cmath&gt;
+
+bool containsNearbyAlmostDuplicate(
+    const std::vector&lt;long long&gt;&amp; nums, long long k, long long t) {
+    if (t &lt; 0) return false;
+    std::unordered_map&lt;long long,long long&gt; buckets;
+    long long w = t + 1;
+    for (int i = 0; i &lt; nums.size(); ++i) {
+        long long x = nums[i];
+        long long bi = x >= 0 ? x / w : (x+1) / w - 1;
+        if (buckets.count(bi)) return true;
+        if (buckets.count(bi-1) && llabs(x - buckets[bi-1]) &lt;= t) return true;
+        if (buckets.count(bi+1) && llabs(x - buckets[bi+1]) &lt;= t) return true;
+        buckets[bi] = x;
+        if (i &gt;= k) {
+            long long y = nums[i - k];
+            long long oldBi = y >= 0 ? y / w : (y+1) / w - 1;
+            buckets.erase(oldBi);
+        }
+    }
+    return false;
+}
+
+int main() {
+    std::vector&lt;long long&gt; data = {1,2,3,1};
+    std::cout &lt;&lt; std::boolalpha
+              &lt;&lt; containsNearbyAlmostDuplicate(data, 3, 0);
+    return 0;
+}
+  </code></pre>
+
+  <h2>Hard Problem</h2>
+
+  <h3>Sort Fixed-Length Strings with Radix Sort</h3>
+  <p>
+    Given an array of m strings, each of length L, sort them lexicographically in O(m·L) time using LSD Radix Sort. At each character position (from last to first), bucket by character (e.g., 256 ASCII buckets), then concatenate.
+  </p>
+  <pre><code class="language-cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+
+void radixSortStrings(std::vector&lt;std::string&gt;&amp; arr, int L) {
+    int m = arr.size();
+    const int R = 256;  // extended ASCII
+    std::vector&lt;std::string&gt; aux(m);
+    for (int d = L - 1; d &gt;= 0; --d) {
+        std::vector&lt;int&gt; count(R + 1, 0);
+        for (auto &s : arr)
+            count[(unsigned char)s[d] + 1]++;
+        for (int r = 0; r &lt; R; ++r)
+            count[r+1] += count[r];
+        for (auto &s : arr) {
+            int c = (unsigned char)s[d];
+            aux[count[c]++] = s;
+        }
+        arr = aux;
     }
 }
-</code></pre>
 
-<h3>2. Sort Uniformly Distributed Integers</h3>
-<pre><code>
-void bucketSortInt(int arr[], int n, int bucketSize = 10) {
-    int maxVal = *std::max_element(arr, arr + n);
-    std::vector&lt;std::vector&lt;int&gt;&gt; buckets((maxVal / bucketSize) + 1);
-
-    for (int i = 0; i &lt; n; i++) {
-        int index = arr[i] / bucketSize;
-        buckets[index].push_back(arr[i]);
-    }
-
-    int idx = 0;
-    for (auto&amp; bucket : buckets) {
-        std::sort(bucket.begin(), bucket.end());
-        for (int val : bucket)
-            arr[idx++] = val;
-    }
+int main() {
+    std::vector&lt;std::string&gt; data = {
+        "dab", "add", "cab", "fad", "fee", "bad", "dad", "bee", "fed", "bed"
+    };
+    radixSortStrings(data, 3);
+    for (auto &s : data) std::cout &lt;&lt; s &lt;&lt; " ";
+    return 0;
 }
-</code></pre>
-
-<hr>
-
-<h2>🔁 Intermediate Problems Solvable by Bucket Sort</h2>
-
-<h3>1. Sort Student GPA Scores (0.00 to 4.00)</h3>
-<pre><code>
-void sortGPA(float gpas[], int n) {
-    bucketSort(gpas, n);
-}
-</code></pre>
-
-<h3>2. Sort Decimal Numbers in [0, 100) with 2 Decimal Places</h3>
-<pre><code>
-void sortDecimals(float arr[], int n) {
-    for (int i = 0; i &lt; n; i++)
-        arr[i] /= 100.0f;
-    bucketSort(arr, n);
-    for (int i = 0; i &lt; n; i++)
-        arr[i] *= 100.0f;
-}
-</code></pre>
-
-<hr>
-
-<h2>🧠 Hard Problem Solvable by Bucket Sort</h2>
-
-<h3>1. Sort 2D Points by X Coordinate Using Buckets</h3>
-<pre><code>
-struct Point {
-    float x, y;
-};
-
-void bucketSortPoints(std::vector&lt;Point&gt;&amp; points) {
-    int n = points.size();
-    std::vector&lt;std::vector&lt;Point&gt;&gt; buckets(n);
-
-    for (auto&amp; pt : points) {
-        int index = n * pt.x;
-        buckets[index].push_back(pt);
-    }
-
-    for (auto&amp; bucket : buckets)
-        std::sort(bucket.begin(), bucket.end(), [](Point a, Point b) {
-            return a.x &lt; b.x;
-        });
-
-    int idx = 0;
-    for (auto&amp; bucket : buckets)
-        for (auto pt : bucket)
-            points[idx++] = pt;
-}
-</code></pre>
-
-<hr>
-
-<h2>📌 Summary</h2>
-<ul>
-  <li><strong>Bucket Sort</strong> is efficient when input is uniformly distributed.</li>
-  <li>It is useful for floating-point numbers or data falling in a known range.</li>
-  <li>Its time complexity can degrade if data is not well distributed.</li>
-</ul>
-
-<h2>❗ When to Use</h2>
-<ul>
-  <li>When input is evenly spread over a range (e.g., [0, 1)).</li>
-  <li>For floating point sorting, GPA, percentages, coordinates, etc.</li>
-</ul>
-
-<h2>📚 References</h2>
-<ul>
-  <li><a href="https://en.wikipedia.org/wiki/Bucket_sort" target="_blank">Wikipedia: Bucket Sort</a></li>
-  <li><a href="https://www.geeksforgeeks.org/bucket-sort-2/" target="_blank">GeeksForGeeks: Bucket Sort</a></li>
-</ul>
+  </code></pre>
 
 </body>
 </html>
