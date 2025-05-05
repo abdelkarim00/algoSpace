@@ -10,4 +10,7 @@ explain in details the algorithm and time and memory complexity
 - discuss 1 hard problems solvable by this algorithm and write code solutions
 - write code examples in c++ , make sure "<" in #include is correctly appears in html
 - write your response in html, don't add styling
-- Please write your response as html 
+- Please write your response as html I am building a website 
+- use problems from codeforces
+- include input/output examples 
+- be beginner friendly 
