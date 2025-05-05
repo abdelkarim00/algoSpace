@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Edit Distance Algorithm</h1>
+
+    <h2>1. Algorithm Explanation</h2>
+    <p>
+      The <strong>Edit Distance</strong> (or Levenshtein distance) between two strings
+      <code>s</code> of length <code>n</code> and <code>t</code> of length <code>m</code>
+      is the minimum number of single-character insertions, deletions, or substitutions
+      required to transform <code>s</code> into <code>t</code>.  
+    </p>
+    <p>
+      We define a DP table <code>dp[i][j]</code> = edit distance between
+      <code>s[0..i-1]</code> and <code>t[0..j-1]</code>. The recurrence is:
+    </p>
+    <ul>
+      <li>
+        <code>dp[0][0] = 0</code>  
+        (empty → empty costs 0)
+      </li>
+      <li>
+        <code>dp[i][0] = i</code>  
+        (delete all i characters)
+      </li>
+      <li>
+        <code>dp[0][j] = j</code>  
+        (insert all j characters)
+      </li>
+      <li>
+        For <code>i&gt;0, j&gt;0</code>:
+        <pre><code>dp[i][j] = min(
+    dp[i-1][j]   + 1,    // deletion
+    dp[i][j-1]   + 1,    // insertion
+    dp[i-1][j-1] + cost  // substitution (cost = 0 if s[i-1]==t[j-1], else 1)
+)</code></pre>
+      </li>
+    </ul>
+
+    <h3>Time Complexity</h3>
+    <p>
+      Filling an <code>(n+1)×(m+1)</code> table takes <code>O(n·m)</code> time.
+    </p>
+
+    <h3>Memory Complexity</h3>
+    <p>
+      Naïvely, we store the full table in <code>O(n·m)</code> space.  
+      It can be reduced to <code>O(min(n,m))</code> by keeping only two rows at once.
+    </p>
+
+    <h2>2. Easy Problems</h2>
+
+    <h3>2.1 Problem: LeetCode 72 – Edit Distance</h3>
+    <p>
+      Compute the minimum edit distance between two given strings.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+int minDistance(const std::string &s, const std::string &t) {
+    int n = s.size(), m = t.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; dp(n+1, std::vector&lt;int&gt;(m+1));
+    for (int i = 0; i <= n; ++i) dp[i][0] = i;
+    for (int j = 0; j <= m; ++j) dp[0][j] = j;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j) {
+            int cost = (s[i-1] == t[j-1] ? 0 : 1);
+            dp[i][j] = std::min({
+                dp[i-1][j] + 1,
+                dp[i][j-1] + 1,
+                dp[i-1][j-1] + cost
+            });
+        }
+    }
+    return dp[n][m];
+}
+
+int main() {
+    std::cout &lt;&lt; minDistance("kitten", "sitting") &lt;&lt; "\n";  // Outputs 3
+    return 0;
+}</code></pre>
+
+    <h3>2.2 Problem: LeetCode 161 – One Edit Distance</h3>
+    <p>
+      Check if two strings are exactly one edit apart.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;cmath&gt;
+
+bool isOneEditDistance(const std::string &s, const std::string &t) {
+    int n = s.size(), m = t.size();
+    if (std::abs(n - m) &gt; 1) return false;
+    int i = 0, j = 0, edits = 0;
+    while (i &lt; n && j &lt; m) {
+        if (s[i] == t[j]) {
+            ++i; ++j;
+        } else {
+            if (++edits &gt; 1) return false;
+            if (n &gt; m) ++i;
+            else if (n &lt; m) ++j;
+            else { ++i; ++j; }
+        }
+    }
+    edits += (i &lt; n) + (j &lt; m);
+    return edits == 1;
+}
+
+int main() {
+    std::cout &lt;&lt; std::boolalpha
+              &lt;&lt; isOneEditDistance("abc", "ab") &lt;&lt; "\n";  // true
+    return 0;
+}</code></pre>
+
+    <h2>3. Intermediate Problems</h2>
+
+    <h3>3.1 Problem: LeetCode 583 – Delete Operation for Two Strings</h3>
+    <p>
+      Return the minimum number of delete operations on the two strings to make them equal.
+      This equals <code>n + m – 2·LCS(s, t)</code>, but can be solved by edit‐distance DP restricted to deletions only.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+int minDistanceDelete(const std::string &s, const std::string &t) {
+    int n = s.size(), m = t.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; dp(n+1, std::vector&lt;int&gt;(m+1));
+    for (int i = 0; i <= n; ++i) dp[i][0] = i;
+    for (int j = 0; j <= m; ++j) dp[0][j] = j;
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= m; ++j) {
+            if (s[i-1] == t[j-1])
+                dp[i][j] = dp[i-1][j-1];
+            else
+                dp[i][j] = 1 + std::min(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+    return dp[n][m];
+}
+
+int main() {
+    std::cout &lt;&lt; minDistanceDelete("sea", "eat") &lt;&lt; "\n";  // Outputs 2
+    return 0;
+}</code></pre>
+
+    <h3>3.2 Problem: LeetCode 1312 – Minimum Insertion Steps to Make a String Palindrome</h3>
+    <p>
+      Find the minimum number of insertions to make <code>s</code> a palindrome.  
+      Equivalent to <code>n – LPS(s)</code>, but solvable by DP on edit distance where only insertions are allowed.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+int minInsertionsPalindrome(const std::string &s) {
+    int n = s.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; dp(n, std::vector&lt;int&gt;(n, 0));
+    for (int len = 2; len <= n; ++len) {
+        for (int i = 0; i + len - 1 &lt; n; ++i) {
+            int j = i + len - 1;
+            if (s[i] == s[j])
+                dp[i][j] = dp[i+1][j-1];
+            else
+                dp[i][j] = 1 + std::min(dp[i+1][j], dp[i][j-1]);
+        }
+    }
+    return dp[0][n-1];
+}
+
+int main() {
+    std::cout &lt;&lt; minInsertionsPalindrome("leetcode") &lt;&lt; "\n";  // Outputs 5
+    return 0;
+}</code></pre>
+
+    <h2>4. Hard Problem</h2>
+
+    <h3>4.1 Problem: Damerau–Levenshtein Distance (with transpositions)</h3>
+    <p>
+      Compute the edit distance allowing transposition of two adjacent characters as one operation.
+      This generalizes Levenshtein by adding one more case.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+#include &lt;limits&gt;
+
+int damerauLevenshtein(const std::string &s, const std::string &t) {
+    int n = s.size(), m = t.size();
+    const int INF = n + m;
+    std::vector&lt;std::vector&lt;int&gt;&gt; dp(n+2, std::vector&lt;int&gt;(m+2, INF));
+    dp[0][0] = INF;
+    for (int i = 0; i <= n; ++i) {
+        dp[i+1][1] = i;
+        dp[i+1][0] = INF;
+    }
+    for (int j = 0; j <= m; ++j) {
+        dp[1][j+1] = j;
+        dp[0][j+1] = INF;
+    }
+    std::vector&lt;int&gt; last(256, 0);
+    for (int i = 1; i <= n; ++i) {
+        int lastMatchCol = 0;
+        for (int j = 1; j <= m; ++j) {
+            int i1 = last[t[j-1]];
+            int j1 = lastMatchCol;
+            int cost = (s[i-1] == t[j-1]) ? 0 : 1;
+            if (cost == 0) lastMatchCol = j;
+            dp[i+1][j+1] = std::min({
+                dp[i][j] + cost,                   // substitution
+                dp[i+1][j] + 1,                    // insertion
+                dp[i][j+1] + 1,                    // deletion
+                dp[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1)  // transposition
+            });
+        }
+        last[s[i-1]] = i;
+    }
+    return dp[n+1][m+1];
+}
+
+int main() {
+    std::cout &lt;&lt; damerauLevenshtein("CA", "ABC") &lt;&lt; "\n";  // Outputs 2
+    return 0;
+}</code></pre>
+
+  </body>
+</html>

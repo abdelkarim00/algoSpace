@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <h1>Rolling Hashes</h1>
+
+  <h2>1. Algorithm Overview</h2>
+  <p>
+    A <strong>rolling hash</strong> is a hash function designed to enable efficient
+    computation of hashes of all substrings of a given length in a text,
+    by reusing the previous hash.  For a string <em>s</em> of length <em>n</em>,
+    define the hash of the prefix <em>s[0..i)</em> as:
+  </p>
+  <pre><code>
+H(i) = (s[0]·p<sup>i−1</sup> + s[1]·p<sup>i−2</sup> + … + s[i−1]·p<sup>0</sup>) mod M
+  </code></pre>
+  <p>
+    Here, <em>p</em> is a chosen base (e.g. 31 or 257), and <em>M</em> is a large prime
+    modulus (e.g. 10<sup>9</sup>+7).  To compute the hash of <em>s[i..i+ℓ)</em>
+    in O(1) time, we precompute <em>power[k] = p<sup>k</sup> mod M</em> and prefix
+    hashes <em>H(i)</em> for all <em>i</em>.  Then:
+  </p>
+  <pre><code>
+hash(s[i..i+ℓ)) = ( H(i+ℓ) − H(i)·power[ℓ] % M + M ) % M
+  </code></pre>
+
+  <h2>2. Time &amp; Memory Complexity</h2>
+  <ul>
+    <li><strong>Preprocessing:</strong> O(n) to compute <em>H(0..n)</em> and <em>power[0..n]</em>.</li>
+    <li><strong>Querying one substring hash:</strong> O(1).</li>
+    <li><strong>Total for scanning all substrings of length ℓ:</strong> O(n).</li>
+    <li><strong>Memory:</strong> O(n) for the <em>H</em> and <em>power</em> arrays.</li>
+  </ul>
+
+  <h2>3. Easy Problems</h2>
+
+  <h3>3.1. Problem 1: Rabin–Karp String Search</h3>
+  <p>
+    Find all occurrences of a pattern <em>P</em> (length <em>m</em>) in text <em>T</em>
+    (length <em>n</em>) in average O(n+m) time.
+  </p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+using ull = unsigned long long;
+
+vector<int> rabinKarp(const string&amp; T, const string&amp; P) {
+    int n = T.size(), m = P.size();
+    const ull p = 1315423911ULL;
+    ull hashP = 0, hashT = 0, power = 1;
+    for (int i = 0; i &lt; m; i++) {
+        hashP = hashP * p + P[i];
+        hashT = hashT * p + T[i];
+        if (i &gt; 0) power *= p;
+    }
+    vector<int> res;
+    if (hashP == hashT) res.push_back(0);
+    for (int i = m; i &lt; n; i++) {
+        hashT = hashT - T[i-m]*power;
+        hashT = hashT * p + T[i];
+        if (hashT == hashP) res.push_back(i-m+1);
+    }
+    return res;
+}
+
+int main() {
+    string T = "abracadabra", P = "abra";
+    auto occ = rabinKarp(T, P);
+    for (int idx : occ) cout &lt;&lt; idx &lt;&lt; " ";
+    return 0;
+}
+  </code></pre>
+
+  <h3>3.2. Problem 2: Check for Duplicate Substrings of Length K</h3>
+  <p>
+    Given a string <em>S</em> and integer <em>K</em>, determine if any length-<em>K</em>
+    substring appears at least twice.
+  </p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;unordered_set&gt;
+#include &lt;string&gt;
+using namespace std;
+using ull = unsigned long long;
+
+bool hasDuplicateK(const string&amp; S, int K) {
+    int n = S.size();
+    if (K &gt; n) return false;
+    const ull p = 1315423911ULL;
+    ull hash = 0, power = 1;
+    for (int i = 0; i &lt; K; i++) {
+        hash = hash * p + S[i];
+        if (i &gt; 0) power *= p;
+    }
+    unordered_set&lt;ull&gt; seen;
+    seen.insert(hash);
+    for (int i = K; i &lt; n; i++) {
+        hash = hash - S[i-K]*power;
+        hash = hash * p + S[i];
+        if (seen.count(hash)) return true;
+        seen.insert(hash);
+    }
+    return false;
+}
+
+int main() {
+    cout &lt;&lt; (hasDuplicateK("banana", 2) ? "Yes" : "No");
+    return 0;
+}
+  </code></pre>
+
+
+  <h2>4. Intermediate Problems</h2>
+
+  <h3>4.1. Problem 3: Longest Common Substring of Two Strings</h3>
+  <p>
+    Given strings <em>A</em> and <em>B</em>, find the length of their longest common
+    substring.  Use binary search on length + rolling hash to test existence in O((n+m)·log min(n,m)).
+  </p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_set&gt;
+#include &lt;string&gt>
+using namespace std;
+using ull = unsigned long long;
+
+bool hasCommonLen(int L, const string&amp; A, const string&amp; B) {
+    if (L == 0) return true;
+    const ull p = 1315423911ULL;
+    ull hashA = 0, power = 1;
+    unordered_set&lt;ull&gt; seen;
+    for (int i = 0; i &lt; L; i++) {
+        hashA = hashA * p + A[i];
+        if (i &gt; 0) power *= p;
+    }
+    seen.insert(hashA);
+    for (int i = L; i &lt; A.size(); i++) {
+        hashA = (hashA - A[i-L]*power) * p + A[i];
+        seen.insert(hashA);
+    }
+    ull hashB = 0;
+    for (int i = 0; i &lt; L; i++) hashB = hashB * p + B[i];
+    if (seen.count(hashB)) return true;
+    for (int i = L; i &lt; B.size(); i++) {
+        hashB = (hashB - B[i-L]*power) * p + B[i];
+        if (seen.count(hashB)) return true;
+    }
+    return false;
+}
+
+int longestCommonSubstring(const string&amp; A, const string&amp; B) {
+    int lo = 0, hi = min(A.size(), B.size()), ans = 0;
+    while (lo &lt;= hi) {
+        int mid = (lo + hi) / 2;
+        if (hasCommonLen(mid, A, B)) {
+            ans = mid; lo = mid + 1;
+        } else hi = mid - 1;
+    }
+    return ans;
+}
+
+int main() {
+    cout &lt;&lt; longestCommonSubstring("abcdxyz", "xyzabcd");
+    return 0;
+}
+  </code></pre>
+
+  <h3>4.2. Problem 4: Count Distinct Substrings</h3>
+  <p>
+    Count the number of distinct substrings of a string <em>S</em> in O(n²) time
+    (or O(n) with suffix automaton).  Here we use rolling hash + a hash‐set.
+  </p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;unordered_set&gt;
+#include &lt;string&gt;
+using namespace std;
+using ull = unsigned long long;
+
+long long countDistinct(const string&amp; S) {
+    int n = S.size();
+    const ull p = 1315423911ULL;
+    vector&lt;ull&gt; H(n+1,0), P(n+1,1);
+    for (int i = 1; i &lt;= n; i++) {
+        H[i] = H[i-1] * p + S[i-1];
+        P[i] = P[i-1] * p;
+    }
+    unordered_set&lt;ull&gt; seen;
+    for (int i = 0; i &lt; n; i++)
+      for (int len = 1; i+len &lt;= n; len++) {
+        ull h = (H[i+len] - H[i]*P[len]);
+        seen.insert(h);
+      }
+    return seen.size();
+}
+
+int main() {
+    cout &lt;&lt; countDistinct("abab");
+    return 0;
+}
+  </code></pre>
+
+
+  <h2>5. Hard Problem</h2>
+
+  <h3>5.1. Problem 5: Longest Palindromic Substring</h3>
+  <p>
+    Find the longest palindromic substring of <em>S</em>.  We use two rolling hashes
+    (forward and backward) + binary search in O(n log n).
+  </p>
+  <pre><code>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+using ull = unsigned long long;
+
+string longestPalindrome(const string&amp; S) {
+    int n = S.size();
+    const ull p = 91138233ULL;
+    vector&lt;ull&gt; Hf(n+1,0), Hr(n+2,0), P(n+1,1);
+    for (int i = 1; i &lt;= n; i++) {
+        Hf[i] = Hf[i-1] * p + S[i-1];
+        P[i] = P[i-1] * p;
+    }
+    for (int i = n; i &gt;= 1; i--) {
+        Hr[i] = Hr[i+1] * p + S[i-1];
+    }
+    auto getF = [&](int l, int r) {
+        return Hf[r] - Hf[l-1] * P[r-l+1];
+    };
+    auto getR = [&](int l, int r) {
+        return Hr[l] - Hr[r+1] * P[r-l+1];
+    };
+    int bestL = 1, bestLen = 1;
+    auto check = [&](int L) {
+        for (int i = 1; i + L - 1 <= n; i++) {
+            int j = i + L - 1;
+            if (getF(i,j) == getR(i,j)) {
+                bestL = i; bestLen = L;
+                return true;
+            }
+        }
+        return false;
+    };
+    int lo = 1, hi = n;
+    while (lo &lt;= hi) {
+        int mid = (lo + hi) / 2;
+        if (check(mid)) lo = mid + 1;
+        else hi = mid - 1;
+    }
+    return S.substr(bestL-1, bestLen);
+}
+
+int main() {
+    cout &lt;&lt; longestPalindrome("babad");
+    return 0;
+}
+  </code></pre>
+
+</body>
+</html>

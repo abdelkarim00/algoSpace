@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Suffix Arrays</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+A <strong>suffix array</strong> for a string <em>S</em> of length <em>n</em> is an array <code>SA[0…n−1]</code> of integers giving the starting positions of all suffixes of <em>S</em> in lexicographical order.  A common construction algorithm is the <em>prefix-doubling</em> method:
+</p>
+<ol>
+  <li>
+    <strong>Initialize</strong>:
+    <ul>
+      <li>Let <code>rank[i]</code> = character code of <code>S[i]</code> (e.g. ASCII).</li>
+      <li>Let <code>SA[i] = i</code> for all <code>0 ≤ i &lt; n</code>.</li>
+    </ul>
+  </li>
+  <li>
+    <strong>Iterate with k = 1, 2, 4, 8, …</strong> while <code>k &lt; n</code>:
+    <ul>
+      <li>Sort <code>SA</code> by the key <code>(rank[i], rank[i+k])</code>, using a stable sort (radix sort or counting sort) in O(n).</li>
+      <li>Recompute a temporary array <code>tmp</code> of new ranks:  
+        <code>tmp[SA[0]] = 0</code>, and for <code>i&gt;0</code>,  
+        <code>tmp[SA[i]] = tmp[SA[i−1]] + (key(SA[i]) ≠ key(SA[i−1]))</code>.
+      </li>
+      <li>Copy <code>rank = tmp</code>. If all ranks are distinct (max rank = n−1), break early.</li>
+      <li>Double <code>k = k × 2</code>.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2>2. Time and Memory Complexity</h2>
+<ul>
+  <li><strong>Time:</strong>  
+    <ul>
+      <li>Each doubling step sorts in O(n) using radix/counting sort.</li>
+      <li>Number of steps ~ ⌈log₂n⌉.  
+        → Total O(n log n).</li>
+    </ul>
+  </li>
+  <li><strong>Memory:</strong>
+    <ul>
+      <li>Arrays <code>SA</code>, <code>rank</code>, <code>tmp</code> each size <em>n</em>.  
+        → O(n) extra memory besides the input string.</li>
+    </ul>
+  </li>
+</ul>
+
+<hr/>
+
+<h2>3. Easy Problems</h2>
+<ol>
+  <li>
+    <strong>Pattern Search (does pattern P appear in text S?)</strong>  
+    <p>Build <code>SA</code> for <code>S</code>, then binary-search for <code>P</code> in the suffixes in O(m log n), where m=|P|.</p>
+    <pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;int&gt; build_sa(const string &amp;s) {
+    int n = s.size(), k = 1;
+    vector&lt;int&gt; sa(n), rank(n), tmp(n);
+    for (int i = 0; i &lt; n; ++i) {
+        sa[i] = i;
+        rank[i] = (unsigned char)s[i];
+    }
+    while (k &lt; n) {
+        auto cmp = [&](int i, int j) {
+            if (rank[i] != rank[j]) return rank[i] &lt; rank[j];
+            int ri = i+k &lt; n ? rank[i+k] : -1;
+            int rj = j+k &lt; n ? rank[j+k] : -1;
+            return ri &lt; rj;
+        };
+        sort(sa.begin(), sa.end(), cmp);
+        tmp[sa[0]] = 0;
+        for (int i = 1; i &lt; n; ++i)
+            tmp[sa[i]] = tmp[sa[i-1]] + (cmp(sa[i-1], sa[i]) ? 1 : 0);
+        rank = tmp;
+        k &lt;&lt;= 1;
+    }
+    return sa;
+}
+
+bool contains(const string &amp;S, const string &amp;P) {
+    auto sa = build_sa(S);
+    int n = S.size(), m = P.size();
+    int l = 0, r = n;
+    while (l &lt; r) {
+        int mid = (l + r) / 2;
+        if (S.compare(sa[mid], m, P) &lt; 0) l = mid + 1;
+        else r = mid;
+    }
+    if (l &lt; n && S.compare(sa[l], m, P) == 0) return true;
+    return false;
+}
+
+int main() {
+    string S = "banana", P = "ana";
+    cout &lt;&lt; (contains(S, P) ? "YES\n" : "NO\n");
+    return 0;
+}
+    </pre>
+  </li>
+
+  <li>
+    <strong>Count Pattern Occurrences</strong>  
+    <p>After finding the lower bound for <code>P</code>, find the upper bound. Difference gives count in O(m log n).</p>
+    <pre>
+// ... reuse build_sa from above ...
+
+int count_occurrences(const string &amp;S, const string &amp;P) {
+    auto sa = build_sa(S);
+    int n = S.size(), m = P.size();
+    auto cmp_prefix = [&](int i, const string &amp;P) {
+        return S.compare(i, m, P) &lt; 0;
+    };
+    int lo = 0, hi = n;
+    // lower bound
+    while (lo &lt; hi) {
+        int mid = (lo + hi) / 2;
+        if (cmp_prefix(sa[mid], P)) lo = mid + 1;
+        else hi = mid;
+    }
+    int start = lo;
+    // upper bound
+    lo = 0; hi = n;
+    while (lo &lt; hi) {
+        int mid = (lo + hi) / 2;
+        if (S.compare(sa[mid], m, P) &lt;= 0) lo = mid + 1;
+        else hi = mid;
+    }
+    int end = lo;
+    return end - start;
+}
+
+int main() {
+    string S = "banana", P = "ana";
+    cout &lt;&lt; count_occurrences(S, P) &lt;&lt; "\n";
+    return 0;
+}
+    </pre>
+  </li>
+</ol>
+
+<hr/>
+
+<h2>4. Intermediate Problems</h2>
+<ol>
+  <li>
+    <strong>Count Distinct Substrings</strong>  
+    <p>The total number of substrings of <code>S</code> is <code>n(n+1)/2</code>. Subtract the sum of LCPs between adjacent suffixes in <code>SA</code>.</p>
+    <pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+// build_sa as above
+
+vector&lt;int&gt; build_lcp(const string &amp;s, const vector&lt;int&gt;&amp; sa) {
+    int n = s.size(), h = 0;
+    vector&lt;int&gt; rank(n), lcp(n-1);
+    for (int i = 0; i &lt; n; ++i) rank[sa[i]] = i;
+    for (int i = 0; i &lt; n; ++i) if (rank[i] &gt; 0) {
+        int j = sa[rank[i]-1];
+        while (i+h &lt; n && j+h &lt; n && s[i+h]==s[j+h]) h++;
+        lcp[rank[i]-1] = h;
+        if (h &gt; 0) h--;
+    }
+    return lcp;
+}
+
+long long count_distinct(const string &amp;S) {
+    int n = S.size();
+    auto sa = build_sa(S);
+    auto lcp = build_lcp(S, sa);
+    long long total = 1LL*n*(n+1)/2;
+    for (int x : lcp) total -= x;
+    return total;
+}
+
+int main() {
+    cout &lt;&lt; count_distinct("banana") &lt;&lt; "\n";
+    return 0;
+}
+    </pre>
+  </li>
+
+  <li>
+    <strong>Longest Common Substring of Two Strings</strong>  
+    <p>Concatenate <code>S=T1+'#'+T2+'$'</code>. Build <code>SA</code> and <code>LCP</code>; scan for max LCP where the two suffixes come from different parts.</p>
+    <pre>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+// build_sa, build_lcp as above
+
+string longest_common_substring(const string &amp;A, const string &amp;B) {
+    string S = A + char('#') + B + char('$');
+    int n = S.size(), nA = A.size();
+    auto sa = build_sa(S);
+    auto lcp = build_lcp(S, sa);
+    int best = 0, idx = 0;
+    for (int i = 0; i+1 &lt; n; ++i) {
+        bool inA = sa[i] &lt; nA;
+        bool inB = sa[i+1] &lt; nA;
+        if (inA ^ inB && lcp[i] &gt; best) {
+            best = lcp[i];
+            idx = sa[i];
+        }
+    }
+    return S.substr(idx, best);
+}
+
+int main() {
+    cout &lt;&lt; longest_common_substring("xabxac","abcabxabcd") &lt;&lt; "\n";
+    return 0;
+}
+    </pre>
+  </li>
+</ol>
+
+<hr/>
+
+<h2>5. Hard Problem</h2>
+<ol>
+  <li>
+    <strong>K-th Lexicographical Substring</strong>  
+    <p>Find the k-th smallest distinct substring of <code>S</code>. Use <code>SA</code> and <code>LCP</code>: each suffix <code>SA[i]</code> contributes <code>(n − SA[i]) − LCP[i−1]</code> new substrings.</p>
+    <pre>
+#include &lt;iostream&gt>
+#include &lt;vector&gt>
+#include &lt;string&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+// build_sa, build_lcp as above
+
+string kth_substring(const string &amp;S, long long k) {
+    int n = S.size();
+    auto sa = build_sa(S);
+    auto lcp = build_lcp(S, sa);
+    for (int i = 0; i &lt; n; ++i) {
+        long long contrib = (n - sa[i]) - (i? lcp[i-1] : 0);
+        if (k &lt;= contrib) {
+            int length = (i? lcp[i-1] : 0) + k;
+            return S.substr(sa[i], length);
+        }
+        k -= contrib;
+    }
+    return ""; // k too large
+}
+
+int main() {
+    string S = "banana";
+    long long k = 5;
+    cout &lt;&lt; kth_substring(S, k) &lt;&lt; "\n";
+    return 0;
+}
+    </pre>
+  </li>
+</ol>
+
+</body>
+</html>

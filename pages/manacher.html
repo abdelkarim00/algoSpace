@@ -1,0 +1,260 @@
+<html>
+  <body>
+    <h1>Manacher’s Algorithm</h1>
+
+    <h2>1. Overview</h2>
+    <p>
+      Manacher’s algorithm finds, in linear time <strong>O(N)</strong>, the length of the longest palindromic substring centered at each position of a string.  
+      It works by transforming the input string to avoid even/odd cases, then using previously computed palindromic spans to “mirror” and skip redundant comparisons.
+    </p>
+
+    <h2>2. Algorithm Details</h2>
+    <h3>2.1 Preprocessing</h3>
+    <p>
+      Given original string <code>S</code> of length <code>N</code>, build a new string  
+      <code>T = "^#" + S[0] + "#" + S[1] + "#…#"+S[N-1]+"#$"</code>.  
+      Here <code>#</code> are separators and sentinels <code>^</code> and <code>$</code> guard bounds.
+    </p>
+
+    <h3>2.2 Radii Array</h3>
+    <p>
+      Create an integer array <code>P</code> of length <code>len(T)</code>, where <code>P[i]</code> will hold the radius of the palindrome centered at <code>i</code> in <code>T</code> (excluding the center).
+    </p>
+
+    <h3>2.3 Main Loop</h3>
+    <ol>
+      <li>Maintain a center <code>C</code> and its right boundary <code>R</code> of the current rightmost palindrome.</li>
+      <li>For each <code>i = 1…len(T)-2</code>:</li>
+      <ul>
+        <li>Mirror position: <code>mirror = 2*C - i</code>.</li>
+        <li>Initialize <code>P[i] = min(R – i, P[mirror])</code> if <code>i &lt; R</code>, else <code>0</code>.</li>
+        <li>Attempt to expand palindrome at <code>i</code> by comparing characters <code>T[i + P[i] + 1]</code> and <code>T[i - P[i] - 1]</code>.</li>
+        <li>If <code>i + P[i]</code> expands past <code>R</code>, update <code>C = i</code> and <code>R = i + P[i]</code>.</li>
+      </ul>
+    </ol>
+
+    <h3>2.4 Extracting Results</h3>
+    <p>
+      The longest palindromic substring in <code>S</code> has length 
+      <code>maxLen = max(P[i])</code>, and center index 
+      <code>centerIndex = argmax(P[i])</code>.  
+      Its start in <code>S</code> is 
+      <code>(centerIndex - maxLen)/2</code>.
+    </p>
+
+    <h2>3. Time &amp; Memory Complexity</h2>
+    <ul>
+      <li><strong>Time:</strong> <code>O(N)</code> – each position is processed once, expansions amortize to linear.</li>
+      <li><strong>Memory:</strong> <code>O(N)</code> – storing transformed string <code>T</code> and array <code>P</code>.</li>
+    </ul>
+
+    <h2>4. Easy Problems</h2>
+
+    <h3>4.1 Longest Palindromic Substring (LeetCode #5)</h3>
+    <p>
+      Find the single longest palindromic substring in <code>S</code>.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int n = s.size();
+        if (n == 0) return "";
+        // Transform
+        string T = "^";
+        for (char c : s) { T += "#"; T += c; }
+        T += "#$";
+        int N = T.size();
+        vector<int> P(N, 0);
+        int C = 0, R = 0;
+        for (int i = 1; i < N - 1; i++) {
+            int mir = 2*C - i;
+            if (i < R) P[i] = min(R - i, P[mir]);
+            // expand
+            while (T[i + P[i] + 1] == T[i - P[i] - 1]) P[i]++;
+            // update center
+            if (i + P[i] > R) { C = i; R = i + P[i]; }
+        }
+        // find max
+        int maxLen = 0, centerIdx = 0;
+        for (int i = 1; i < N - 1; i++) {
+            if (P[i] > maxLen) {
+                maxLen = P[i];
+                centerIdx = i;
+            }
+        }
+        int start = (centerIdx - maxLen) / 2;
+        return s.substr(start, maxLen);
+    }
+};
+
+int main() {
+    Solution sol;
+    string s = "babad";
+    cout << sol.longestPalindrome(s) << endl;
+    return 0;
+}</code></pre>
+
+    <h3>4.2 Count Palindromic Substrings (LeetCode #647)</h3>
+    <p>
+      Count all palindromic substrings in <code>S</code>.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int countSubstrings(string s) {
+    int n = s.size(), ans = 0;
+    string T = "^";
+    for (char c : s) { T += "#"; T += c; }
+    T += "#$";
+    int N = T.size();
+    vector<int> P(N, 0);
+    int C = 0, R = 0;
+    for (int i = 1; i < N - 1; i++) {
+        int mir = 2*C - i;
+        if (i < R) P[i] = min(R - i, P[mir]);
+        while (T[i + P[i] + 1] == T[i - P[i] - 1]) P[i]++;
+        if (i + P[i] > R) { C = i; R = i + P[i]; }
+        // each center contributes ceil(P[i]/2) palindromes in S
+        ans += (P[i] + 1) / 2;
+    }
+    return ans;
+}
+
+int main() {
+    cout << countSubstrings("aaa") << endl;  // Output: 6
+    return 0;
+}</code></pre>
+
+    <h2>5. Intermediate Problems</h2>
+
+    <h3>5.1 Shortest Palindrome (LeetCode #214)</h3>
+    <p>
+      Prepend the minimum characters to make <code>S</code> a palindrome.  
+      Compute the longest palindromic prefix via Manacher, then append the reverse of the remaining suffix.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+string shortestPalindrome(string s) {
+    int n = s.size();
+    if (n == 0) return "";
+    // Build T = s + "#" + rev(s)
+    string rev = s; reverse(rev.begin(), rev.end());
+    string T = s + "#" + rev;
+    int N = T.size();
+    vector<int> P(N, 0);
+    int C = 0, R = 0;
+    int maxPref = 0;
+    for (int i = 0; i < N; i++) {
+        int mir = 2*C - i;
+        if (i < R) P[i] = min(R - i, P[mir]);
+        while (i + P[i] + 1 < N && i - P[i] - 1 >= 0 &&
+               T[i + P[i] + 1] == T[i - P[i] - 1]) P[i]++;
+        if (i + P[i] > R) { C = i; R = i + P[i]; }
+        // if palindrome reaches start of T, update longest prefix
+        if (i - P[i] == 0) maxPref = max(maxPref, P[i]);
+    }
+    string suffix = s.substr(maxPref);
+    reverse(suffix.begin(), suffix.end());
+    return suffix + s;
+}
+
+int main() {
+    cout << shortestPalindrome("aacecaaa") << endl;  // aaacecaaa
+    return 0;
+}</code></pre>
+
+    <h3>5.2 Longest Palindromic Substring in a Circular String</h3>
+    <p>
+      On a circular string, substrings can wrap around.  
+      Duplicate <code>S</code> to <code>S+S</code>, run Manacher, but only consider centers whose palindrome spans fewer than <code>N</code> characters.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int longestCircularPalindrome(string s) {
+    int n = s.size();
+    string ss = s + s;
+    // transform
+    string T = "^";
+    for (char c : ss) { T += "#"; T += c; }
+    T += "#$";
+    int N = T.size();
+    vector<int> P(N, 0);
+    int C = 0, R = 0, best = 0;
+    for (int i = 1; i < N - 1; i++) {
+        int mir = 2*C - i;
+        if (i < R) P[i] = min(R - i, P[mir]);
+        while (T[i + P[i] + 1] == T[i - P[i] - 1]) P[i]++;
+        if (i + P[i] > R) { C = i; R = i + P[i]; }
+        int len = P[i];
+        // center in ss corresponds to index (i-1)/2
+        int center = (i - 1) / 2;
+        // ensure palindrome lies within any length-n window
+        if (len > best && len <= n) best = len;
+    }
+    return best;
+}
+
+int main() {
+    cout << longestCircularPalindrome("aba") << endl;  // 3
+    return 0;
+}</code></pre>
+
+    <h2>6. Hard Problem</h2>
+
+    <h3>6.1 Count Distinct Palindromic Substrings</h3>
+    <p>
+      Count how many <em>distinct</em> palindromic substrings appear in <code>S</code>.  
+      Use Manacher to enumerate all palindrome centers, extract each palindrome, and insert into a hash set.
+    </p>
+    <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_set&gt;
+using namespace std;
+
+int countDistinctPalindromes(const string& s) {
+    int n = s.size();
+    string T = "^";
+    for (char c : s) { T += "#"; T += c; }
+    T += "#$";
+    int N = T.size();
+    vector<int> P(N, 0);
+    int C = 0, R = 0;
+    unordered_set<string> seen;
+    for (int i = 1; i < N - 1; i++) {
+        int mir = 2*C - i;
+        if (i < R) P[i] = min(R - i, P[mir]);
+        while (T[i + P[i] + 1] == T[i - P[i] - 1]) P[i]++;
+        if (i + P[i] > R) { C = i; R = i + P[i]; }
+        // extract palindromes centered at i
+        for (int L = 1; L <= P[i]; L++) {
+            if ((T[i-L] != '#') && (T[i+L] != '#')) {
+                int start = (i - L - 1) / 2;
+                int len = L;
+                seen.insert(s.substr(start, len));
+            }
+        }
+    }
+    return seen.size();
+}
+
+int main() {
+    cout << countDistinctPalindromes("ababa") << endl;  // Output: 3 ("a","b","aba","bab","ababa")
+    return 0;
+}</code></pre>
+
+  </body>
+</html>

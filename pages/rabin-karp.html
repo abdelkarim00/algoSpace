@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <body>
+
+    <h1>Rabin–Karp Algorithm</h1>
+
+    <h2>1. Algorithm Explanation</h2>
+    <p>
+      The Rabin–Karp algorithm is a string‐searching (or substring‐searching) algorithm
+      that uses hashing to find any one of a set of pattern strings in a text. It
+      compares hash values of the pattern and substrings of the text, and only when
+      the hash values match does it fall back to a direct character‐by‐character check.
+    </p>
+    <ol>
+      <li>Precompute the hash <em>h<sub>p</sub></em> of the pattern of length <em>m</em>.</li>
+      <li>Compute the hash <em>h<sub>t</sub></em> of the first window (first m characters) of the text of length <em>n</em>.</li>
+      <li>Slide the window over the text one character at a time, updating the rolling hash in <strong>O(1)</strong>:</li>
+      <pre><code>
+h<sub>t</sub> = (base · (prev_hash − text[i-1]·base<sup>m−1</sup>) + text[i+m−1]) mod M
+      </code></pre>
+      <li>Whenever <em>h<sub>t</sub> == h<sub>p</sub></em>, perform a direct comparison to verify (to avoid false positives due to hash collisions).</li>
+    </ol>
+
+    <h3>Time Complexity</h3>
+    <ul>
+      <li>Average case: <strong>O(n + m)</strong>. Each window hash update is O(1), and mismatched hashes skip the full compare.</li>
+      <li>Worst case: <strong>O(n·m)</strong> if every hash collision forces a full compare.</li>
+    </ul>
+
+    <h3>Memory Complexity</h3>
+    <ul>
+      <li>O(1) extra space (ignoring input and output): only a few integer variables for the rolling hash.</li>
+    </ul>
+
+    <h2>2. Easy Problems</h2>
+
+    <h3>2.1. Check if a Pattern Exists</h3>
+    <p>
+      Given text <code>s</code> and pattern <code>p</code>, return <code>true</code> if <code>p</code> is a substring of <code>s</code>.
+    </p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+bool rabinKarp(const string &s, const string &p) {
+    int n = s.size(), m = p.size();
+    if (m > n) return false;
+    const long long base = 256, mod = 1e9 + 7;
+    long long hp = 0, ht = 0, power = 1;
+    // precompute highest base^(m-1)
+    for (int i = 0; i &lt; m - 1; ++i) power = (power * base) % mod;
+    // initial hash values
+    for (int i = 0; i &lt; m; ++i) {
+        hp = (hp * base + p[i]) % mod;
+        ht = (ht * base + s[i]) % mod;
+    }
+    // slide over text
+    for (int i = 0; i + m <= n; ++i) {
+        if (hp == ht && s.substr(i, m) == p) return true;
+        if (i + m < n) {
+            ht = (ht - s[i] * power % mod + mod) % mod;
+            ht = (ht * base + s[i + m]) % mod;
+        }
+    }
+    return false;
+}
+
+int main() {
+    cout << boolalpha
+         << rabinKarp("hello world", "world")  // true
+         << endl;
+    return 0;
+}
+    </code></pre>
+
+    <h3>2.2. Find All Occurrences of a Pattern</h3>
+    <p>
+      Return all start indices where <code>p</code> occurs in <code>s</code>.
+    </p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+vector&lt;int&gt; findAll(const string &s, const string &p) {
+    int n = s.size(), m = p.size();
+    vector&lt;int&gt; res;
+    if (m > n) return res;
+    const long long base = 256, mod = 1e9 + 7;
+    long long hp = 0, ht = 0, power = 1;
+    for (int i = 0; i &lt; m - 1; ++i) power = (power * base) % mod;
+    for (int i = 0; i &lt; m; ++i) {
+        hp = (hp * base + p[i]) % mod;
+        ht = (ht * base + s[i]) % mod;
+    }
+    for (int i = 0; i + m <= n; ++i) {
+        if (hp == ht && s.substr(i, m) == p) res.push_back(i);
+        if (i + m < n) {
+            ht = (ht - s[i] * power % mod + mod) % mod;
+            ht = (ht * base + s[i + m]) % mod;
+        }
+    }
+    return res;
+}
+
+int main() {
+    auto idxs = findAll("abracadabra", "abra");
+    for (int i: idxs) cout &lt;&lt; i &lt;&lt; ' ';  // 0 7
+    cout &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+    <h2>3. Intermediate Problems</h2>
+
+    <h3>3.1. 2D Pattern Matching</h3>
+    <p>
+      Given an <code>R×C</code> grid of characters and an <code>r×c</code> pattern, find all top-left corners where the pattern appears.
+      We treat each row as a string, hash each row window, then hash the column of row-hashes.
+    </p>
+    <pre><code>
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using ull = unsigned long long;
+
+// compute rolling hash for each row segment of width c
+vector&lt;vector&lt;ull&gt;&gt; rowHashes(const vector&lt;string&gt;&amp; G, int r, int c, ull base, ull mod) {
+    int R = G.size(), C = G[0].size();
+    ull power = 1;
+    for (int i = 0; i &lt; c - 1; ++i) power = (power * base) % mod;
+    vector&lt;vector&lt;ull&gt;&gt; H(R, vector&lt;ull&gt;(C - c + 1));
+    for (int i = 0; i &lt; R; ++i) {
+        ull h = 0;
+        for (int j = 0; j &lt; c; ++j) h = (h * base + G[i][j]) % mod;
+        H[i][0] = h;
+        for (int j = 1; j + c <= C; ++j) {
+            h = (h + mod - G[i][j-1] * power % mod) % mod;
+            h = (h * base + G[i][j + c - 1]) % mod;
+            H[i][j] = h;
+        }
+    }
+    return H;
+}
+
+vector&lt;pair&lt;int,int&gt;&gt; find2D(const vector&lt;string&gt;&amp; G, const vector&lt;string&gt;&amp; P) {
+    int R = G.size(), C = G[0].size();
+    int r = P.size(), c = P[0].size();
+    const ull base = 131, mod = 1000000007;
+    auto Hg = rowHashes(G, r, c, base, mod);
+    auto Hp = rowHashes(P, r, c, base, mod);
+    // hash each column of row-hashes
+    ull power = 1;
+    for (int i = 0; i &lt; r - 1; ++i) power = (power * base) % mod;
+    vector&lt;pair&lt;int,int&gt;&gt; res;
+    for (int j = 0; j + c <= C; ++j) {
+        // initial column hash for window rows [0..r-1]
+        ull col_hg = 0, col_hp = 0;
+        for (int i = 0; i &lt; r; ++i) {
+            col_hg = (col_hg * base + Hg[i][j]) % mod;
+            col_hp = (col_hp * base + Hp[i][0]) % mod;
+        }
+        if (col_hg == col_hp) res.emplace_back(0, j);
+        for (int i = 1; i + r <= R; ++i) {
+            col_hg = (col_hg + mod - Hg[i-1][j] * power % mod) % mod;
+            col_hg = (col_hg * base + Hg[i+r-1][j]) % mod;
+            col_hp = (col_hp + mod - Hp[i-1][0] * power % mod) % mod;
+            col_hp = (col_hp * base + Hp[i+r-1][0]) % mod;
+            if (col_hg == col_hp) res.emplace_back(i, j);
+        }
+    }
+    return res;
+}
+
+int main() {
+    vector&lt;string&gt; G = {
+      "1234123412",
+      "5612561256",
+      "1234123412",
+      "5612561256"
+    };
+    vector&lt;string&gt; P = {
+      "1234",
+      "5612"
+    };
+    for (auto &pr: find2D(G, P))
+      cout &lt;&lt; "(" &lt;&lt; pr.first &lt;&lt; "," &lt;&lt; pr.second &lt;&lt; ") ";
+    // outputs (0,0) (0,4) (2,0) (2,4)
+    return 0;
+}
+    </code></pre>
+
+    <h3>3.2. Detect Duplicate Substrings of Length K</h3>
+    <p>
+      Given string <code>s</code> and integer <code>K</code>, determine if any substring of length <code>K</code> appears at least twice.
+      Use a hash‐set of rolling hashes.
+    </p>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;unordered_set&gt;
+using namespace std;
+
+bool hasDuplicateLengthK(const string &s, int K) {
+    int n = s.size();
+    if (K > n) return false;
+    const long long base = 256, mod = 1e9+7;
+    long long h = 0, power = 1;
+    for (int i = 0; i &lt; K-1; ++i) power = (power * base) % mod;
+    unordered_set&lt;long long&gt; seen;
+    for (int i = 0; i &lt; n; ++i) {
+        h = (h * base + s[i]) % mod;
+        if (i >= K) {
+            h = (h + mod - s[i-K] * power % mod) % mod;
+        }
+        if (i >= K-1) {
+            if (seen.count(h)) return true;
+            seen.insert(h);
+        }
+    }
+    return false;
+}
+
+int main() {
+    cout &lt;&lt; boolalpha
+         &lt;&lt; hasDuplicateLengthK("banana", 3)  // true ("ana")
+         &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+    <h2>4. Hard Problem</h2>
+
+    <h3>4.1. Longest Common Substring of Two Strings</h3>
+    <p>
+      Given two strings <code>A</code> and <code>B</code>, find the length (and optionally the substring) of their longest common substring.
+      Use binary search on length <code>L</code>, and for each <code>L</code> check via rolling‐hash set.
+    </p>
+    <pre><code>
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+using ull = unsigned long long;
+
+int longestCommonSubstring(const string &A, const string &B) {
+    int n = A.size(), m = B.size();
+    const ull base = 131, mod = 1000000007;
+
+    auto check = [&](int L) {
+        if (L == 0) return -1;
+        ull power = 1;
+        for (int i = 0; i &lt; L-1; ++i) power = (power * base) % mod;
+        unordered_set&lt;ull&gt; hashes;
+        ull h = 0;
+        // hashes of A substrings of length L
+        for (int i = 0; i &lt; n; ++i) {
+            h = (h * base + A[i]) % mod;
+            if (i >= L) h = (h + mod - A[i-L] * power % mod) % mod;
+            if (i >= L-1) hashes.insert(h);
+        }
+        // check in B
+        h = 0;
+        for (int i = 0; i &lt; m; ++i) {
+            h = (h * base + B[i]) % mod;
+            if (i >= L) h = (h + mod - B[i-L] * power % mod) % mod;
+            if (i >= L-1 && hashes.count(h)) return i - L + 1;
+        }
+        return -1;
+    };
+
+    int lo = 0, hi = min(n, m), best = 0;
+    while (lo &lt;= hi) {
+        int mid = (lo + hi) / 2;
+        if (check(mid) != -1) {
+            best = mid;
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return best;
+}
+
+int main() {
+    cout &lt;&lt;
+      longestCommonSubstring("ABABC", "BABCA")  // 4 ("BABC" or "ABCA")
+      &lt;&lt; endl;
+    return 0;
+}
+    </code></pre>
+
+  </body>
+</html>

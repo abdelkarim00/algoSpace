@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>KMP Algorithm and Applications</title>
+</head>
+<body>
+
+  <h1>KMP Algorithm (Knuth–Morris–Pratt)</h1>
+
+  <h2>1. Algorithm Overview</h2>
+  <p>
+    The KMP algorithm searches for occurrences of a “pattern” string <code>P</code> of length <code>m</code> within a “text” string <code>T</code> of length <code>n</code>.  
+    It avoids re-examining characters by precomputing a longest-proper-prefix-which-is-also-suffix (<code>LPS</code>) array for the pattern.
+  </p>
+  <ol>
+    <li>
+      <strong>Build LPS array</strong>:  
+      <ul>
+        <li><code>lps[i]</code> = length of the longest proper prefix of <code>P[0…i]</code> which is also a suffix.</li>
+        <li>Computed in <code>O(m)</code> by a two-pointer scan over the pattern.</li>
+      </ul>
+    </li>
+    <li>
+      <strong>Search</strong>:  
+      <ul>
+        <li>Scan text with two indices <code>i</code> (text) and <code>j</code> (pattern).</li>
+        <li>On mismatch, slide the pattern by setting <code>j = lps[j-1]</code> without incrementing <code>i</code>.</li>
+        <li>On match, advance both <code>i</code> and <code>j</code>.</li>
+        <li>Whenever <code>j == m</code>, a match is found at <code>i - m</code>.</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h2>2. Time and Memory Complexity</h2>
+  <ul>
+    <li><strong>Time:</strong> <code>O(m + n)</code> — building the LPS array costs <code>O(m)</code>, searching costs <code>O(n)</code>.</li>
+    <li><strong>Memory:</strong> <code>O(m)</code> for the LPS array (in addition to storing the input strings).</li>
+  </ul>
+
+  <h2>3. Easy Problems</h2>
+
+  <h3>3.1. Substring Existence</h3>
+  <p>Check if <code>P</code> appears in <code>T</code> at least once.</p>
+  <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector<int> buildLPS(const string &P) {
+    int m = P.size();
+    vector<int> lps(m, 0);
+    int len = 0;  // length of the previous longest prefix suffix
+    for (int i = 1; i < m; ) {
+        if (P[i] == P[len]) {
+            lps[i++] = ++len;
+        } else if (len) {
+            len = lps[len - 1];
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+bool contains(const string &T, const string &P) {
+    int n = T.size(), m = P.size();
+    auto lps = buildLPS(P);
+    for (int i = 0, j = 0; i < n; ) {
+        if (T[i] == P[j]) {
+            i++; j++;
+            if (j == m) return true;
+        } else if (j) {
+            j = lps[j - 1];
+        } else {
+            i++;
+        }
+    }
+    return false;
+}
+
+int main() {
+    string text = "hello world", pattern = "world";
+    cout << (contains(text, pattern) ? "Found\n" : "Not Found\n");
+    return 0;
+}
+</code></pre>
+
+  <h3>3.2. Count Occurrences</h3>
+  <p>Count how many times <code>P</code> occurs in <code>T</code> (including overlaps).</p>
+  <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector<int> buildLPS(const string &P) {
+    int m = P.size();
+    vector<int> lps(m, 0);
+    int len = 0;
+    for (int i = 1; i < m; ) {
+        if (P[i] == P[len]) lps[i++] = ++len;
+        else if (len) len = lps[len - 1];
+        else lps[i++] = 0;
+    }
+    return lps;
+}
+
+int countOccurrences(const string &T, const string &P) {
+    int n = T.size(), m = P.size(), cnt = 0;
+    auto lps = buildLPS(P);
+    for (int i = 0, j = 0; i < n; ) {
+        if (T[i] == P[j]) {
+            i++; j++;
+            if (j == m) {
+                cnt++;
+                j = lps[j - 1];
+            }
+        } else if (j) {
+            j = lps[j - 1];
+        } else {
+            i++;
+        }
+    }
+    return cnt;
+}
+
+int main() {
+    cout << countOccurrences("abababa", "aba") << "\n"; // Outputs 3
+    return 0;
+}
+</code></pre>
+
+  <h2>4. Intermediate Problems</h2>
+
+  <h3>4.1. Longest Prefix Which Is Also Suffix (Proper)</h3>
+  <p>Given a string <code>S</code>, find the length of the longest proper prefix which is also a suffix.</p>
+  <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector<int> buildLPS(const string &P) {
+    int m = P.size();
+    vector<int> lps(m, 0);
+    int len = 0;
+    for (int i = 1; i < m; ) {
+        if (P[i] == P[len]) lps[i++] = ++len;
+        else if (len) len = lps[len - 1];
+        else lps[i++] = 0;
+    }
+    return lps;
+}
+
+int longestProperPrefSuffix(const string &S) {
+    auto lps = buildLPS(S);
+    return lps.back();
+}
+
+int main() {
+    cout << longestProperPrefSuffix("ababcabab") << "\n"; // Outputs 5 ("ababc")
+    return 0;
+}
+</code></pre>
+
+  <h3>4.2. Pattern in a Circular String</h3>
+  <p>Check if <code>P</code> occurs in any rotation of <code>T</code>.</p>
+  <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector<int> buildLPS(const string &P) {
+    int m = P.size();
+    vector<int> lps(m, 0);
+    int len = 0;
+    for (int i = 1; i < m; ) {
+        if (P[i] == P[len]) lps[i++] = ++len;
+        else if (len) len = lps[len - 1];
+        else lps[i++] = 0;
+    }
+    return lps;
+}
+
+bool inCircular(const string &T, const string &P) {
+    // Concatenate T with itself and search P
+    string TT = T + T;
+    auto lps = buildLPS(P);
+    int n = TT.size(), m = P.size();
+    for (int i = 0, j = 0; i < n; ) {
+        if (TT[i] == P[j]) {
+            i++; j++;
+            if (j == m) return true;
+        } else if (j) {
+            j = lps[j - 1];
+        } else {
+            i++;
+        }
+    }
+    return false;
+}
+
+int main() {
+    cout << (inCircular("abcde", "deab") ? "Yes\n" : "No\n");
+    return 0;
+}
+</code></pre>
+
+  <h2>5. Hard Problem</h2>
+
+  <h3>5.1. Shortest Palindrome by Adding Characters in Front</h3>
+  <p>
+    Given <code>S</code>, find the shortest palindrome you can form by adding characters in front of it.
+    <br>
+    <em>Approach:</em> Build string <code>A = S + "#" + reverse(S)</code>, compute its LPS, and use the last LPS value to know the longest palindromic prefix.
+  </p>
+  <pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+vector<int> buildLPS(const string &P) {
+    int m = P.size();
+    vector<int> lps(m, 0);
+    int len = 0;
+    for (int i = 1; i < m; ) {
+        if (P[i] == P[len]) lps[i++] = ++len;
+        else if (len) len = lps[len - 1];
+        else lps[i++] = 0;
+    }
+    return lps;
+}
+
+string shortestPalindrome(string s) {
+    string rev = s;
+    reverse(rev.begin(), rev.end());
+    string A = s + "#" + rev;
+    auto lps = buildLPS(A);
+    int palLen = lps.back();  // length of longest palindromic prefix
+    string toAdd = rev.substr(0, s.size() - palLen);
+    return toAdd + s;
+}
+
+int main() {
+    cout << shortestPalindrome("aacecaaa") << "\n";  // Outputs "aaacecaaa"
+    cout << shortestPalindrome("abcd") << "\n";      // Outputs "dcbabcd"
+    return 0;
+}
+</code></pre>
+
+</body>
+</html>
