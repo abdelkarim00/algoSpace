@@ -82,6 +82,12 @@ code {
     color: #3498db;
 }
 
+.book-section li a:focus {
+    outline: 2px solid #007bff; /* Or any other visually distinct focus style */
+    outline-offset: 2px; /* Optional: Add some space between the outline and the element */
+    color: #fff; /* Ensure the text remains readable on focus */
+}
+
 /* Main content area */
 #main-content {
     flex: 1;
