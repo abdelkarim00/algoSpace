@@ -1,0 +1,192 @@
+<div>
+    <h1>Bit Operations</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+Bit manipulation is a technique that uses bitwise operators (like AND <code>&amp;</code>, OR <code>|</code>, XOR <code>^</code>, NOT <code>~</code>, shift <code>&lt;&lt;</code>, <code>&gt;&gt;</code>) for fast operations on individual bits of integers.
+It is especially useful in optimization, combinatorics (like subsets), and problems involving parity or states.
+</p>
+
+<h3>Common Bit Operations</h3>
+<ul>
+  <li><code>x &amp; 1</code>: check if x is odd</li>
+  <li><code>x &amp; (x-1)</code>: removes the lowest set bit</li>
+  <li><code>__builtin_popcount(x)</code>: count 1's in x</li>
+  <li><code>1 &lt;&lt; k</code>: number with only the k-th bit set</li>
+</ul>
+
+<h3>Time Complexity</h3>
+<p>Most bit operations are O(1) or O(log N) depending on the size of the integer (e.g., 32 or 64-bit).</p>
+
+<h3>Memory Complexity</h3>
+<p>No extra memory is required beyond variables unless using masks in arrays (like <code>dp[1&lt;&lt;n]</code>).</p>
+
+<hr>
+
+<h2>2. Easy Bitwise Problems</h2>
+
+<h3>2.1 – Codeforces 1418A - Buying Torches</h3>
+<p>
+Given k sticks and 1 coal, find how many operations are needed to get n sticks.  
+Each operation uses x sticks and 1 coal to get x+1 sticks.  
+You must simulate using math and bit tricks.
+</p>
+
+<pre>
+<b>Input:</b>
+7 3 2
+
+<b>Output:</b>
+3
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    long long n, k, x;
+    cin &gt;&gt; n &gt;&gt; k &gt;&gt; x;
+    cout &lt;&lt; (n - 1 + (k - x - 1)) / (k - x) &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Count Set Bits from 1 to N</h3>
+<p>
+Count number of 1s in binary representation of all numbers from 1 to N.
+</p>
+
+<pre>
+<b>Input:</b>
+5
+
+<b>Output:</b>
+7   <em>(1:1, 2:1, 3:2, 4:1, 5:2)</em>
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, count = 0;
+    cin &gt;&gt; n;
+    for (int i = 1; i &lt;= n; ++i) {
+        count += __builtin_popcount(i);
+    }
+    cout &lt;&lt; count &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Intermediate Bitwise Problems</h2>
+
+<h3>3.1 – Codeforces 1092B - Teams Forming</h3>
+<p>
+You are given 2n skill levels. Form n pairs such that sum of absolute differences is minimized.
+Hint: Sort and use bitwise XOR for differences.
+</p>
+
+<pre>
+<b>Input:</b>
+4
+1 3 5 9
+
+<b>Output:</b>
+6
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    n *= 2;
+    int a[n];
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    sort(a, a+n);
+    int sum = 0;
+    for (int i = 0; i &lt; n; i += 2) {
+        sum += a[i+1] - a[i]; // or use bitwise absolute diff
+    }
+    cout &lt;&lt; sum &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Subset Sum Using Bitmask</h3>
+<p>
+Print all subset sums from a list using bitmask.
+</p>
+
+<pre>
+<b>Input:</b>
+3
+1 2 3
+
+<b>Output:</b>
+0 1 2 3 3 4 5 6
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, a[20];
+    cin &gt;&gt; n;
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    for (int mask = 0; mask &lt; (1&lt;&lt;n); ++mask) {
+        int sum = 0;
+        for (int i = 0; i &lt; n; ++i) {
+            if (mask &amp; (1&lt;&lt;i)) sum += a[i];
+        }
+        cout &lt;&lt; sum &lt;&lt; ' ';
+    }
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Hard Bitwise Problem</h2>
+
+<h3>4.1 – Codeforces 842B - Gleb and Pizza</h3>
+<p>
+Count points that fall inside a circular crust of thickness t and radius R.
+Use bit tricks to speed up calculations.
+</p>
+
+<pre>
+<b>Input:</b>
+5 1 5
+1 1 1
+2 2 1
+0 0 1
+4 0 1
+6 0 1
+
+<b>Output:</b>
+3
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n, t, R, cnt = 0;
+    cin &gt;&gt; n &gt;&gt; t &gt;&gt; R;
+    int R2 = R*R, r2 = (R-t)*(R-t);
+    for (int i = 0; i &lt; n; ++i) {
+        int x, y, ri;
+        cin &gt;&gt; x &gt;&gt; y &gt;&gt; ri;
+        int dist2 = x*x + y*y;
+        if ((dist2 + ri*ri &lt;= R2) &amp;&amp; (dist2 - ri*ri &gt;= r2)) cnt++;
+    }
+    cout &lt;&lt; cnt &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+</div>>

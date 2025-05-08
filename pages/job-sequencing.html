@@ -1,0 +1,282 @@
+<div>
+    <h1>Job Sequencing &amp; Scheduling Algorithms</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+The classic <strong>Job Sequencing with Deadlines</strong> problem is:  
+Given N jobs, each with a <em>deadline</em> and a <em>profit</em>, schedule at most one job per time slot so as to maximize total profit (each job takes unit time).  
+The standard greedy solution:
+</p>
+<ol>
+  <li>Sort all jobs in descending order of profit.</li>
+  <li>Create an array <code>slot[1…maxDeadline]</code>, initialized to –1 (empty).</li>
+  <li>For each job in sorted order:
+    <ul>
+      <li>Try to schedule it in the latest free slot ≤ its deadline (scan from <code>d</code> down to 1).</li>
+      <li>If you find an empty slot, assign the job there and add its profit.</li>
+    </ul>
+  </li>
+  <li>Remaining slots stay empty.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+Let D = maximum deadline among all jobs.  
+<ul>
+  <li>Sorting takes O(N log N).</li>
+  <li>For each of N jobs, we scan up to D slots → O(N·D).</li>
+</ul>
+Total: <strong>O(N log N + N·D)</strong>.  
+If D = O(N), this is O(N²).  
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+<ul>
+  <li>Store N jobs → O(N).</li>
+  <li>Slot array of size D → O(D).</li>
+</ul>
+Total: <strong>O(N + D)</strong>.  
+</p>
+
+<hr>
+
+<h2>2. Easy Examples</h2>
+
+<h3>2.1 – Codeforces 1203F1 “Complete Projects (easy version)”</h3>
+<p>
+Given N projects, each with a duration <code>tᵢ</code> and a deadline <code>dᵢ</code>, you can do at most one project at a time.  
+Maximize the number of completed projects.  
+Here each project takes <code>tᵢ</code> time, deadline is the latest finish time.
+</p>
+
+<pre>
+<b>Input:</b>
+3
+3 2
+1 2
+2 2
+
+<b>Output:</b>
+2
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N;
+    cin &gt;&gt; N;
+    vector&lt;pair&lt,int&gt;&gt; projects(N);
+    for (int i = 0; i &lt; N; i++)
+        cin &gt;&gt; projects[i].first &gt;&gt; projects[i].second;
+    // sort by deadline
+    sort(projects.begin(), projects.end(),
+         [] (auto &a, auto &b) { return a.second &lt; b.second; });
+    int currTime = 0, count = 0;
+    for (auto &p : projects) {
+        if (currTime + p.first &lt;= p.second) {
+            currTime += p.first;
+            count++;
+        }
+    }
+    cout &lt;&lt; count &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Codeforces 1592E “Tasks and Deadlines”</h3>
+<p>
+Given N tasks with duration <code>tᵢ</code> and deadline <code>dᵢ</code>, you must perform all tasks in some order.  
+Compute the total “lateness penalty” = ∑|finishᵢ − dᵢ|.  
+Greedy: sort by duration ascending (shortest‐processing‐time first).
+</p>
+
+<pre>
+<b>Input:</b>
+3
+3 5
+1 2
+2 4
+
+<b>Output:</b>
+3
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt,int&gt;&gt; tasks(N);
+    for (int i = 0; i &lt; N; i++)
+        cin &gt;&gt; tasks[i].first &gt;&gt; tasks[i].second;
+    // Sort by duration
+    sort(tasks.begin(), tasks.end(),
+         [] (auto &a, auto &b) { return a.first &lt; b.first; });
+    long long time = 0, penalty = 0;
+    for (auto &t : tasks) {
+        time += t.first;
+        penalty += llabs(time - t.second);
+    }
+    cout &lt;&lt; penalty &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Intermediate Examples</h2>
+
+<h3>3.1 – Codeforces 1203F2 “Complete Projects (hard version)”</h3>
+<p>
+Same as F1, but N ≤ 2·10⁵, durations and deadlines large.  
+Use a max‐heap to drop the longest project when current time exceeds deadline.
+</p>
+
+<pre>
+<b>Input:</b>
+5
+4 4
+3 4
+2 3
+1 2
+5 6
+
+<b>Output:</b>
+4
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt,int&gt;&gt; proj(N);
+    for(int i=0;i&lt;N;i++) cin &gt;&gt; proj[i].first &gt;&gt; proj[i].second;
+    sort(proj.begin(), proj.end(),
+         [] (auto &a, auto &b){ return a.second &lt; b.second; });
+    priority_queue&lt;int&gt; pq;
+    long long time = 0;
+    for (auto &p : proj) {
+        time += p.first;
+        pq.push(p.first);
+        if (time &gt; p.second) {
+            time -= pq.top();
+            pq.pop();
+        }
+    }
+    cout &lt;&lt; (int)pq.size() &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces 1635C “Schedule the Exams”</h3>
+<p>
+Given M exams each with a day and duration, decide if you can schedule all so no two overlap (unit‐slot scheduling).  
+Sort by day, assign earliest possible slot.
+</p>
+
+<pre>
+<b>Input:</b>
+4 3
+1 2
+2 1
+3 1
+1 1
+
+<b>Output:</b>
+YES
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int M, D;
+    cin &gt;&gt; M &gt;&gt; D;
+    vector&lt;pair&lt,int&gt;&gt; exams(M);
+    for(int i=0;i&lt;M;i++) cin &gt;&gt; exams[i].first &gt;&gt; exams[i].second;
+    sort(exams.begin(), exams.end()); 
+    int day = 1;
+    for (auto &e : exams) {
+        if (day + e.second - 1 &gt; D || day &gt; e.first) {
+            cout &lt;&lt; "NO\n";
+            return 0;
+        }
+        day += e.second;
+    }
+    cout &lt;&lt; "YES\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Hard Example</h2>
+
+<h3>4.1 – Codeforces 1490E “Job Sequencing (classic)”</h3>
+<p>
+Given N jobs with deadlines and profits (unit time), maximize profit.  
+This is the classic greedy with slot‐array approach.
+</p>
+
+<pre>
+<b>Input:</b>
+5
+Job1 2 100
+Job2 1 19
+Job3 2 27
+Job4 1 25
+Job5 3 15
+
+<b>Output:</b>
+142
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+struct Job { string id; int dl, profit; };
+
+int main(){
+    int N;
+    cin &gt;&gt; N;
+    vector&lt;Job&gt; jobs(N);
+    int maxD = 0;
+    for(int i=0;i&lt;N;i++){
+        cin &gt;&gt; jobs[i].id &gt;&gt; jobs[i].dl &gt;&gt; jobs[i].profit;
+        maxD = max(maxD, jobs[i].dl);
+    }
+    sort(jobs.begin(), jobs.end(),
+         [] (auto &a, auto &b){ return a.profit &gt; b.profit; });
+    vector&lt;bool&gt; slot(maxD+1,false);
+    int total = 0;
+    for (auto &j : jobs) {
+        for (int t = j.dl; t &gt; 0; --t) {
+            if (!slot[t]) {
+                slot[t] = true;
+                total += j.profit;
+                break;
+            }
+        }
+    }
+    cout &lt;&lt; total &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+</div>

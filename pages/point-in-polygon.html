@@ -1,0 +1,321 @@
+<div>
+    <h1>Point‐in‐Polygon: Algorithm, Mathematics, Complexity, and Applications</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+To test whether a point <code>P</code> lies inside (or on the boundary of) a <strong>simple</strong> (possibly concave) polygon with vertices <code>V[0…n−1]</code>, the most common method is the <em>ray‐crossing</em> (or “even–odd”) rule:
+</p>
+<ol>
+  <li>Cast a ray horizontally to the right from <code>P</code> to infinity.</li>
+  <li>Count how many times this ray crosses an edge of the polygon (edges are <code>(V[i],V[i+1])</code>, with wraparound).</li>
+  <li>If the count is odd ⇒ <code>P</code> is <strong>inside</strong>; if even ⇒ <code>P</code> is <strong>outside</strong>.</li>
+  <li>If the point lies exactly on an edge or vertex, you can treat that as “inside” (or handle specially).</li>
+</ol>
+
+<h3>Pseudocode</h3>
+<pre><code>bool pointInPolygon(P, V[0…n-1]):
+    bool inside = false
+    for i in 0…n-1:
+        j = (i + 1) mod n
+        if ( (V[i].y > P.y) ≠ (V[j].y > P.y) ) and
+           (P.x < (V[j].x−V[i].x)*(P.y−V[i].y)/(V[j].y−V[i].y) + V[i].x):
+            inside = !inside
+    return inside</code></pre>
+
+<h2>2. Mathematics</h2>
+<ul>
+  <li><strong>Edge‐Cross Test:</strong> An edge <code>(A,B)</code> crosses the horizontal line at <code>y=P.y</code> iff <code>A.y > P.y</code> and <code>B.y ≤ P.y</code>, or vice versa.</li>
+  <li><strong>X‐intersection:</strong> Solve for <code>x</code> on the line <code>A→B</code> at <code>y=P.y</code>:
+    <pre>x = A.x + (B.x−A.x)*(P.y−A.y)/(B.y−A.y)</pre>
+    We count it if <code>P.x &lt; x</code> (ray to the right).</li>
+  <li><strong>Parity ⇒ Inside/Outside:</strong> Each crossing toggles “in/out”.</li>
+</ul>
+
+<h2>3. Time &amp; Memory Complexity</h2>
+<ul>
+  <li><strong>Single query:</strong> O(<em>n</em>) time to test against all <em>n</em> edges.</li>
+  <li><strong>Multiple queries (<em>q</em>):</strong> O(<em>n·q</em>) total, unless you preprocess.</li>
+  <li><strong>Space:</strong> O(<em>n</em>) to store the polygon vertices (plus O(1) extra).</li>
+</ul>
+
+<hr>
+
+<h2>4. Easy Problems</h2>
+
+<h3>4.1 – Codeforces 70D “Point on Convex Hull?”</h3>
+<p>
+Although this is for a <strong>convex</strong> polygon, it can be solved by a simpler O(log n) variant of the above.  
+Here we show the O(n) ray‐cross method for a convex polygon.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct P { long long x,y; };
+
+// ray-cross test for any simple polygon
+bool inPoly(const vector&lt;P&gt;&amp; V, const P &p) {
+    bool inside = false;
+    int n = V.size();
+    for(int i=0, j=n-1; i<n; j=i++) {
+        if (((V[i].y>p.y) != (V[j].y>p.y)) &&
+            (p.x < (V[j].x-V[i].x)*(p.y-V[i].y)/(V[j].y-V[i].y) + V[i].x))
+            inside = !inside;
+    }
+    return inside;
+}
+
+int main(){
+    int n; cin&gt;&gt;n;
+    vector&lt;P&gt; V(n);
+    for(int i=0;i<n;i++) cin&gt;&gt;V[i].x&gt;&gt;V[i].y;
+    int q; cin&gt;&gt;q;
+    while(q--){
+        P p; cin&gt;&gt;p.x&gt;&gt;p.y;
+        cout&lt;&lt;(inPoly(V,p)?\"YES\":\"NO\")&lt;&lt;\"\\n\";
+    }
+    return 0;
+}
+</code></pre>
+
+<pre>
+<b>Example:</b>
+Input:
+5
+0 0
+4 0
+6 3
+4 6
+0 6
+3
+3 3
+5 5
+7 1
+
+Output:
+YES
+YES
+NO
+</pre>
+
+<h3>4.2 – Codeforces 166B “Polygon B Inside A?”</h3>
+<p>
+Given two simple polygons A (size n) and B (size m), check if B lies strictly inside A.  
+Apply the ray‐cross test to each vertex of B.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+struct P{ long long x,y; };
+
+bool inPoly(const vector&lt;P&gt;&amp; V, const P &p) {
+    bool in = false;
+    int n = V.size();
+    for(int i=0,j=n-1; i<n; j=i++){
+        if(((V[i].y>p.y) != (V[j].y>p.y)) &&
+           (p.x < (V[j].x-V[i].x)*(p.y-V[i].y)/(V[j].y-V[i].y) + V[i].x))
+            in = !in;
+    }
+    return in;
+}
+
+int main(){
+    int n,m; cin&gt;&gt;n;
+    vector&lt;P&gt; A(n);
+    for(int i=0;i<n;i++) cin&gt;&gt;A[i].x&gt;&gt;A[i].y;
+    cin&gt;&gt;m;
+    vector&lt;P&gt; B(m);
+    for(int i=0;i<m;i++) cin&gt;&gt;B[i].x&gt;&gt;B[i].y;
+    for(auto &p: B){
+        if(!inPoly(A,p)){
+            cout&lt;&lt;\"NO\\n\";
+            return 0;
+        }
+    }
+    cout&lt;&lt;\"YES\\n\";
+    return 0;
+}
+</code></pre>
+
+<pre>
+<b>Example:</b>
+Input:
+4
+0 0
+10 0
+10 10
+0 10
+3
+2 2
+5 5
+9 9
+
+Output:
+YES
+</pre>
+
+<hr>
+
+<h2>5. Intermediate Problems</h2>
+
+<h3>5.1 – Codeforces “Point in Concave Polygon Queries”</h3>
+<p>
+Given one simple (possibly concave) polygon of size <em>n</em> and <em>q</em> query points, decide inside/outside.  
+If <em>q</em> is large, the O(n·q) method may TLE. One can preprocess polygon edges into a segment tree or bucket by y‐interval in O(n log n), then answer each query in O(log n).  
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+struct Edge { double y1,y2, x_at_y1, dx_dy; };
+
+int main(){
+    int n,q; cin&gt;&gt;n&gt;&gt;q;
+    vector&lt;pair&lt;double,double&gt;&gt; V(n);
+    for(int i=0;i<n;i++) cin&gt;&gt;V[i].first&gt;&gt;V[i].second;
+    // build edge list
+    vector&lt;Edge&gt; E;
+    for(int i=0,j=n-1;i<n;j=i++){
+        auto &A=V[j], &B=V[i];
+        if(A.second==B.second) continue;
+        if(A.second &lt; B.second) swap(A,B);
+        Edge e = { B.second, A.second,
+                   B.first,
+                   (A.first-B.first)/(A.second-B.second) };
+        E.push_back(e);
+    }
+    // sort edges by y1
+    sort(E.begin(), E.end(), [](auto &a, auto &b){
+        return a.y1 &lt; b.y1;
+    });
+    while(q--){
+        double px,py; cin&gt;&gt;px&gt;&gt;py;
+        int cnt=0;
+        // brute over edges whose y-range contains py
+        for(auto &e: E){
+            if(py &lt; e.y1 || py &gt; e.y2) continue;
+            double x = e.x_at_y1 + e.dx_dy*(py - e.y1);
+            if(px &lt; x) cnt++;
+        }
+        cout&lt;&lt;((cnt&1)?\"INSIDE\":\"OUTSIDE\")&lt;&lt;\"\\n\";
+    }
+    return 0;
+}
+</code></pre>
+
+<pre>
+<b>Example:</b>
+Input:
+6 3
+0 0
+5 0
+5 5
+3 3
+1 5
+0 5
+1 1
+4 4
+6 2
+
+Output:
+INSIDE
+INSIDE
+OUTSIDE
+</pre>
+
+<h3>5.2 – Codeforces 166C “Star‐shaped Polygon Check”</h3>
+<p>
+Determine if a simple polygon is <strong>star‐shaped</strong>, i.e. there exists a point that can “see” the entire polygon (every point of polygon is visible).  
+Compute the intersection of all half‐planes defined by edges—using the same “ray” tests to build a convex region of valid “kernel” points—in O(n).
+</p>
+<pre><code>#include &lt;iostream&gt>
+#include &lt;vector&gt>
+#include &lt;cmath&gt>
+using namespace std;
+struct P{ double x,y; };
+
+// cross and line‐intersection helpers omitted for brevity…
+
+int main(){
+    int n; cin&gt;&gt;n;
+    vector&lt;P&gt; poly(n);
+    for(int i=0;i&lt;n;i++) cin&gt;&gt;poly[i].x&gt;&gt;poly[i].y;
+    // start with infinite kernel, then clip by each edge
+    vector&lt;P&gt; kernel = /* initial large square */;
+    for(int i=0;i&lt;n;i++){
+        int j=(i+1)%n;
+        // clip kernel against edge (poly[i],poly[j])
+        kernel = clipHalfplane(kernel, poly[i], poly[j]);
+        if(kernel.empty()) break;
+    }
+    cout&lt;&lt;(kernel.empty()?\"NO\":\"YES\")&lt;&lt;\"\\n\";
+    return 0;
+}
+</code></pre>
+
+<pre>
+<b>Example:</b>
+Input:
+5
+0 0
+5 0
+5 5
+3 3
+0 5
+
+Output:
+YES
+</pre>
+
+<hr>
+
+<h2>6. Hard Problem</h2>
+
+<h3>6.1 – Codeforces “Dynamic Point‐in‐Polygon Queries”</h3>
+<p>
+Maintain a dynamic polygon under vertex insertions/deletions and answer inside/outside for each query online.  
+One can use a balanced BST (e.g. treap) storing edges sorted by angle from the query point, updating in O(log n) per operation and querying in O(log n).  
+</p>
+<pre><code>#include &lt;iiostream&gt;
+#include &lt;set&gt>
+#include &lt;cmath&gt>
+using namespace std;
+struct P{ double x,y; };
+
+// compare edges by their intersection with a rotating ray
+struct EdgeComp {
+    P origin;
+    bool operator()(const pair&lt;P,P&gt;&amp; A,
+                    const pair&lt;P,P&gt;&amp; B) const {
+        // compare angle of A and B around origin
+        return cross(origin,A.first,A.second)
+               &lt; cross(origin,B.first,B.second);
+    }
+};
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    set&lt;pair&lt;P,P&gt;, EdgeComp&gt; S;
+    // operations: “ADD x1 y1 x2 y2”, “REMOVE …”, “QUERY px py”
+    string op;
+    while(cin&gt;&gt;op){
+        if(op==\"ADD\"){
+            P a,b; cin&gt;&gt;a.x&gt;&gt;a.y&gt;&gt;b.x&gt;&gt;b.y;
+            S.insert({a,b});
+        } else if(op==\"REMOVE\"){
+            P a,b; cin&gt;&gt;a.x&gt;&gt;a.y&gt;&gt;b.x&gt;&gt;b.y;
+            S.erase({a,b});
+        } else if(op==\"QUERY\"){
+            P p; cin&gt;&gt;p.x&gt;&gt;p.y;
+            // count crossings by walking S in O(log n)
+            int cnt = countCrossings(S,p);
+            cout&lt;&lt;((cnt&1)?\"INSIDE\":\"OUTSIDE\")&lt;&lt;\"\\n\";
+        }
+    }
+    return 0;
+}
+</code></pre>
+
+</div>

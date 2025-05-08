@@ -1,0 +1,326 @@
+<div>
+    <h1>Sweep Line: Algorithm, Mathematics, Complexity, and Applications</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+The <strong>sweep line</strong> (or line-sweep) technique “sweeps” a line (usually vertical) across the plane, processing events in sorted order and maintaining an active set of objects (intervals, segments, points) in a data structure (balanced BST, multiset, segment tree…).  
+</p>
+<p>Typical steps:</p>
+<ol>
+  <li><strong>Generate events</strong> for each object (e.g. for an interval [l,r]: “enter” at x=l, “exit” at x=r).</li>
+  <li><strong>Sort</strong> all events by x-coordinate (breaking ties: “enter” before “exit”).</li>
+  <li><strong>Maintain</strong> an <em>active set</em> of objects—insert on “enter”, remove on “exit”.</li>
+  <li>At each event you can <strong>query</strong> the active set to compute answers (e.g. maximum overlap, nearest neighbor, area contribution, etc.).</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li>Sorting E events: <code>O(E log E)</code>.</li>
+  <li>Each insertion/removal/query in active structure: typically <code>O(log E)</code>.</li>
+</ul>
+<p><strong>Total:</strong> <code>O(E log E)</code>.</p>
+
+<h3>Memory Complexity</h3>
+<p>
+Storing events and active structure of size ≤ E: <strong>O(E)</strong>.
+</p>
+
+<hr>
+
+<h2>2. Mathematics of Sweep Line</h2>
+<ul>
+  <li><strong>Event ordering:</strong> ensure correctness by sorting events by x, tie-breaking enters before exits so intervals of zero length are handled.</li>
+  <li><strong>Active set invariants:</strong> at sweep-line position x, the active set contains exactly those objects intersecting the vertical line x=const.</li>
+  <li><strong>Area by integration:</strong> when computing union of rectangles, track the total covered length L(x) at each x, then area = ∫ L(x) dx ≈ Σ L(x_i)·(x_{i+1}−x_i).</li>
+</ul>
+
+<hr>
+
+<h2>3. Easy Problems</h2>
+
+<h3>3.1 – Codeforces 610D “Points on a Line”</h3>
+<p>
+Given N vertical intervals [l_i, r_i] on the x-axis, find the maximum number of intervals that overlap at any point.  
+</p>
+<pre><b>Input:</b>
+5
+1 4
+2 5
+3 6
+5 7
+6 8
+
+<b>Output:</b>
+3
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int N; cin &gt;&gt; N;
+    vector&lt;pair&lt;int,int&gt;&gt; events;
+    for(int i=0;i&lt;N;i++){
+        int l,r; cin&gt;&gt;l&gt;&gt;r;
+        events.emplace_back(l, +1);   // enter
+        events.emplace_back(r, -1);   // exit
+    }
+    sort(events.begin(), events.end(),
+        [](auto &a, auto &b){
+            if(a.first!=b.first) return a.first&lt;b.first;
+            return a.second&gt;b.second; // enter before exit
+        });
+    int cur=0, best=0;
+    for(auto &e: events){
+        cur += e.second;
+        best = max(best, cur);
+    }
+    cout &lt;&lt; best &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces 1117C “Union of Segments Length”</h3>
+<p>
+Given N intervals [l_i,r_i], compute the total length covered by their union.  
+Use sweep-line + maintain current coverage count and last x.  
+</p>
+<pre><b>Input:</b>
+3
+1 3
+2 5
+6 8
+
+<b>Output:</b>
+5
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int N; cin&gt;&gt;N;
+    vector&lt;pair&lt;int,int&gt;&gt; ev;
+    for(int i=0;i&lt;N;i++){
+        int l,r; cin&gt;&gt;l&gt;&gt;r;
+        ev.emplace_back(l, +1);
+        ev.emplace_back(r, -1);
+    }
+    sort(ev.begin(), ev.end());
+    int count=0;
+    int lastX = ev[0].first;
+    long long total=0;
+    for(auto &e: ev){
+        int x=e.first, delta=e.second;
+        if(count&gt;0) total += x - lastX;
+        count += delta;
+        lastX = x;
+    }
+    cout &lt;&lt; total &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Intermediate Problems</h2>
+
+<h3>4.1 – Codeforces 1462F “The Treasure of The Segments”</h3>
+<p>
+Given N segments [l_i,r_i] and an integer K, find the maximum possible sum of lengths of K non-overlapping segments chosen from the set.  
+Approach: sweep-line + a multiset of lengths of “active” segments, always keep only top K.  
+</p>
+<pre><b>Input:</b>
+5 2
+1 5
+2 6
+4 7
+8 10
+9 11
+
+<b>Output:</b>
+8
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;set&gt;
+using namespace std;
+using ll = long long;
+
+int main(){
+    int N,K; cin&gt;&gt;N&gt;&gt;K;
+    vector&lt;pair&lt;int,pair&lt;int,int&gt;&gt;&gt; ev;
+    for(int i=0;i&lt;N;i++){
+        int l,r; cin&gt;&gt;l&gt;&gt;r;
+        ev.push_back({l, {+1, r-l}});
+        ev.push_back({r, {-1, r-l}});
+    }
+    sort(ev.begin(), ev.end());
+    multiset&lt;int&gt; active;
+    ll sum = 0, best = 0;
+    for(auto &e: ev){
+        int type = e.second.first, len = e.second.second;
+        if(type == +1){
+            active.insert(len);
+            sum += len;
+            if(active.size() &gt; K){
+                auto it = prev(active.end());
+                sum -= *it;
+                active.erase(it);
+            }
+        } else {
+            // removal: erase one instance if present
+            auto it = active.find(len);
+            if(it != active.end()){
+                sum -= len;
+                active.erase(it);
+            }
+        }
+        best = max(best, sum);
+    }
+    cout &lt;&lt; best &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>4.2 – Codeforces 920E “Connected Components in a Dynamic Graph”</h3>
+<p>
+We have N nodes on a line, and M operations adding/removing an edge between consecutive nodes. After each operation, report number of connected components.  
+Sweep over operations in time, maintain a BIT counting active edges; components = N − active_edges.  
+</p>
+<pre><b>Input:</b>
+5 4
++ 2
++ 4
+- 2
++ 3
+
+<b>Output:</b>
+4
+3
+4
+3
+</pre>
+<pre><code>#include &lt;iiostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main(){
+    int N, M; cin &gt;&gt; N &gt;&gt; M;
+    vector&lt;bool&gt; active(N,false);
+    int activeEdges = 0;
+    while(M--){
+        char op; int x;
+        cin &gt;&gt; op &gt;&gt; x;  // edge between x and x+1
+        if(op == '+'){
+            if(!active[x]){
+                active[x]=true;
+                activeEdges++;
+            }
+        } else {
+            if(active[x]){
+                active[x]=false;
+                activeEdges--;
+            }
+        }
+        cout &lt;&lt; (N - activeEdges) &lt;&lt; "\n";
+    }
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>5. Hard Problem</h2>
+
+<h3>5.1 – Codeforces 1199F “Rectangle Area Union”</h3>
+<p>
+Given N axis-aligned rectangles, compute the total area of their union.  
+Classic sweep-line:  
+<ul>
+  <li>Events at x = left (add [y1,y2]), x = right (remove [y1,y2]).</li>
+  <li>Maintain a segment tree over y-coordinates storing covered length.</li>
+  <li>Sum area += covered_length * (x_{i+1}−x_i).</li>
+</ul>
+</p>
+<pre><b>Input:</b>
+3
+1 1 4 3
+2 2 5 5
+3 0 6 2
+
+<b>Output:</b>
+14
+</pre>
+<pre><code>#include &lt;iiostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+using ll = long long;
+
+struct Event {
+    int x, y1, y2, type;
+    bool operator&lt;(const Event&amp;o) const {
+        return x &lt; o.x;
+    }
+};
+
+struct SegTree {
+    int n;
+    vector&lt;int&gt; cnt;
+    vector&lt;ll&gt; len;
+    vector&lt;int&gt; ys;
+    SegTree(const vector&lt;int&gt;&amp; ys_): ys(ys_) {
+        n = ys.size()-1;
+        cnt.assign(4*n, 0);
+        len.assign(4*n, 0);
+    }
+    void update(int idx,int l,int r,int ql,int qr,int v){
+        if(ql&gt;r || qr&lt;l) return;
+        if(ql&lt;=l &amp;&amp; r&lt;=qr){
+            cnt[idx]+=v;
+        } else {
+            int m=(l+r)/2;
+            update(idx*2,l,m,ql,qr,v);
+            update(idx*2+1,m+1,r,ql,qr,v);
+        }
+        if(cnt[idx]>0) len[idx]=ys[r+1]-ys[l];
+        else if(l==r) len[idx]=0;
+        else len[idx]=len[idx*2]+len[idx*2+1];
+    }
+};
+
+int main(){
+    int N; cin&gt;&gt;N;
+    vector&lt;Event&gt; ev;
+    vector&lt;int&gt; Y;
+    for(int i=0;i&lt;N;i++){
+        int x1,y1,x2,y2;
+        cin&gt;&gt;x1&gt;&gt;y1&gt;&gt;x2&gt;&gt;y2;
+        ev.push_back({x1,y1,y2, +1});
+        ev.push_back({x2,y1,y2, -1});
+        Y.push_back(y1);
+        Y.push_back(y2);
+    }
+    sort(Y.begin(),Y.end());
+    Y.erase(unique(Y.begin(),Y.end()),Y.end());
+    sort(ev.begin(),ev.end());
+    SegTree st(Y);
+    ll area=0;
+    for(int i=0;i+1&lt;ev.size();i++){
+        int y1 = lower_bound(Y.begin(),Y.end(), ev[i].y1) - Y.begin();
+        int y2 = lower_bound(Y.begin(),Y.end(), ev[i].y2) - Y.begin() - 1;
+        st.update(1,0,st.n-1,y1,y2, ev[i].type);
+        ll width = ev[i+1].x - ev[i].x;
+        area += st.len[1] * width;
+    }
+    cout&lt;&lt;area&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+
+</div>

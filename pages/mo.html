@@ -1,0 +1,481 @@
+<div>
+    <h1>Mo’s Algorithm: Theory, Complexity, and Applications</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+Mo’s Algorithm answers <em>offline</em> range queries on an array in O((N+Q)&nbsp;√N) time by reordering queries and maintaining a sliding window.  
+Key steps:
+</p>
+<ol>
+  <li>Choose a block size B ≈ ⌊√N⌋.</li>
+  <li>Sort the Q queries by:
+    <ol type="a">
+      <li>⌊L/B⌋ ascending,</li>
+      <li>then R ascending if ⌊L/B⌋ is even, or descending if odd (optional “Hilbert” or “odd–even” trick).</li>
+    </ol>
+  </li>
+  <li>Maintain current window [curL,curR] and a frequency/data structure.  
+    For each query [L,R] in this order:
+    <ul>
+      <li>While curL > L: add(--curL)</li>
+      <li>While curR < R: add(++curR)</li>
+      <li>While curL < L: remove(curL++)</li>
+      <li>While curR > R: remove(curR--)</li>
+    </ul>
+    Then answer the query from your data structure.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+Each pointer (L or R) moves O(√N) per block of queries, for O(Q·√N + N·√N) ≈ O((N+Q)√N).
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+<ul>
+  <li>O(N) to store the array and frequency counters.</li>
+  <li>O(Q) to store queries and answers.</li>
+</ul>
+Total: <strong>O(N + Q)</strong>.
+</p>
+
+<hr>
+
+<h2>2. Mathematics of Mo’s Algorithm</h2>
+<ul>
+  <li><strong>Block decomposition:</strong> Divide indices 0…N–1 into blocks of size B ≈ √N.  
+    Then L moves block‐wise (N/B blocks), and R moves at most N per block ⇒ total pointer moves O(N·√N+Q·√N).</li>
+  <li><strong>Add/Remove operations:</strong> Each takes O(1) if you maintain a frequency array or simple counters.</li>
+  <li><strong>Optimal B:</strong> Minimizes O((N+Q)·B + Q·N/B).  
+    Setting B = √N yields balance: O((N+Q)√N).</li>
+</ul>
+
+<hr>
+
+<h2>3. Easy Problems</h2>
+
+<h3>3.1 – Codeforces 86D “Powerful Array”</h3>
+<p>
+Given an array a[ ] and queries [L,R], compute  
+<code>ans = ∑ (cnt[x]² · x)</code> over all values x in the subarray, where cnt[x] is the frequency of x.  
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+using ll = long long;
+
+struct Query { int l, r, idx; };
+int B;
+bool cmp(const Query &a, const Query &b) {
+    int ablock = a.l / B, bblock = b.l / B;
+    if (ablock != bblock) return ablock &lt; bblock;
+    return (ablock &amp; 1) ? (a.r &gt; b.r) : (a.r &lt; b.r);
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, Q;
+    cin &gt;&gt; N &gt;&gt; Q;
+    vector&lt;int&gt; a(N);
+    for(int i=0;i&lt;N;i++) cin &gt;&gt; a[i];
+    vector&lt;Query&gt; qs(Q);
+    for(int i=0;i&lt;Q;i++){
+        cin &gt;&gt; qs[i].l &gt;&gt; qs[i].r;
+        --qs[i].l; --qs[i].r;
+        qs[i].idx = i;
+    }
+
+    B = max(1, (int)(sqrt(N)));
+    sort(qs.begin(), qs.end(), cmp);
+
+    vector&lt;ll&gt; ans(Q);
+    vector&lt;ll&gt; freq(1000001);
+    ll cur = 0;
+    int curL = 0, curR = -1;
+
+    auto add = [&](int x){
+        ll &f = freq[x];
+        cur -= f*f * x;
+        ++f;
+        cur += f*f * x;
+    };
+    auto remove = [&](int x){
+        ll &f = freq[x];
+        cur -= f*f * x;
+        --f;
+        cur += f*f * x;
+    };
+
+    for(auto &q : qs){
+        while(curL &gt; q.l) add(a[--curL]);
+        while(curR &lt; q.r) add(a[++curR]);
+        while(curL &lt; q.l) remove(a[curL++]);
+        while(curR &gt; q.r) remove(a[curR--]);
+        ans[q.idx] = cur;
+    }
+
+    for(ll v : ans) cout &lt;&lt; v &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+5 3
+1 2 1 3 2
+1 3
+2 5
+1 5
+
+<b>Output:</b>
+6
+12
+19
+</pre>
+
+<h3>3.2 – Codeforces 1514D “Cut”</h3>
+<p>
+Given array a[ ] of length N and Q queries [L,R], find the number of distinct elements in [L,R].  
+(Answer by maintaining freq[x] and a distinct‐count counter.)
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+struct Query { int l, r, idx; };
+int B;
+bool cmp(const Query &a, const Query &b){
+    int ab = a.l / B, bb = b.l / B;
+    if (ab != bb) return ab &lt; bb;
+    return ((ab &amp; 1) ? (a.r &gt; b.r) : (a.r &lt; b.r));
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, Q; 
+    cin &gt;&gt; N &gt;&gt; Q;
+    vector&lt;int&gt; a(N);
+    for(int i=0;i&lt;N;i++) cin &gt;&gt; a[i];
+    vector&lt;Query&gt; qs(Q);
+    for(int i=0;i&lt;Q;i++){
+        cin &gt;&gt; qs[i].l &gt;&gt; qs[i].r;
+        --qs[i].l; --qs[i].r;
+        qs[i].idx = i;
+    }
+
+    B = max(1, (int)sqrt(N));
+    sort(qs.begin(), qs.end(), cmp);
+
+    vector&lt;int&gt; freq(1000001);
+    vector&lt;int&gt; ans(Q);
+    int curL = 0, curR = -1, distinct = 0;
+    auto add = [&](int x){
+        if (freq[x]++ == 0) ++distinct;
+    };
+    auto remove = [&](int x){
+        if (--freq[x] == 0) --distinct;
+    };
+
+    for(auto &q : qs){
+        while(curL &gt; q.l) add(a[--curL]);
+        while(curR &lt; q.r) add(a[++curR]);
+        while(curL &lt; q.l) remove(a[curL++]);
+        while(curR &gt; q.r) remove(a[curR--]);
+        ans[q.idx] = distinct;
+    }
+
+    for(int x : ans) cout &lt;&lt; x &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+7 3
+1 2 1 3 2 2 4
+2 4
+1 7
+3 5
+
+<b>Output:</b>
+2
+4
+2
+</pre>
+
+<hr>
+
+<h2>4. Intermediate Problems</h2>
+
+<h3>4.1 – Codeforces 375D “Tree and Queries”</h3>
+<p>
+Given a tree with colored nodes and queries (v, k), count how many colors appear at least k times in the subtree of v.  
+Use Mo’s on tree (Euler tour to flatten subtree, then array intervals + Mo’s).
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt>
+using namespace std;
+using ll = long long;
+
+const int MAXN = 200005;
+vector&lt;int&gt; g[MAXN];
+int in[MAXN], out[MAXN], euler[2*MAXN], timer=0;
+int color[MAXN];
+
+void dfs(int u, int p){
+    in[u] = timer; euler[timer++] = u;
+    for(int v : g[u]) if(v!=p) dfs(v,u);
+    out[u] = timer-1;
+}
+
+struct Query { int l, r, k, idx; };
+int B;
+bool cmp(const Query &a, const Query &b){
+    int ab = a.l / B, bb = b.l / B;
+    if(ab!=bb) return ab&lt;bb;
+    return ((ab&amp;1)?(a.r&gt;b.r):(a.r&lt;b.r));
+}
+
+int cntColor[MAXN], cntFreq[MAXN];
+int answer = 0;
+
+void addNode(int u, int k){
+    int c = color[u];
+    cntFreq[cntColor[c]]--;
+    if(++cntColor[c] == k) answer++;
+    cntFreq[cntColor[c]]++;
+}
+void removeNode(int u, int k){
+    int c = color[u];
+    cntFreq[cntColor[c]]--;
+    if(cntColor[c]-- == k) answer--;
+    cntFreq[cntColor[c]]++;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, Q;
+    cin &gt;&gt; N &gt;&gt; Q;
+    for(int i=1;i&lt;=N;i++) cin &gt;&gt; color[i];
+    for(int i=0,u,v;i&lt;N-1;i++){
+        cin &gt;&gt; u &gt;&gt; v;
+        g[u].push_back(v);
+        g[v].push_back(u);
+    }
+    dfs(1,0);
+    vector&lt;Query&gt; qs(Q);
+    for(int i=0;i&lt;Q;i++){
+        int v,k; cin &gt;&gt; v &gt;&gt; k;
+        qs[i] = { in[v], out[v], k, i };
+    }
+    B = max(1,(int)sqrt(N));
+    sort(qs.begin(), qs.end(), cmp);
+
+    vector&lt;int&gt; res(Q);
+    int curL = 0, curR = -1;
+    for(auto &q : qs){
+        while(curL &gt; q.l) addNode(euler[--curL], q.k);
+        while(curR &lt; q.r) addNode(euler[++curR], q.k);
+        while(curL &lt; q.l) removeNode(euler[curL++], q.k);
+        while(curR &gt; q.r) removeNode(euler[curR--], q.k);
+        res[q.idx] = answer;
+    }
+
+    for(int x : res) cout &lt;&lt; x &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+5 3
+1 2 1 3 2
+1 2
+1 3
+3 4
+3 5
+3 1
+3 2
+1 1
+
+<b>Output:</b>
+2
+1
+1
+</pre>
+
+<h3>4.2 – Codeforces 208E “Blood Cousins”</h3>
+<p>
+Given a rooted tree with colored nodes, queries (v, k): how many nodes in v’s subtree have depth exactly depth[v]+k?  
+Flatten subtree by depth‐indexed lists and answer each with binary search or Mo’s on list of depths.
+</p>
+<pre><code>#include &lt;iostream&gt>
+#include &lt;vector&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+
+const int MAXN = 200005;
+vector&lt;int&gt; g[MAXN], byDepth[MAXN];
+int in[MAXN], out[MAXN], depth[MAXN], timer=0;
+
+void dfs(int u, int p){
+    in[u] = timer++;
+    byDepth[depth[u]].push_back(in[u]);
+    for(int v : g[u]) if(v!=p){
+        depth[v] = depth[u]+1;
+        dfs(v,u);
+    }
+    out[u] = timer-1;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N, Q;
+    cin &gt;&gt; N &gt;&gt; Q;
+    for(int i=2,p;i&lt;=N;i++){
+        cin &gt;&gt; p;
+        g[p].push_back(i);
+    }
+    dfs(1,0);
+    while(Q--){
+        int v,k; cin &gt;&gt; v &gt;&gt; k;
+        int d = depth[v] + k;
+        auto &vec = byDepth[d];
+        int l = lower_bound(vec.begin(),vec.end(), in[v]) - vec.begin();
+        int r = upper_bound(vec.begin(),vec.end(), out[v]) - vec.begin();
+        cout &lt;&lt; (r - l) &lt;&lt; "\n";
+    }
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+5 3
+1
+1
+3
+3
+1 1
+3 1
+3 2
+
+<b>Output:</b>
+2
+2
+0
+</pre>
+
+<hr>
+
+<h2>5. Hard Problem</h2>
+
+<h3>5.1 – Codeforces 940F “Machine Learning”</h3>
+<p>
+Maintain an array a[ ] under updates and range queries asking for the number of distinct elements in [L,R].  
+Use Mo’s Algorithm with modifications (“Mo’s with updates”): sort by (L/B, R/B, time/B).
+</p>
+<pre><code>#include &lt;iostream&gt>
+#include &lt;vector&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+
+struct Query{ int l,r,t,idx; };
+struct Update{ int pos, prev, now; };
+
+int B;
+bool cmpQ(const Query &a, const Query &b){
+    int ab = a.l/B, bb = b.l/B;
+    if(ab!=bb) return ab&lt;bb;
+    int ar = a.r/B, br = b.r/B;
+    if(ar!=br) return ar&lt;br;
+    return a.t &lt; b.t;
+}
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int N,Q; cin &gt;&gt; N &gt;&gt; Q;
+    vector&lt;int&gt; a(N);
+    for(int i=0;i&lt;N;i++) cin &gt;&gt; a[i];
+
+    vector&lt;Query&gt; qs;
+    vector&lt;Update&gt; us;
+    int curTime=0;
+    for(int i=0;i&lt;Q;i++){
+        int type; cin &gt;&gt; type;
+        if(type==1){
+            int p,x; cin &gt;&gt; p &gt;&gt; x; --p;
+            us.push_back({p, a[p], x});
+            a[p] = x;
+        } else {
+            int l,r; cin &gt;&gt; l &gt;&gt; r; --l; --r;
+            qs.push_back({l,r,(int)us.size(), (int)qs.size()});
+        }
+    }
+
+    B = max(1, (int)pow(N,2.0/3.0));
+    sort(qs.begin(), qs.end(), cmpQ);
+
+    vector&lt;int&gt; freq(1000001);
+    vector&lt;int&gt; ans(qs.size());
+    int curL=0, curR=-1, curT=0, distinct=0;
+
+    auto add = [&](int x){ if(freq[x]++ == 0) ++distinct; };
+    auto remove = [&](int x){ if(--freq[x] == 0) --distinct; };
+    auto apply = [&](int t){
+        int pos = us[t].pos, val = us[t].now;
+        if(curL &lt;= pos &amp;&amp; pos &lt;= curR){
+            remove(us[t].prev);
+            add(val);
+        }
+        a[pos] = val;
+    };
+    auto undo = [&](int t){
+        int pos = us[t].pos, val = us[t].prev;
+        if(curL &lt;= pos &amp;&amp; pos &lt;= curR){
+            remove(us[t].now);
+            add(val);
+        }
+        a[pos] = val;
+    };
+
+    for(auto &q : qs){
+        while(curT &lt; q.t) apply(curT++);
+        while(curT &gt; q.t) undo(--curT);
+        while(curL &gt; q.l) add(a[--curL]);
+        while(curR &lt; q.r) add(a[++curR]);
+        while(curL &lt; q.l) remove(a[curL++]);
+        while(curR &gt; q.r) remove(a[curR--]);
+        ans[q.idx] = distinct;
+    }
+
+    for(int x : ans) cout &lt;&lt; x &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+5 5
+1 2 1 3 2
+2 1 5
+1 3 4
+2 1 5
+1 5 1
+2 2 5
+
+<b>Output:</b>
+3
+4
+3
+</pre>
+
+</div>

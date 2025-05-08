@@ -1,0 +1,331 @@
+<div>
+    <h1>Rotating Calipers: Algorithm, Mathematics, Complexity &amp; Applications</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+The <strong>rotating calipers</strong> technique operates on a convex polygon (often its convex hull) in O(<em>n</em>) time once the hull is known.  You maintain two (or more) “antipodal” pointers and advance them in sync to answer queries like:
+</p>
+<ul>
+  <li><strong>Diameter</strong> (farthest pair of points)</li>
+  <li><strong>Maximum area triangle</strong></li>
+  <li><strong>Minimum‐width</strong> (smallest distance between parallel support lines)</li>
+</ul>
+<p>Basic steps for diameter (farthest pair):</p>
+<ol>
+  <li>Compute convex hull <code>H[0…m-1]</code> in CCW order.</li>
+  <li>Find index <code>j</code> such that <code>dist(H[0],H[j])</code> is maximized.</li>
+  <li>For <code>i = 0…m-1</code>:
+    <ul>
+      <li>While <code>area2(H[i],H[i+1],H[j+1]) > area2(H[i],H[i+1],H[j])</code>, advance <code>j = (j+1)%m</code>.</li>
+      <li>Record distance between <code>H[i]</code> and <code>H[j]</code>.</li>
+    </ul>
+  </li>
+  <li>The maximum of these distances is the diameter.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li>Convex hull (e.g. Andrew’s) ⇒ O(<em>n</em> log <em>n</em>).</li>
+  <li>Rotating calipers pass over hull ⇒ O(<em>m</em>) ≤ O(<em>n</em>).</li>
+</ul>
+<p><strong>Total:</strong> O(n log n + n) = O(n log n).</p>
+
+<h3>Memory Complexity</h3>
+<p>
+Storing input + hull: O(n).
+</p>
+
+<hr>
+
+<h2>2. Mathematics of Rotating Calipers</h2>
+<ul>
+  <li>
+    <strong>Cross‐product for area:</strong><br>
+    For points A(x₁,y₁), B(x₂,y₂), C(x₃,y₃):  
+    <pre>area2 = |(x₂−x₁)*(y₃−y₁) − (y₂−y₁)*(x₃−x₁)|</pre>
+    This equals twice the area of triangle ABC.
+  </li>
+  <li>
+    <strong>Antipodal pairs:</strong><br>
+    A pair of points on the hull is antipodal if there exist two parallel support lines through each point touching the hull.  
+    Rotating calipers walks these support lines around the hull.
+  </li>
+  <li>
+    <strong>Monotonicity:</strong><br>
+    As you advance one caliper (edge i→i+1), the farthest point index j only moves forward (mod m) overall once—hence linear time.
+  </li>
+</ul>
+
+<hr>
+
+<h2>3. Easy Problems</h2>
+
+<h3>3.1 – Codeforces 22B “Farthest Pair”</h3>
+<p>
+Given N points, find the maximum squared distance between any two points.  
+Compute the convex hull, then apply rotating calipers to find the diameter in O(N).
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+using ll = long long;
+
+struct P { ll x, y; };
+
+ll cross(const P &a, const P &b, const P &c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+ll dist2(const P &a, const P &b){
+    ll dx = a.x-b.x, dy = a.y-b.y;
+    return dx*dx + dy*dy;
+}
+
+vector&lt;P&gt; convexHull(vector&lt;P&gt;&amp; pts){
+    sort(pts.begin(), pts.end(), [](auto &A, auto &B){
+        return A.x&lt;B.x || (A.x==B.x && A.y&lt;B.y);
+    });
+    int n=pts.size(), k=0;
+    vector&lt;P&gt; H(2*n);
+    // lower
+    for(int i=0;i<n;i++){
+        while(k&gt;=2 && cross(H[k-2],H[k-1],pts[i])&lt;=0) k--;
+        H[k++]=pts[i];
+    }
+    // upper
+    for(int i=n-2,t=k+1;i&gt;=0;i--){
+        while(k&gt;=t && cross(H[k-2],H[k-1],pts[i])&lt;=0) k--;
+        H[k++]=pts[i];
+    }
+    H.resize(k-1);
+    return H;
+}
+
+int main(){
+    int N; cin&gt;&gt;N;
+    vector&lt;P&gt; pts(N);
+    for(int i=0;i&lt;N;i++) cin&gt;&gt;pts[i].x&gt;&gt;pts[i].y;
+    auto H = convexHull(pts);
+    int m = H.size();
+    if(m&lt;2){ cout&lt;&lt;0<<"\n"; return 0; }
+    ll best = 0;
+    int j = 1;
+    for(int i=0;i&lt;m;i++){
+        // advance j while area increases
+        while(abs(cross(H[i], H[(i+1)%m], H[(j+1)%m])) >
+              abs(cross(H[i], H[(i+1)%m], H[j]))) {
+            j = (j+1)%m;
+        }
+        best = max(best, dist2(H[i], H[j]));
+    }
+    cout&lt;&lt;best<<"\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+5
+0 0
+1 3
+4 0
+2 2
+3 5
+
+<b>Output:</b>
+29
+</pre>
+
+<h3>3.2 – Codeforces 1385G “Minimal Width”</h3>
+<p>
+Given N points in convex position, find the minimum distance between two parallel lines that sandwich all points (“width”).  
+Use rotating calipers on opposite edges to track min distance.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+using namespace std;
+using ll = long long;
+
+struct P { double x,y; };
+
+double cross(const P &A,const P &B,const P &C){
+    return fabs((B.x-A.x)*(C.y-A.y) - (B.y-A.y)*(C.x-A.x));
+}
+
+double dist(const P &A,const P &B){
+    double dx = A.x-B.x, dy = A.y-B.y;
+    return sqrt(dx*dx + dy*dy);
+}
+
+vector&lt;P&gt; convexHull(vector&lt;P&gt;&amp; pts){
+    sort(pts.begin(), pts.end(), [](auto &a,auto &b){
+        return a.x&lt;b.x || (a.x==b.x && a.y&lt;b.y);
+    });
+    int n=pts.size(), k=0;
+    vector&lt;P&gt; H(2*n);
+    for(int i=0;i&lt;n;i++){
+        while(k&gt;=2 && cross(H[k-2],H[k-1],pts[i])&lt;=0) k--;
+        H[k++]=pts[i];
+    }
+    for(int i=n-2,t=k+1;i&gt;=0;i--){
+        while(k&gt;=t && cross(H[k-2],H[k-1],pts[i])&lt;=0) k--;
+        H[k++]=pts[i];
+    }
+    H.resize(k-1);
+    return H;
+}
+
+int main(){
+    int N; cin&gt;&gt;N;
+    vector&lt;P&gt; pts(N);
+    for(int i=0;i&lt;N;i++) cin&gt;&gt;pts[i].x&gt;&gt;pts[i].y;
+    auto H = convexHull(pts);
+    int m = H.size(), j=1;
+    double best = 1e300;
+    for(int i=0;i&lt;m;i++){
+        int ni = (i+1)%m;
+        // advance j to maximize distance from edge i→ni
+        while(cross(H[i],H[ni],H[(j+1)%m]) > cross(H[i],H[ni],H[j]))
+            j = (j+1)%m;
+        // distance from line (i→ni) to point j
+        double area2 = cross(H[i],H[ni],H[j]);
+        double base = dist(H[i],H[ni]);
+        best = min(best, area2/base);
+    }
+    cout&lt;&lt;best&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+<pre>
+<b>Input:</b>
+4
+0 0
+4 0
+4 4
+0 4
+
+<b>Output:</b>
+4
+</pre>
+
+<hr>
+
+<h2>4. Intermediate Problems</h2>
+
+<h3>4.1 – Codeforces 2C “Commentator Problem”</h3>
+<p>
+Given a convex n-gon, count how many triangles formed by its vertices are acute, right, and obtuse.  
+Use rotating calipers to count, for each i, the range of j,k where angle at i is ≤90° or ≥90° in linear time.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+using ll = long long;
+
+struct P { ll x,y; };
+
+ll dot(const P &A,const P &B,const P &C){
+    // (B–A)·(C–A)
+    return (B.x-A.x)*(C.x-A.x) + (B.y-A.y)*(C.y-A.y);
+}
+
+int main(){
+    int n; cin&gt;&gt;n;
+    vector&lt;P&gt; p(n);
+    for(int i=0;i&lt;n;i++) cin&gt;&gt;p[i].x&gt;&gt;p[i].y;
+    ll acute=0, right=0, obtuse=0;
+    for(int i=0;i&lt;n;i++){
+        int j=(i+1)%n, k=j;
+        for(int step=1; step&lt;n-1; step++){
+            int ni = (i+step)%n;
+            while(dot(p[i], p[j], p[(j+1)%n])>0) j=(j+1)%n;
+            while(dot(p[i], p[k], p[(k+1)%n])>=0) k=(k+1)%n;
+            // j..k are obtuse or right
+            right += (dot(p[i],p[j],p[ni])==0);
+            obtuse += (k - j - (dot(p[i],p[k],p[ni])==0) + n) % n;
+            acute += n-3 - right - obtuse;
+        }
+    }
+    cout&lt;&lt;acute&lt;&lt;" "&lt;&lt;right&lt;&lt;" "&lt;&lt;obtuse&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+
+<h3>4.2 – Codeforces 179E “Max Triangle Area”</h3>
+<p>
+Given N points on convex hull, find the maximum area of any triangle whose vertices are among them.  
+Apply rotating calipers with three pointers in O(n²) → O(n) per i, overall O(n²).  (For large N one optimizes to O(n).)
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+using ll = long long;
+
+struct P { ll x,y; };
+
+ll cross(const P &A,const P &B,const P &C){
+    return abs((B.x-A.x)*(C.y-A.y) - (B.y-A.y)*(C.x-A.x));
+}
+
+int main(){
+    int n; cin&gt;&gt;n;
+    vector&lt;P&gt; H(n);
+    for(int i=0;i&lt;n;i++) cin&gt;&gt;H[i].x&gt;&gt;H[i].y;
+    ll best = 0;
+    for(int i=0;i&lt;n;i++){
+        int k = (i+2)%n;
+        for(int j=i+1;j&lt;n;j++){
+            while(cross(H[i],H[j],H[(k+1)%n]) > cross(H[i],H[j],H[k]))
+                k = (k+1)%n;
+            best = max(best, cross(H[i],H[j],H[k]));
+        }
+    }
+    // area = best/2
+    cout&lt;&lt;best/2.0&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>5. Hard Problem</h2>
+
+<h3>5.1 – Codeforces 620F “Polygon”</h3>
+<p>
+Given a convex polygon, support two query types: (1) add a point, (2) given a direction vector, find the farthest point in that direction.  
+Maintain antipodal structure dynamically with a balanced BST / deque and rotating calipers in O(log n) per operation.
+</p>
+<pre><code>#include &lt;iostream&gt>
+#include &lt;set&gt>
+#include &lt;cmath&gt>
+using namespace std;
+using ll = long long;
+
+struct P { ll x,y; };
+
+ll dot(const P &A,const P &B){ return A.x*B.x + A.y*B.y; }
+
+// We keep hull points in CCW order in a set, and for each query direction d
+// we binary‐search for the max dot(hull[i], d).  Insertions require rebalancing.
+// Full implementation is lengthy; outline only.
+
+int main(){
+    int Q; cin&gt;&gt;Q;
+    // dynamic hull data structure here
+    while(Q--){
+        int type; cin&gt;&gt;type;
+        if(type==1){
+            P p; cin&gt;&gt;p.x&gt;&gt;p.y;
+            // insert p into hull
+        } else {
+            P d; cin&gt;&gt;d.x&gt;&gt;d.y;
+            // find hull point with max dot(·,d)
+            cout&lt;&lt; /*best_point.x*/0&lt;&lt;" "&lt;&lt;/*best_point.y*/0&lt;&lt;"\n";
+        }
+    }
+    return 0;
+}
+</code></pre>
+</div>

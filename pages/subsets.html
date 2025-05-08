@@ -1,0 +1,291 @@
+<div>
+    <h1>Backtracking: Generating All Subsets & Permutations</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+Backtracking lets us <em>build up</em> a solution step by step and “undo” choices when they lead to dead ends.  
+We can use it both to generate <strong>all subsets</strong> (the power set) and <strong>all permutations</strong> of an array of size <code>n</code>.
+</p>
+<ul>
+  <li><strong>Subsets</strong> (power set): at each index <code>i</code>, decide to <em>include</em> or <em>exclude</em> element <code>a[i]</code>.</li>
+  <li><strong>Permutations</strong>: build a sequence by picking any unused element at each position.</li>
+</ul>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li><strong>Subsets</strong>: There are 2<sup>n</sup> subsets, and printing each takes up to <code>O(n)</code>, so <code>O(n·2<sup>n</sup>)</code>.</li>
+  <li><strong>Permutations</strong>: There are n! permutations, each printed in <code>O(n)</code>, so <code>O(n·n!)</code>.</li>
+</ul>
+
+<h3>Memory Complexity</h3>
+<p>
+We store one partial solution of size ≤<code>n</code> plus a recursion stack of depth ≤<code>n</code>.  
+Total extra memory: <strong>O(n)</strong>.
+</p>
+
+<hr>
+
+<h2>2. Two Easy Codeforces-Style Problems</h2>
+
+<h3>2.1 – Codeforces “Power Set” (n≤16)</h3>
+<p>
+<strong>Task:</strong> Given <code>n</code> (≤16) and an array of <code>n</code> distinct integers, print all its subsets.  
+</p>
+
+<pre>
+<b>Input:</b>
+3
+1 2 3
+
+<b>Output:</b>
+[]
+[1]
+[2]
+[3]
+[1,2]
+[1,3]
+[2,3]
+[1,2,3]
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; a, curr;
+
+void dfs(int idx) {
+    if (idx == n) {
+        cout &lt;&lt; "[";
+        for (int i = 0; i &lt; curr.size(); ++i) {
+            if (i) cout &lt;&lt; ",";
+            cout &lt;&lt; curr[i];
+        }
+        cout &lt;&lt; "]\n";
+        return;
+    }
+    // Exclude a[idx]
+    dfs(idx + 1);
+    // Include a[idx]
+    curr.push_back(a[idx]);
+    dfs(idx + 1);
+    curr.pop_back();
+}
+
+int main() {
+    cin &gt;&gt; n;
+    a.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    dfs(0);
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Codeforces “All Permutations” (n≤8)</h3>
+<p>
+<strong>Task:</strong> Given <code>n</code> (≤8), print all permutations of numbers <code>1…n</code>.  
+</p>
+
+<pre>
+<b>Input:</b>
+3
+
+<b>Output:</b>
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; perm;
+vector&lt;bool&gt; used;
+
+void dfs() {
+    if (perm.size() == n) {
+        for (int x : perm) cout &lt;&lt; x &lt;&lt; ' ';
+        cout &lt;&lt; '\n';
+        return;
+    }
+    for (int i = 1; i &lt;= n; ++i) {
+        if (used[i]) continue;
+        used[i] = true;
+        perm.push_back(i);
+        dfs();
+        perm.pop_back();
+        used[i] = false;
+    }
+}
+
+int main() {
+    cin &gt;&gt; n;
+    perm.reserve(n);
+    used.assign(n+1, false);
+    dfs();
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Two Intermediate Problems</h2>
+
+<h3>3.1 – Codeforces “Subset Sum Equals Target” (n≤20)</h3>
+<p>
+<strong>Task:</strong> Given <code>n</code> (≤20), array <code>a[i]</code> and target <code>S</code> (≤10<sup>9</sup>), count subsets whose sum = <code>S</code>.  
+</p>
+
+<pre>
+<b>Input:</b>
+5 5
+1 2 3 2 1
+
+<b>Output:</b>
+3
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+long long S, ans = 0;
+vector&lt;long long&gt; a;
+
+void dfs(int idx, long long sum) {
+    if (idx == n) {
+        if (sum == S) ans++;
+        return;
+    }
+    // exclude
+    dfs(idx + 1, sum);
+    // include
+    dfs(idx + 1, sum + a[idx]);
+}
+
+int main() {
+    cin &gt;&gt; n &gt;&gt; S;
+    a.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    dfs(0, 0);
+    cout &lt;&lt; ans &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces “Next Permutation Rank” (n≤10)</h3>
+<p>
+<strong>Task:</strong> Given a permutation of <code>1…n</code> (≤10), find its 1-based index in lexicographic order.  
+</p>
+
+<pre>
+<b>Input:</b>
+3
+2 3 1
+
+<b>Output:</b>
+4
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; p;
+long long fact[21];
+
+int main() {
+    cin &gt;&gt; n;
+    p.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; p[i];
+    fact[0] = 1;
+    for (int i = 1; i &lt;= n; ++i) fact[i] = fact[i-1] * i;
+    long long rank = 1;
+    vector&lt;bool&gt; used(n+1,false);
+    for (int i = 0; i &lt; n; ++i) {
+        int smaller = 0;
+        for (int x = 1; x &lt; p[i]; ++x)
+            if (!used[x]) smaller++;
+        rank += smaller * fact[n-1-i];
+        used[p[i]] = true;
+    }
+    cout &lt;&lt; rank &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. One Hard Problem</h2>
+
+<h3>4.1 – Codeforces “Hamiltonian Path Count” (n≤10)</h3>
+<p>
+<strong>Task:</strong> Given <code>n</code> (≤10) and an undirected graph via adjacency matrix, count all Hamiltonian paths visiting each vertex exactly once.  
+</p>
+
+<pre>
+<b>Input:</b>
+4
+0 1 1 0
+1 0 1 1
+1 1 0 1
+0 1 1 0
+
+<b>Output:</b>
+14
+</pre>
+
+<pre><code>#include &lt;iiostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n, ans = 0;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;bool&gt; used;
+
+void dfs(int u, int visited) {
+    if (visited == (1&lt;&lt;n) - 1) {
+        ans++;
+        return;
+    }
+    for (int v = 0; v &lt; n; ++v) {
+        if (!used[v] && adj[u][v]) {
+            used[v] = true;
+            dfs(v, visited | (1&lt;&lt;v));
+            used[v] = false;
+        }
+    }
+}
+
+int main() {
+    cin &gt;&gt; n;
+    adj.assign(n, vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i)
+        for (int j = 0; j &lt; n; ++j)
+            cin &gt;&gt; adj[i][j];
+    // start from each vertex
+    for (int i = 0; i &lt; n; ++i) {
+        used.assign(n,false);
+        used[i] = true;
+        dfs(i, 1&lt;&lt;i);
+    }
+    cout &lt;&lt; ans &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<p>
+All these problems share the same backtracking blueprint:  
+<ul>
+  <li>Choose &hellip; recurse &hellip; undo choice.</li>
+  <li>Keep a small “used” or “current” array to track state.</li>
+</ul>
+</div>

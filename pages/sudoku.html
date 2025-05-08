@@ -1,0 +1,350 @@
+<h1>Sudoku &amp; Backtracking</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+<strong>Sudoku</strong> is a 9×9 grid with some cells filled (digits 1–9).  
+The goal is to fill all empty cells so that each row, column, and each 3×3 block contains all digits 1–9 exactly once.
+</p>
+
+<h3>Backtracking Algorithm</h3>
+<ol>
+  <li>Parse the input into a 9×9 array <code>grid</code>.  Maintain three 2D boolean arrays:
+    <ul>
+      <li><code>rowUsed[r][d]</code> = is digit <code>d</code> used in row <code>r</code>?</li>
+      <li><code>colUsed[c][d]</code> = is digit <code>d</code> used in column <code>c</code>?</li>
+      <li><code>boxUsed[b][d]</code> = is digit <code>d</code> used in 3×3 box <code>b</code>?</li>
+    </ul>
+  </li>
+  <li>Scan once to initialize these arrays for the given digits.</li>
+  <li>Define <code>solve(r,c)</code>:
+    <ul>
+      <li>If <code>r==9</code>, all rows done → solution found.</li>
+      <li>If <code>grid[r][c]!=0</code>, advance to next cell:  
+        <code>solve(r + (c+1)/9, (c+1)%9)</code>.</li>
+      <li>Else (empty):
+        <ol>
+          <li>For each digit <code>d=1…9</code>:
+            <ul>
+              <li>If none of <code>rowUsed[r][d]</code>, <code>colUsed[c][d]</code>, <code>boxUsed[boxId(r,c)][d]</code> are true:</li>
+              <li>— place <code>d</code> in <code>grid[r][c]</code>, mark them true, recurse;</li>
+              <li>— if recursion returns true, terminate; otherwise undo and try next <code>d</code>.</li>
+            </ul>
+          </li>
+          <li>If no digit fits, return false → backtrack.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ol>
+<p>
+Here <code>boxId(r,c) = (r/3)*3 + (c/3)</code>.
+</p>
+
+<h3>Time Complexity</h3>
+<p>
+In the worst case (empty grid), we try up to 9 possibilities per empty cell.  
+There are 81 cells, so the worst-case search is O(9<sup>81</sup>)—astronomical.  
+<strong>In practice</strong>, constraint checks prune heavily, and typical puzzles solve instantly.
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+We store:
+<ul>
+  <li>the 9×9 <code>grid</code> → O(1)</li>
+  <li>the three marker arrays (<code>9×10</code> each) → O(1)</li>
+  <li>recursion stack up to depth ≤81 → O(1)</li>
+</ul>
+All are constant-sized, so <strong>O(1)</strong> extra memory.  
+</p>
+
+<hr>
+
+<h2>2. Easy Backtracking Examples</h2>
+
+<h3>2.1 – Codeforces 1462C: Generate All Subsets</h3>
+<p>
+Given <code>n</code> distinct integers, print all 2<sup>n</sup> subsets.
+</p>
+<pre>
+<b>Input:</b>
+3
+1 2 3
+
+<b>Output:</b>
+[]
+[1]
+[2]
+[3]
+[1,2]
+[1,3]
+[2,3]
+[1,2,3]
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; a, curr;
+
+void dfs(int idx) {
+    if (idx == n) {
+        cout &lt;&lt; "[";
+        for (int i = 0; i &lt; curr.size(); ++i) {
+            if (i) cout &lt;&lt; ",";
+            cout &lt;&lt; curr[i];
+        }
+        cout &lt;&lt; "]\n";
+        return;
+    }
+    // exclude a[idx]
+    dfs(idx + 1);
+    // include a[idx]
+    curr.push_back(a[idx]);
+    dfs(idx + 1);
+    curr.pop_back();
+}
+
+int main() {
+    cin &gt;&gt; n;
+    a.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    dfs(0);
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Codeforces 1511A: Generate All Permutations</h3>
+<p>
+Given <code>n</code>, print all permutations of <code>1..n</code>.
+</p>
+<pre>
+<b>Input:</b>
+3
+
+<b>Output:</b>
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; perm;
+vector&lt;bool&gt; used;
+
+void dfs() {
+    if (perm.size() == n) {
+        for (int x : perm) cout &lt;&lt; x &lt;&lt; ' ';
+        cout &lt;&lt; '\n';
+        return;
+    }
+    for (int i = 1; i &lt;= n; ++i) {
+        if (used[i]) continue;
+        used[i] = true;
+        perm.push_back(i);
+        dfs();
+        perm.pop_back();
+        used[i] = false;
+    }
+}
+
+int main() {
+    cin &gt;&gt; n;
+    used.assign(n+1, false);
+    dfs();
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Intermediate Backtracking Examples</h2>
+
+<h3>3.1 – Codeforces 29A: Word Search in a Grid</h3>
+<p>
+Given an <code>m×n</code> grid of letters and a target word, determine if it exists by moving up/down/left/right without reuse.
+</p>
+<pre>
+<b>Input:</b>
+3 4
+ABCE
+SFCS
+ADEE
+SEE
+
+<b>Output:</b>
+YES
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int m, n;
+vector&lt;string&gt; grid;
+string word;
+bool seen[100][100];
+
+bool dfs(int r, int c, int idx) {
+    if (idx == word.size()) return true;
+    if (r&lt;0||r>=m||c&lt;0||c>=n) return false;
+    if (seen[r][c] || grid[r][c] != word[idx]) return false;
+    seen[r][c] = true;
+    static int dr[4] = {1,-1,0,0}, dc[4] = {0,0,1,-1};
+    for (int d = 0; d &lt; 4; ++d) {
+        if (dfs(r+dr[d], c+dc[d], idx+1)) return true;
+    }
+    seen[r][c] = false;
+    return false;
+}
+
+int main() {
+    cin &gt;&gt; m &gt;&gt; n;
+    grid.resize(m);
+    for (int i = 0; i &lt; m; ++i) cin &gt;&gt; grid[i];
+    cin &gt;&gt; word;
+    bool found = false;
+    for (int i = 0; i &lt; m; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            if (dfs(i,j,0)) { found = true; break; }
+        }
+        if (found) break;
+    }
+    cout &lt;&lt; (found ? "YES\n" : "NO\n");
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces 579A: Knight Placements</h3>
+<p>
+Count ways to place <code>K</code> non‐attacking knights on an <code>N×N</code> board.
+</p>
+<pre>
+<b>Input:</b>
+4 2
+
+<b>Output:</b>
+6
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int N, K, ans = 0;
+vector&lt;vector&lt;bool&gt;&gt; used;
+int dr[8] = {-2,-2,-1,-1,1,1,2,2}, dc[8] = {-1,1,-2,2,-2,2,-1,1};
+
+bool safe(int r, int c) {
+    for (int d = 0; d &lt; 8; ++d) {
+        int rr = r + dr[d], cc = c + dc[d];
+        if (rr &gt;= 0 && rr &lt; N && cc &gt;= 0 && cc &lt; N && used[rr][cc])
+            return false;
+    }
+    return true;
+}
+
+void dfs(int idx, int placed) {
+    if (placed == K) { ++ans; return; }
+    if (idx == N*N) return;
+    int r = idx / N, c = idx % N;
+    // skip this square
+    dfs(idx+1, placed);
+    // try to place
+    if (safe(r,c)) {
+        used[r][c] = true;
+        dfs(idx+1, placed+1);
+        used[r][c] = false;
+    }
+}
+
+int main() {
+    cin &gt;&gt; N &gt;&gt; K;
+    used.assign(N, vector&lt;bool&gt;(N,false));
+    dfs(0,0);
+    cout &lt;&lt; ans &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Hard Backtracking Example</h2>
+
+<h3>4.1 – Codeforces 1077C: 16×16 Sudoku (“Hexadoku”)</h3>
+<p>
+Generalize Sudoku to a 16×16 grid with digits 1–9 and letters A–G.  
+Same rules: each row, column, and 4×4 block must have all 16 symbols exactly once.  
+This is solved by the <em>same</em> backtracking approach, just larger.
+</p>
+<pre>
+<b>Input:</b>
+16 lines of 16 chars ('.' for empty), symbols '1'–'9','A'–'G'
+
+<b>Output:</b>
+Completed 16×16 grid
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int N = 16;
+vector&lt;string&gt; grid(16);
+bool rowU[16][16], colU[16][16], boxU[16][16];
+
+int id(char ch) {
+    if (ch &gt;= '1' && ch &lt;= '9') return ch - '1';
+    return 9 + (ch - 'A');
+}
+
+char rev(int x) {
+    if (x &lt; 9) return '1' + x;
+    return 'A' + (x - 9);
+}
+
+int boxId(int r,int c){ return (r/4)*4 + (c/4); }
+
+bool dfs(int idx) {
+    if (idx == N*N) return true;
+    int r = idx / N, c = idx % N;
+    if (grid[r][c] != '.') return dfs(idx+1);
+    for (int d = 0; d &lt; N; ++d) {
+        int b = boxId(r,c);
+        if (rowU[r][d]||colU[c][d]||boxU[b][d]) continue;
+        rowU[r][d]=colU[c][d]=boxU[b][d]=true;
+        grid[r][c] = rev(d);
+        if (dfs(idx+1)) return true;
+        grid[r][c] = '.';
+        rowU[r][d]=colU[c][d]=boxU[b][d]=false;
+    }
+    return false;
+}
+
+int main(){
+    for(int i=0;i<16;i++){
+        cin&gt;&gt;grid[i];
+        for(int j=0;j<16;j++){
+            if (grid[i][j] != '.') {
+                int x = id(grid[i][j]), b = boxId(i,j);
+                rowU[i][x] = colU[j][x] = boxU[b][x] = true;
+            }
+        }
+    }
+    dfs(0);
+    for (auto &s : grid) cout &lt;&lt; s &lt;&lt; '\n';
+    return 0;
+}
+</code></pre>
+
+<p>
+All of these examples use the same backtracking pattern:
+<ul>
+  <li>Choose a cell/position → try all valid options → recurse → undo (backtrack).</li>
+  <li>Use boolean-marker arrays (or bit-masks) to check constraints in O(1).</li>
+</ul>

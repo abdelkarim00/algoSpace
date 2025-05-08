@@ -1,0 +1,266 @@
+<div>   
+    <h1>Bitmask Subset Enumeration</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+Many problems over small sets (N ≤ ~20) can be solved by iterating all subsets.  We represent each subset by an integer <code>mask</code> from 0…(1&lt;&lt;N)−1, where bit <code>i</code> of <code>mask</code> indicates whether element <code>i</code> is included.
+</p>
+<ol>
+  <li><strong>Loop over all masks</strong><br>
+    <code>for (int mask = 0; mask < (1&lt;&lt;N); ++mask)</code></li>
+  <li><strong>Examine bits of the mask</strong><br>
+    Either by  
+    <ul>
+      <li>iterating <code>i=0…N−1</code> and checking <code>if (mask &amp; (1&lt;&lt;i)) …</code>, or</li>
+      <li>using <code>for (int s = mask; s; s &= s−1)</code> to peel off lowest set bit.</li>
+    </ul>
+  </li>
+  <li>Compute whatever you need (sum of selected elements, check property, combine DP states…).</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+There are 2<sup>N</sup> masks, and inspecting each takes O(N) or O(#bits) time.  
+<ul>
+  <li>Worst‐case: O(N·2<sup>N</sup>).</li>
+  <li>If you only peel bits: O(2<sup>N</sup> · popcount(avg)) = O(N·2<sup>N</sup>) as well.</li>
+</ul>
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+<ul>
+  <li>O(1) extra if you just keep running counters.</li>
+  <li>O(2<sup>N</sup>) if you store DP values for every mask.</li>
+</ul>
+</p>
+
+<hr>
+
+<h2>2. Easy Problems</h2>
+
+<h3>2.1 – Codeforces “Subset Sum” (N ≤ 20)</h3>
+<p>
+Given an array A of N integers (N≤20) and a target S, determine if there is a subset whose sum equals S.
+</p>
+<pre>
+<b>Input:</b>
+4 10
+2 3 5 9
+
+<b>Output:</b>
+YES
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    int N, S;
+    cin &gt;&gt; N &gt;&gt; S;
+    vector&lt;int&gt; A(N);
+    for (int i = 0; i &lt; N; i++) cin &gt;&gt; A[i];
+
+    bool found = false;
+    int total = 1 &lt;&lt; N;
+    for (int mask = 0; mask &lt; total; ++mask) {
+        int sum = 0;
+        for (int i = 0; i &lt; N; ++i) {
+            if (mask &amp; (1 &lt;&lt; i)) sum += A[i];
+        }
+        if (sum == S) { found = true; break; }
+    }
+
+    cout &lt;&lt; (found ? "YES\n" : "NO\n");
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Codeforces “Count Distinct Subset Sums”</h3>
+<p>
+Given N (≤20) non‐negative integers, find the number of distinct sums over all subsets.
+</p>
+<pre>
+<b>Input:</b>
+3
+1 2 2
+
+<b>Output:</b>
+3
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;set&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;int&gt; A(N);
+    for (int i = 0; i &lt; N; i++) cin &gt;&gt; A[i];
+
+    set&lt;int&gt; sums;
+    for (int mask = 0; mask &lt; (1 &lt;&lt; N); ++mask) {
+        int sum = 0;
+        for (int i = 0; i &lt; N; ++i)
+            if (mask &amp; (1 &lt;&lt; i)) sum += A[i];
+        sums.insert(sum);
+    }
+
+    cout &lt;&lt; sums.size() &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Intermediate Problems</h2>
+
+<h3>3.1 – Codeforces “Meet-in-the-Middle Subset Sum”</h3>
+<p>
+When N≈40, split into two halves of size N/2, enumerate subsets in each half (2<sup>20</sup> each) and use two‐pointer or hashing to answer sum‐queries in O(2<sup>N/2</sup>·(N/2)).
+</p>
+<pre>
+<b>Input:</b>
+6 10
+3 34 4 12 5 2
+
+<b>Output:</b>
+YES
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int N, S;
+    cin &gt;&gt; N &gt;&gt; S;
+    vector&lt;int&gt; A(N);
+    for(int i=0;i&lt;N;i++) cin &gt;&gt; A[i];
+
+    int n1 = N/2, n2 = N - n1;
+    vector&lt;int&gt; sums1, sums2;
+    // half 1
+    for(int mask=0; mask &lt; (1&lt;&lt;n1); ++mask){
+        int sum=0;
+        for(int i=0;i&lt;n1;i++) if(mask &amp;(1&lt;&lt;i)) sum+=A[i];
+        sums1.push_back(sum);
+    }
+    // half 2
+    for(int mask=0; mask &lt; (1&lt;&lt;n2); ++mask){
+        int sum=0;
+        for(int i=0;i&lt;n2;i++) if(mask &amp;(1&lt;&lt;i)) sum+=A[n1+i];
+        sums2.push_back(sum);
+    }
+    sort(sums2.begin(), sums2.end());
+    // for each in sums1, look for S−sum in sums2
+    for(int x : sums1){
+        if (binary_search(sums2.begin(), sums2.end(), S - x)) {
+            cout &lt;&lt; "YES\n";
+            return 0;
+        }
+    }
+    cout &lt;&lt; "NO\n";
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces “SOS DP: Sum Over Subsets”</h3>
+<p>
+Given an array F of size 2<sup>N</sup>, compute for each mask the sum of F over all submasks of that mask in O(N·2<sup>N</sup>).
+</p>
+<pre>
+<b>Input:</b>
+3
+1 2 3 4 5 6 7 8
+
+<b>Output:</b>
+1 3 4 10 5 11 12 36
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main(){
+    int N; 
+    cin &gt;&gt; N;
+    int M = 1 &lt;&lt; N;
+    vector&lt;long long&gt; F(M);
+    for(int i=0;i&lt;M;i++) cin &gt;&gt; F[i];
+
+    // SOS DP: for each bit
+    for(int b=0; b&lt;N; ++b){
+        for(int mask=0; mask&lt;M; ++mask){
+            if (mask &amp; (1&lt;&lt;b))
+                F[mask] += F[mask ^ (1&lt;&lt;b)];
+        }
+    }
+
+    for(int i=0;i&lt;M;i++){
+        cout &lt;&lt; F[i] &lt;&lt; (i+1&lt;M?' ':'\n');
+    }
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Hard Problem</h2>
+
+<h3>4.1 – Codeforces “Traveling Salesman with Bitmask DP”</h3>
+<p>
+Given a complete graph on N≤20 nodes with weights W[u][v], find the minimum Hamiltonian cycle cost.  Use DP[mask][u] = min cost to visit subset <code>mask</code> and end at <code>u</code>:
+</p>
+<pre>
+<b>Input:</b>
+4
+0 10 15 20
+10 0 35 25
+15 35 0 30
+20 25 30 0
+
+<b>Output:</b>
+80
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+const long long INF = 1e18;
+
+int main(){
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;vector&lt;long long&gt;&gt; W(N, vector&lt;long long&gt;(N));
+    for(int i=0;i&lt;N;i++) for(int j=0;j&lt;N;j++) cin &gt;&gt; W[i][j];
+
+    int M = 1&lt;&lt;N;
+    // dp[mask][u]
+    vector&lt;vector&lt;long long&gt;&gt; dp(M, vector&lt;long long&gt;(N, INF));
+    dp[1][0] = 0;  // start at 0
+
+    for(int mask=1; mask&lt;M; ++mask){
+        for(int u=0; u&lt;N; ++u){
+            if (!(mask &amp; (1&lt;&lt;u))) continue;
+            long long cur = dp[mask][u];
+            if (cur == INF) continue;
+            // try to go to v not in mask
+            for(int v=0; v&lt;N; ++v){
+                if (mask &amp; (1&lt;&lt;v)) continue;
+                int nxt = mask | (1&lt;&lt;v);
+                dp[nxt][v] = min(dp[nxt][v], cur + W[u][v]);
+            }
+        }
+    }
+
+    long long ans = INF;
+    // return to 0
+    for(int u=1; u&lt;N; ++u)
+        ans = min(ans, dp[M-1][u] + W[u][0]);
+
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+</div>

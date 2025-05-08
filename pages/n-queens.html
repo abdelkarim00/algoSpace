@@ -1,0 +1,330 @@
+<div>
+    <h1>N-Queens and Backtracking</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+The <strong>N-Queens problem</strong> asks: “Place N queens on an N×N chessboard so that no two threaten one another.”  
+We solve it with a <em>backtracking</em> (depth-first search) approach:
+</p>
+<ol>
+  <li>Maintain three boolean arrays of size <code>2*N</code> or <code>N</code> each to mark  
+    columns, “main” diagonals, and “anti” diagonals under attack.</li>
+  <li>Recursively try to place a queen row by row:</li>
+  <ul>
+    <li>For row <code>r</code>, loop <code>c = 0…N-1</code>.  
+      If column <code>c</code> and both diagonals are free,</li>
+    <li>— mark them occupied, record <code>queen[r] = c</code>, and recurse to <code>r+1</code>.</li>
+    <li>— on return, undo the marks (backtrack) and try next <code>c</code>.</li>
+  </ul>
+  <li>When <code>r == N</code>, you’ve placed all N queens—record or count this solution.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+In the worst case you explore roughly  
+<strong>O(N!)</strong> placements:  
+row 0 has N choices, row 1 ≤ N−1, …, so N×(N−1)×…≈N!.  
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+You store:  
+<ul>
+  <li><code>queen[0…N−1]</code> → O(N)</li>
+  <li>column and diagonal marker arrays → O(N) or O(2N)</li>
+  <li>recursive call stack up to depth N → O(N)</li>
+</ul>
+Total: <strong>O(N)</strong> extra memory.  
+</p>
+
+<hr>
+
+<h2>2. 2 Easy Backtracking Examples</h2>
+
+<h3>2.1 – Generating All Subsets (Codeforces-style “Power Set”)</h3>
+<p>
+Given a small array of distinct integers, output all 2<sup>n</sup> subsets.
+</p>
+
+<pre>
+<b>Input:</b>
+3
+1 2 3
+
+<b>Output:</b>
+[]
+[1]
+[2]
+[3]
+[1,2]
+[1,3]
+[2,3]
+[1,2,3]
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; a;
+vector&lt;int&gt; curr;
+
+void dfs(int idx) {
+    if (idx == n) {
+        // print current subset
+        cout &lt;&lt; "[";
+        for (int i = 0; i &lt; curr.size(); ++i) {
+            if (i) cout &lt;&lt; ",";
+            cout &lt;&lt; curr[i];
+        }
+        cout &lt;&lt; "]\n";
+        return;
+    }
+    // 1) exclude a[idx]
+    dfs(idx + 1);
+    // 2) include a[idx]
+    curr.push_back(a[idx]);
+    dfs(idx + 1);
+    curr.pop_back();
+}
+
+int main() {
+    cin &gt;&gt; n;
+    a.resize(n);
+    for (int i = 0; i &lt; n; ++i) cin &gt;&gt; a[i];
+    dfs(0);
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – Generating All Permutations (“Next Permutation” style)</h3>
+<p>
+Given <code>1…N</code>, print every ordering (N! total).
+</p>
+
+<pre>
+<b>Input:</b>
+3
+
+<b>Output:</b>
+1 2 3
+1 3 2
+2 1 3
+2 3 1
+3 1 2
+3 2 1
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n;
+vector&lt;int&gt; perm;
+vector&lt;bool&gt; used;
+
+void dfs() {
+    if (perm.size() == n) {
+        for (int x : perm) cout &lt;&lt; x &lt;&lt; ' ';
+        cout &lt;&lt; '\n';
+        return;
+    }
+    for (int i = 1; i &lt;= n; ++i) {
+        if (used[i]) continue;
+        used[i] = true;
+        perm.push_back(i);
+        dfs();
+        perm.pop_back();
+        used[i] = false;
+    }
+}
+
+int main() {
+    cin &gt;&gt; n;
+    perm.reserve(n);
+    used.assign(n+1,false);
+    dfs();
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. 2 Intermediate Backtracking Examples</h2>
+
+<h3>3.1 – Sudoku Solver (9×9)</h3>
+<p>
+Fill a partially completed 9×9 grid so each row, column, and 3×3 box has digits 1–9 exactly once.
+</p>
+
+<pre>
+<b>Input:</b>  (0 = empty)
+5 3 0 0 7 0 0 0 0
+6 0 0 1 9 5 0 0 0
+0 9 8 0 0 0 0 6 0
+8 0 0 0 6 0 0 0 3
+4 0 0 8 0 3 0 0 1
+7 0 0 0 2 0 0 0 6
+0 6 0 0 0 0 2 8 0
+0 0 0 4 1 9 0 0 5
+0 0 0 0 8 0 0 7 9
+
+<b>Output:</b>
+5 3 4 6 7 8 9 1 2
+6 7 2 1 9 5 3 4 8
+1 9 8 3 4 2 5 6 7
+8 5 9 7 6 1 4 2 3
+4 2 6 8 5 3 7 9 1
+7 1 3 9 2 4 8 5 6
+9 6 1 5 3 7 2 8 4
+2 8 7 4 1 9 6 3 5
+3 4 5 2 8 6 1 7 9
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int grid[9][9];
+bool rowUsed[9][10], colUsed[9][10], boxUsed[9][10];
+
+int boxId(int r,int c){ return (r/3)*3 + (c/3); }
+
+bool dfs(int r,int c){
+    if (r == 9) return true;
+    int nr = (c==8 ? r+1 : r);
+    int nc = (c==8 ? 0   : c+1);
+    if (grid[r][c] != 0) return dfs(nr,nc);
+    for (int d = 1; d <= 9; ++d) {
+        int b = boxId(r,c);
+        if (rowUsed[r][d] || colUsed[c][d] || boxUsed[b][d]) continue;
+        rowUsed[r][d]=colUsed[c][d]=boxUsed[b][d]=true;
+        grid[r][c]=d;
+        if (dfs(nr,nc)) return true;
+        rowUsed[r][d]=colUsed[c][d]=boxUsed[b][d]=false;
+    }
+    grid[r][c]=0;
+    return false;
+}
+
+int main(){
+    for(int i=0;i<9;i++) for(int j=0;j<9;j++){
+        cin>>grid[i][j];
+        if(grid[i][j]){
+            int d=grid[i][j], b=boxId(i,j);
+            rowUsed[i][d]=colUsed[j][d]=boxUsed[b][d]=true;
+        }
+    }
+    dfs(0,0);
+    for(int i=0;i<9;i++){
+        for(int j=0;j<9;j++){
+            cout<<grid[i][j]<<(j<8?' ':'\n');
+        }
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Place K Non-Attacking Knights on M×M Board</h3>
+<p>
+Count ways to place K knights so none attack each other (knight’s L-moves).
+</p>
+
+<pre>
+<b>Input:</b>
+4 2
+
+<b>Output:</b>
+6
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int M, K, ans=0;
+vector&lt;vector&lt;bool&gt;&gt; used;
+int dr[8]={-2,-2,-1,-1,1,1,2,2}, dc[8]={-1,1,-2,2,-2,2,-1,1};
+
+bool safe(int r,int c){
+    for(int d=0;d&lt;8;d++){
+        int nr=r+dr[d], nc=c+dc[d];
+        if(nr>=0&&nr&lt;M&&nc>=0&&nc&lt;M&&used[nr][nc]) return false;
+    }
+    return true;
+}
+
+void dfs(int idx,int placed){
+    if (placed==K){ ans++; return; }
+    if (idx>=M*M) return;
+    int r=idx/M, c=idx%M;
+    // skip
+    dfs(idx+1, placed);
+    // place if safe
+    if (safe(r,c)) {
+        used[r][c]=true;
+        dfs(idx+1, placed+1);
+        used[r][c]=false;
+    }
+}
+
+int main(){
+    cin>>M>>K;
+    used.assign(M, vector&lt;bool&gt;(M,false));
+    dfs(0,0);
+    cout&lt;&lt;ans&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. 1 Hard Example: The N-Queens Itself</h2>
+<p>
+Count or list all distinct solutions to N-Queens (classic problem).
+</p>
+
+<pre>
+<b>Input:</b>
+8
+
+<b>Output:</b>
+92   <em>(there are 92 solutions for N=8)</em>
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt>
+using namespace std;
+
+int N, total=0;
+vector&lt;bool&gt; col, diag1, diag2;
+
+void dfs(int r){
+    if (r==N){ total++; return; }
+    for(int c=0;c&lt;N;c++){
+        if(col[c]||diag1[r-c+N]||diag2[r+c]) continue;
+        col[c]=diag1[r-c+N]=diag2[r+c]=true;
+        dfs(r+1);
+        col[c]=diag1[r-c+N]=diag2[r+c]=false;
+    }
+}
+
+int main(){
+    cin&gt;&gt;N;
+    col.assign(N,false);
+    diag1.assign(2*N,false);
+    diag2.assign(2*N,false);
+    dfs(0);
+    cout&lt;&lt;total&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<p>
+All above examples use the same <em>backtracking</em> blueprint:  
+<ul>
+  <li>Try a choice → recurse → undo (backtrack) → next choice.</li>
+  <li>Efficiently detect conflicts via bookkeeping arrays.</li>
+</ul>  
+</div>

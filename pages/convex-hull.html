@@ -1,0 +1,307 @@
+<div>
+    <h1>Convex Hull: Algorithm, Mathematics, Complexity, and Applications</h1>
+
+<h2>1. Algorithm Overview</h2>
+<p>
+The <strong>convex hull</strong> of a set of points in the plane is the smallest convex polygon that contains all the points.  
+A standard way to compute it in O(<em>n</em> log <em>n</em>) time is Andrew’s Monotone Chain (a variant of Graham’s scan):
+</p>
+<ol>
+  <li>Sort points by x (then y) coordinate.</li>
+  <li>Build the lower hull:  
+    <code>vector&lt;Point&gt; lower;</code>  
+    For each point <code>p</code> in sorted order:
+    <ul>
+      <li>While <code>lower.size() &ge; 2</code> and the last two points <code>a, b</code> in <code>lower</code> together with <code>p</code> make a non‐left turn (cross &le; 0), pop back.</li>
+      <li>Push <code>p</code> onto <code>lower</code>.</li>
+    </ul>
+  </li>
+  <li>Build the upper hull similarly by scanning in reverse order.</li>
+  <li>Concatenate lower and upper (dropping duplicate endpoints) ⇒ the convex hull in counterclockwise order.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li>Sorting: O(<em>n</em> log <em>n</em>).</li>
+  <li>Building hull: each point pushed/popped at most once ⇒ O(<em>n</em>).</li>
+</ul>
+<p>Total: <strong>O(n log n)</strong>.</p>
+
+<h3>Memory Complexity</h3>
+<p>
+Storing input points and the hull (each ≤ <em>n</em> points): <strong>O(n)</strong>.
+</p>
+
+<hr>
+
+<h2>2. Mathematics of Convex Hulls</h2>
+<ul>
+  <li><strong>Convexity:</strong> A polygon is convex if every line segment between two points in it lies entirely inside it.</li>
+  <li><strong>Cross Product Test:</strong> For three points <code>A(x₁,y₁)</code>, <code>B(x₂,y₂)</code>, <code>C(x₃,y₃)</code>,  
+    the signed area is  
+    <pre>cross = (x₂–x₁)*(y₃–y₁) – (y₂–y₁)*(x₃–x₁)</pre>  
+    • <code>cross &gt; 0</code> ⇒ <code>ABC</code> makes a left turn (counter‐clockwise)  
+    • <code>cross &lt; 0</code> ⇒ right turn  
+    • <code>cross = 0</code> ⇒ collinear.</li>
+  <li><strong>Why Monotone Chain Works:</strong> Sorting ensures we sweep from leftmost to rightmost; the cross‐product test maintains convexity by discarding “inward” corners.</li>
+</ul>
+
+<hr>
+
+<h2>3. Easy Problems</h2>
+
+<h3>3.1 – Codeforces 70D “Point on Convex Hull?”</h3>
+<p>
+You are given a convex polygon (its vertices in order) and Q query points. For each query, answer “YES” if the point lies inside or on the polygon, else “NO.”  
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct P { long long x, y; };
+
+long long cross(const P &a, const P &b, const P &c) {
+    return (b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x);
+}
+
+// check if point q is inside convex polygon poly (ccw order)
+bool inConvex(const vector&lt;P&gt; &poly, const P &q) {
+    int n = poly.size();
+    if (cross(poly[0], poly[1], q) &lt; 0) return false;
+    if (cross(poly[0], poly[n-1], q) &gt; 0) return false;
+    // binary search to find wedge
+    int l = 1, r = n-1;
+    while (r - l &gt; 1) {
+        int m = (l + r)/2;
+        if (cross(poly[0], poly[m], q) &gt;= 0) l = m;
+        else r = m;
+    }
+    return cross(poly[l], poly[l+1], q) &gt;= 0;
+}
+
+int main(){
+    int n; cin &gt;&gt; n;
+    vector&lt;P&gt; poly(n);
+    for(int i=0;i&lt;n;i++) cin&gt;&gt;poly[i].x&gt;&gt;poly[i].y;
+    int Q; cin&gt;&gt;Q;
+    while(Q--){
+        P q; cin&gt;&gt;q.x&gt;&gt;q.y;
+        cout&lt;&lt;(inConvex(poly,q)?"YES":"NO")&lt;&lt;"\n";
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Codeforces 22B “Farthest Pair”</h3>
+<p>
+Given N points, find the maximum squared distance between any two. Compute the convex hull, then apply rotating calipers in O(n).  
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+using ll = long long;
+
+struct P { ll x, y; };
+
+ll cross(const P &a, const P &b, const P &c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+ll dist2(const P &a, const P &b){
+    ll dx = a.x-b.x, dy = a.y-b.y;
+    return dx*dx + dy*dy;
+}
+
+vector&lt;P&gt; convexHull(vector&lt;P&gt;&amp; pts){
+    sort(pts.begin(), pts.end(), [](auto &a, auto &b){
+        return a.x&lt;b.x || (a.x==b.x && a.y&lt;b.y);
+    });
+    int n=pts.size(), k=0;
+    vector&lt;P&gt; h(2*n);
+    // lower
+    for(int i=0;i&lt;n;i++){
+        while(k&gt;=2 && cross(h[k-2],h[k-1],pts[i])&lt;=0) k--;
+        h[k++]=pts[i];
+    }
+    // upper
+    for(int i=n-2,t=k+1;i&gt;=0;i--){
+        while(k&gt;=t && cross(h[k-2],h[k-1],pts[i])&lt;=0) k--;
+        h[k++]=pts[i];
+    }
+    h.resize(k-1);
+    return h;
+}
+
+int main(){
+    int N; cin&gt;&gt;N;
+    vector&lt;P&gt; pts(N);
+    for(int i=0;i&lt;N;i++) cin&gt;&gt;pts[i].x&gt;&gt;pts[i].y;
+    auto h = convexHull(pts);
+    int m = h.size();
+    if(m==1){ cout&lt;&lt;0&lt;&lt;"\n"; return 0; }
+    ll best = 0;
+    int j = 1;
+    for(int i=0;i&lt;m;i++){
+        while(abs(cross(h[i], h[(i+1)%m], h[(j+1)%m])) >
+              abs(cross(h[i], h[(i+1)%m], h[j]))) {
+            j = (j+1)%m;
+        }
+        best = max({best, dist2(h[i],h[j]), dist2(h[(i+1)%m],h[j])});
+    }
+    cout&lt;&lt;best&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Intermediate Problems</h2>
+
+<h3>4.1 – Codeforces 137B “Fence Painting”</h3>
+<p>
+You have N fence posts on a line; each has a height. You want to pick a subset that forms a convex “chain” (no dips).  
+Model each post as point (i, h<sub>i</sub>) and compute longest convex subsequence via DP with cross‐product checks.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+using ll = long long;
+struct P{ ll x,y; };
+
+ll cross(const P &a,const P &b,const P &c){
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+int main(){
+    int n; cin&gt;&gt;n;
+    vector&lt;P&gt; pts(n);
+    for(int i=0;i&lt;n;i++){
+        pts[i]={i,0};
+        cin&gt;&gt;pts[i].y;
+    }
+    vector&lt;int&gt; dp(n,1);
+    int ans=1;
+    for(int i=0;i&lt;n;i++){
+        for(int j=0;j&lt;i;j++){
+            if(j&lt;1 || cross(pts[j-1],pts[j],pts[i])&gt;0){
+                dp[i]=max(dp[i], dp[j]+1);
+            }
+        }
+        ans=max(ans, dp[i]);
+    }
+    cout&lt;&lt;ans&lt;&lt;"\n";
+    return 0;
+}
+</code></pre>
+
+<h3>4.2 – Codeforces 70D “Dynamic Convex Hull Queries”</h3>
+<p>
+Maintain a dynamic set of points under insertions, and after each insertion answer the area of the convex hull.  
+Use two monotone chains and a balanced BST or deque.  
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;set&gt;
+#include &lt;cmath&gt;
+using namespace std;
+using ll = long long;
+
+struct P{ ll x,y; };
+
+ll cross(const P &a,const P &b,const P &c){
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+// Simplified: rebuild hull on each query for clarity
+double hullArea(const vector&lt;P&gt;&amp; h){
+    int m = h.size();
+    if(m&lt;3) return 0.0;
+    ll area2 = 0;
+    for(int i=0;i&lt;m;i++){
+        int j=(i+1)%m;
+        area2 += h[i].x*h[j].y - h[j].x*h[i].y;
+    }
+    return fabs(area2)/2.0;
+}
+
+vector&lt;P&gt; computeHull(vector&lt;P&gt;&amp; pts){
+    sort(pts.begin(), pts.end(), [](auto &a, auto &b){
+        return a.x&lt;b.x || (a.x==b.x && a.y&lt;b.y);
+    });
+    int n=pts.size(), k=0;
+    vector&lt;P&gt; h(2*n);
+    for(int i=0;i&lt;n;i++){
+        while(k&gt;=2 && cross(h[k-2],h[k-1],pts[i])&lt;=0) k--;
+        h[k++]=pts[i];
+    }
+    for(int i=n-2,t=k+1;i&gt;=0;i--){
+        while(k&gt;=t && cross(h[k-2],h[k-1],pts[i])&lt;=0) k--;
+        h[k++]=pts[i];
+    }
+    h.resize(k-1);
+    return h;
+}
+
+int main(){
+    int Q; cin&gt;&gt;Q;
+    vector&lt;P&gt; pts;
+    while(Q--){
+        P p; cin&gt;&gt;p.x&gt;&gt;p.y;
+        pts.push_back(p);
+        auto h = computeHull(pts);
+        cout&lt;&lt;hullArea(h)&lt;&lt;"\n";
+    }
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>5. Hard Problem</h2>
+
+<h3>5.1 – Codeforces 1093G “Convex Floor”</h3>
+<p>
+Given a convex polygon of N vertices and M query points, for each query find the nearest point on the polygon.  
+Project each query point onto each edge (in O(1)) and take the minimum distance, or use binary‐search by angle for O(log N) per query.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+struct P{ double x,y; };
+
+double dist2(const P &a,const P &b){
+    double dx=a.x-b.x, dy=a.y-b.y;
+    return dx*dx+dy*dy;
+}
+
+// project q onto segment [a,b]
+P project(const P &a,const P &b,const P &q){
+    double vx=b.x-a.x, vy=b.y-a.y;
+    double t = ((q.x-a.x)*vx + (q.y-a.y)*vy)/(vx*vx+vy*vy);
+    t = max(0.0, min(1.0, t));
+    return {a.x + t*vx, a.y + t*vy};
+}
+
+int main(){
+    int N,M; cin&gt;&gt;N&gt;&gt;M;
+    vector&lt;P&gt; hull(N);
+    for(int i=0;i&lt;N;i++) cin&gt;&gt;hull[i].x&gt;&gt;hull[i].y;
+    while(M--){
+        P q; cin&gt;&gt;q.x&gt;&gt;q.y;
+        double best = 1e300; P ans{0,0};
+        for(int i=0;i&lt;N;i++){
+            P p = project(hull[i], hull[(i+1)%N], q);
+            double d = dist2(p,q);
+            if(d&lt;best){ best=d; ans=p; }
+        }
+        cout&lt;&lt;"("&lt;&lt;ans.x&lt;&lt;","&lt;&lt;ans.y&lt;&lt;")\n";
+    }
+    return 0;
+}
+
+</code>
+</pre>
+
+</div>

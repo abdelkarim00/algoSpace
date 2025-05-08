@@ -1,0 +1,377 @@
+<div>
+    <h1>Hamiltonian Path &amp; Backtracking</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+A <strong>Hamiltonian path</strong> in a graph is a simple path that visits every vertex exactly once.  To find one (or count all), we can use <em>backtracking</em> (DFS with state‐undoing):
+</p>
+<ol>
+  <li><strong>Represent the graph</strong> as an adjacency list <code>adj[u]</code>.</li>
+  <li>Keep a boolean array <code>used[v]</code> and a vector <code>path</code>.</li>
+  <li>Start DFS from each possible start‐vertex <code>s</code> (if you just need one path, you can stop when found):<br>
+    <pre><code>void dfs(int u) {
+    if (path.size()==N) { /* found a full Hamiltonian path */ }
+    for (int v: adj[u]) {
+      if (!used[v]) {
+        used[v]=true;
+        path.push_back(v);
+        dfs(v);
+        path.pop_back();
+        used[v]=false;
+      }
+    }
+}</code></pre>
+  </li>
+  <li>For each <code>s=0…N-1</code>, set <code>used[s]=true; path={s}; dfs(s); used[s]=false</code>.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+In the worst case (complete graph), from each vertex you branch into up to <code>(N−1)</code> unused neighbors, then <code>(N−2)</code>, etc.  
+Total ≈ <strong>O(N!)</strong>.
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+<ul>
+  <li><code>used[0…N−1]</code> → O(N)</li>
+  <li>current <code>path</code> of length ≤ N → O(N)</li>
+  <li>recursion stack depth ≤ N → O(N)</li>
+</ul>
+Total: <strong>O(N)</strong> extra memory.  
+</p>
+
+<hr>
+
+<h2>2. Two Easy Examples</h2>
+
+<h3>2.1 Codeforces #{{easy1_id}} – Count All Hamiltonian Paths in a Tiny Graph</h3>
+<p>
+Given an undirected graph with <code>N≤8</code> vertices (numbered <code>1…N</code>) and <code>M</code> edges, count all Hamiltonian paths of length <code>N−1</code>.
+</p>
+
+<pre>
+<b>Input:</b>
+4 5
+1 2
+2 3
+2 4
+1 4
+3 4
+
+<b>Output:</b>
+6
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int N, M, answer = 0;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;bool&gt; used;
+vector&lt;int&gt; path;
+
+void dfs(int u) {
+    if (path.size() == N) {
+        answer++;
+        return;
+    }
+    for (int v : adj[u]) {
+        if (!used[v]) {
+            used[v] = true;
+            path.push_back(v);
+            dfs(v);
+            path.pop_back();
+            used[v] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> N >> M;
+    adj.assign(N, {});
+    used.assign(N, false);
+    for (int i = 0; i < M; i++) {
+        int u, v;
+        cin >> u >> v;
+        --u; --v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int s = 0; s < N; s++) {
+        used[s] = true;
+        path = {s};
+        dfs(s);
+        used[s] = false;
+    }
+    cout << answer << "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 Codeforces #{{easy2_id}} – Find Any Hamiltonian Path</h3>
+<p>
+Given an undirected graph with <code>N≤10</code> and <code>M</code>, output any one Hamiltonian path if it exists, or <code>-1</code> otherwise.
+</p>
+
+<pre>
+<b>Input:</b>
+5 5
+1 2
+2 3
+3 4
+4 5
+2 5
+
+<b>Output:</b>
+1 2 3 4 5
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int N, M;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;bool&gt; used;
+vector&lt;int&gt; path;
+bool found = false;
+
+void dfs(int u) {
+    if (found) return;
+    if (path.size() == N) {
+        for (int x : path) cout << x+1 << ' ';
+        cout << "\n";
+        found = true;
+        return;
+    }
+    for (int v : adj[u]) {
+        if (!used[v]) {
+            used[v] = true;
+            path.push_back(v);
+            dfs(v);
+            if (found) return;
+            path.pop_back();
+            used[v] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> N >> M;
+    adj.assign(N, {});
+    used.assign(N, false);
+    for (int i = 0; i < M; i++) {
+        int u, v;
+        cin >> u >> v;
+        --u; --v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int s = 0; s < N; s++) {
+        if (found) break;
+        used[s] = true;
+        path = {s};
+        dfs(s);
+        used[s] = false;
+    }
+    if (!found) cout << "-1\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Two Intermediate Examples</h2>
+
+<h3>3.1 Codeforces #{{inter1_id}} – TSP on Small Graph (Min‐Cost Hamiltonian Path)</h3>
+<p>
+Given a weighted undirected complete graph with <code>N≤12</code> and matrix <code>w[i][j]</code>, find the minimum‐cost Hamiltonian path from any start to any end.
+</p>
+
+<pre>
+<b>Input:</b>
+4
+0 5 3 4
+5 0 2 6
+3 2 0 7
+4 6 7 0
+
+<b>Output:</b>
+10
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;limits&gt;
+using namespace std;
+
+int N;
+vector&lt;vector&lt;int&gt;&gt; w;
+vector&lt;bool&gt; used;
+int best = numeric_limits&lt;int&gt;::max();
+int currCost = 0;
+
+void dfs(int u, int depth) {
+    if (depth == N) {
+        best = min(best, currCost);
+        return;
+    }
+    for (int v = 0; v < N; v++) {
+        if (!used[v]) {
+            used[v] = true;
+            currCost += w[u][v];
+            dfs(v, depth + 1);
+            currCost -= w[u][v];
+            used[v] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> N;
+    w.assign(N, vector&lt;int&gt;(N));
+    for (int i = 0; i < N; i++)
+        for (int j = 0; j < N; j++)
+            cin >> w[i][j];
+    used.assign(N, false);
+    for (int s = 0; s < N; s++) {
+        used[s] = true;
+        dfs(s, 1);
+        used[s] = false;
+    }
+    cout << best << "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 Codeforces #{{inter2_id}} – Knight’s Tour on Small Board</h3>
+<p>
+On an <code>n×n</code> board with <code>n≤6</code>, place a knight so it visits every cell exactly once (a Hamiltonian path on the knight‐move graph). Count the tours.
+</p>
+
+<pre>
+<b>Input:</b>
+5
+
+<b>Output:</b>
+304
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int n, total = 0;
+vector&lt;vector&lt;bool&gt;&gt; used;
+int dr[8] = {-2,-2,-1,-1,1,1,2,2}, dc[8] = {-1,1,-2,2,-2,2,-1,1};
+
+void dfs(int r, int c, int visited) {
+    if (visited == n*n) {
+        total++;
+        return;
+    }
+    for (int k = 0; k < 8; k++) {
+        int nr = r + dr[k], nc = c + dc[k];
+        if (nr>=0 && nr<n && nc>=0 && nc<n && !used[nr][nc]) {
+            used[nr][nc] = true;
+            dfs(nr, nc, visited+1);
+            used[nr][nc] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> n;
+    used.assign(n, vector&lt;bool&gt;(n, false));
+    // try all starting cells
+    for (int i = 0; i < n; i++)
+    for (int j = 0; j < n; j++) {
+        used[i][j] = true;
+        dfs(i, j, 1);
+        used[i][j] = false;
+    }
+    cout << total << "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. One Hard Example</h2>
+
+<h3>Codeforces #{{hard_id}} – General Hamiltonian Path Existence &amp; Count</h3>
+<p>
+Given an undirected graph with <code>N≤15</code>, <code>M≤40</code>, count all Hamiltonian paths.  (Brute‐force backtracking is borderline but works with pruning.)
+</p>
+
+<pre>
+<b>Input:</b>
+6 7
+1 2
+2 3
+3 4
+4 5
+5 6
+2 5
+3 6
+
+<b>Output:</b>
+4
+</pre>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt>
+using namespace std;
+
+int N, M, answer = 0;
+vector&lt;vector&lt;int&gt;&gt; adj;
+vector&lt;bool&gt; used;
+vector&lt;int&gt; path;
+
+void dfs(int u) {
+    if (path.size() == N) {
+        answer++;
+        return;
+    }
+    for (int v : adj[u]) {
+        if (!used[v]) {
+            used[v] = true;
+            path.push_back(v);
+            dfs(v);
+            path.pop_back();
+            used[v] = false;
+        }
+    }
+}
+
+int main() {
+    cin >> N >> M;
+    adj.assign(N, {});
+    used.assign(N, false);
+    for (int i = 0; i < M; i++) {
+        int u, v;
+        cin >> u >> v;
+        --u; --v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int s = 0; s < N; s++) {
+        used[s] = true;
+        path = {s};
+        dfs(s);
+        used[s] = false;
+    }
+    cout << answer << "\n";
+    return 0;
+}
+</code></pre>
+
+<p>
+All these examples share the same backtracking blueprint:
+<ul>
+  <li>Choose a next vertex → recurse → undo choice → try next.</li>
+  <li>Maintain <code>used[]</code> for O(1) conflict checks.</li>
+</ul>
+</div>

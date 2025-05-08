@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <h1>Aho–Corasick Algorithm</h1>
+
+  <h2>1. Algorithm Overview</h2>
+  <p>
+    The Aho–Corasick algorithm builds a finite‐state machine (a trie with “failure” links) from a set of patterns so that you can scan the text in one pass and discover all occurrences of every pattern simultaneously.
+  </p>
+
+  <h3>1.1 Building the Trie</h3>
+  <ol>
+    <li>Insert each pattern into a trie, storing at each node which pattern‐indices end there.</li>
+    <li>Compute for each node a “failure” link: following it gives the longest proper suffix of the current node’s path that is also a prefix in the trie.</li>
+    <li>Also propagate each node’s output list (patterns that end there) along these failure links.</li>
+  </ol>
+
+  <h3>1.2 Searching the Text</h3>
+  <ol>
+    <li>Start at the root of the trie.</li>
+    <li>For each character in the text, follow the corresponding child; if none, follow failure links until you can proceed or reach root.</li>
+    <li>At each node, report all patterns in its output list (these patterns end at the current text position).</li>
+  </ol>
+
+  <h3>1.3 Complexity</h3>
+  <ul>
+    <li><strong>Time:</strong> Building takes O(∑|Pᵢ| × σ) for alphabet size σ (or optimized to O(∑|Pᵢ|)). Searching takes O(|T| + number_of_matches). Overall O(|T| + ∑|Pᵢ| + z).</li>
+    <li><strong>Memory:</strong> O(∑|Pᵢ| × σ) pointers for the trie (can be reduced with maps), plus O(∑|Pᵢ|) for outputs and failure links.</li>
+  </ul>
+
+  <h2>2. Two Easy Problems</h2>
+
+  <h3>2.1 Problem: Detect Any Pattern</h3>
+  <p>
+    <em>Given a text and a set of patterns, determine which patterns appear at least once.</em>
+  </p>
+  <pre><code>
+// detect which patterns appear
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Aho {
+    static const int ALPHA = 26;
+    struct Node { 
+      int next[ALPHA], link; 
+      vector<int> out; 
+      Node() { fill(next,next+ALPHA,-1); link=-1; }
+    };
+    vector&lt;Node&gt; t;
+    Aho(): t(1) {}
+
+    void add(const string &s,int id){
+      int v=0;
+      for(char c: s){
+        int x=c-'a';
+        if(t[v].next[x]==-1){
+          t[v].next[x]=t.size(); 
+          t.emplace_back();
+        }
+        v=t[v].next[x];
+      }
+      t[v].out.push_back(id);
+    }
+
+    void build(){
+      queue&lt;int&gt;q;
+      t[0].link=0;
+      for(int c=0;c&lt;ALPHA;c++){
+        int u=t[0].next[c];
+        if(u!=-1){ t[u].link=0; q.push(u); }
+        else t[0].next[c]=0;
+      }
+      while(!q.empty()){
+        int v=q.front(); q.pop();
+        for(int c=0;c&lt;ALPHA;c++){
+          int u=t[v].next[c];
+          if(u!=-1){
+            t[u].link = t[t[v].link].next[c];
+            auto &out = t[t[u].link].out;
+            t[u].out.insert(t[u].out.end(), out.begin(), out.end());
+            q.push(u);
+          } else {
+            t[v].next[c] = t[t[v].link].next[c];
+          }
+        }
+      }
+    }
+
+    vector&lt;bool&gt; search(const string &text, int P){
+      vector&lt;bool&gt; found(P,false);
+      int v=0;
+      for(char c: text){
+        v = t[v].next[c-'a'];
+        for(int id: t[v].out)
+          found[id] = true;
+      }
+      return found;
+    }
+};
+
+int main(){
+  vector&lt;string&gt; patterns = {"he","she","his","hers"};
+  string text = "ushers";
+  Aho aho;
+  for(int i=0;i&lt;patterns.size();i++)
+    aho.add(patterns[i], i);
+  aho.build();
+  auto res = aho.search(text, patterns.size());
+  for(int i=0;i&lt;res.size();i++){
+    if(res[i]) cout &lt;&lt; "Found: " &lt;&lt; patterns[i] &lt;&lt; "\n";
+  }
+  return 0;
+}
+  </code></pre>
+
+  <h3>2.2 Problem: Count Total Occurrences</h3>
+  <p>
+    <em>Given text and patterns, count how many times each pattern appears (allowing overlaps).</em>
+  </p>
+  <pre><code>
+// count occurrences per pattern
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+struct Aho { /* same as above */ /* … */ };
+int main(){
+  vector&lt;string&gt; patterns = {"aba","ba"};
+  string text = "ababa";
+  Aho aho;
+  for(int i=0;i&lt;patterns.size();i++)
+    aho.add(patterns[i], i);
+  aho.build();
+
+  vector&lt;int&gt; cnt(patterns.size(),0);
+  int v=0;
+  for(char c: text){
+    v = aho.t[v].next[c-'a'];
+    for(int id: aho.t[v].out)
+      cnt[id]++;
+  }
+  for(int i=0;i&lt;cnt.size();i++){
+    cout &lt;&lt; patterns[i] &lt;&lt; ": " &lt;&lt; cnt[i] &lt;&lt; "\n";
+  }
+  return 0;
+}
+  </code></pre>
+
+  <h2>3. Two Intermediate Problems</h2>
+
+  <h3>3.1 Problem: Top-k Frequent Patterns</h3>
+  <p>
+    <em>Given text and a large set of patterns, find the k patterns with highest occurrence counts.</em>
+  </p>
+  <pre><code>
+// find top-k frequent patterns
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+// (reuse Aho from above)
+int main(){
+  int k = 3;
+  vector&lt;string&gt; P = {/* ... large list ... */};
+  string T = /* large text */;
+  Aho aho;
+  for(int i=0;i&lt;P.size();i++) aho.add(P[i], i);
+  aho.build();
+  vector&lt;long long&gt; cnt(P.size(),0);
+  int v=0;
+  for(char c:T){
+    v = aho.t[v].next[c-'a'];
+    for(int id: aho.t[v].out) cnt[id]++;
+  }
+  vector&lt;int&gt; idx(P.size());
+  iota(idx.begin(), idx.end(), 0);
+  nth_element(idx.begin(), idx.begin()+k, idx.end(),
+    [&](int a,int b){ return cnt[a]>cnt[b]; });
+  for(int i=0;i&lt;k;i++){
+    cout &lt;&lt; P[idx[i]] &lt;&lt; ": " &lt;&lt; cnt[idx[i]] &lt;&lt; "\n";
+  }
+  return 0;
+}
+  </code></pre>
+
+  <h3>3.2 Problem: Multi-pattern Matching in Streaming</h3>
+  <p>
+    <em>Continuously read characters from a stream, report patterns as soon as they appear (low latency).</em>
+  </p>
+  <pre><code>
+// streaming detection
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+// (reuse Aho from above)
+int main(){
+  Aho aho;
+  vector&lt;string&gt; patterns = {/* … */};
+  for(int i=0;i&lt;patterns.size();i++)
+    aho.add(patterns[i], i);
+  aho.build();
+  int v = 0;
+  char c;
+  while(cin.get(c)){
+    if(!islower(c)) continue;
+    v = aho.t[v].next[c-'a'];
+    for(int id: aho.t[v].out)
+      cout &lt;&lt; "Pattern " &lt;&lt; id &lt;&lt; " at pos " &lt;&lt; cin.tellg() &lt;&lt; "\n";
+  }
+  return 0;
+}
+  </code></pre>
+
+  <h2>4. One Hard Problem</h2>
+  <h3>Minimum Window Containing All Patterns</h3>
+  <p>
+    <em>Given text T and patterns P₁…Pₙ, find the shortest substring of T that contains at least one occurrence of each Pᵢ.</em>
+  </p>
+  <pre><code>
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+struct Aho {
+    static const int A=26;
+    struct Node{ int nxt[A], link; vector<int> out; Node(){ memset(nxt,-1,sizeof nxt); link=0;}};
+    vector&lt;Node&gt; t; Aho():t(1){}
+    void add(const string&s,int id){
+      int v=0; for(char c:s){
+        int x=c-'a';
+        if(t[v].nxt[x]==-1){ t[v].nxt[x]=t.size(); t.emplace_back();}
+        v=t[v].nxt[x];
+      }
+      t[v].out.push_back(id);
+    }
+    void build(){
+      queue&lt;int&gt;q;
+      for(int c=0;c&lt;A;c++){
+        int u=t[0].nxt[c];
+        if(u!=-1){ q.push(u); t[u].link=0;}
+        else t[0].nxt[c]=0;
+      }
+      while(!q.empty()){
+        int v=q.front(); q.pop();
+        for(int c=0;c&lt;A;c++){
+          int u=t[v].nxt[c];
+          if(u!=-1){
+            t[u].link = t[t[v].link].nxt[c];
+            auto &out = t[t[u].link].out;
+            t[u].out.insert(t[u].out.end(), out.begin(), out.end());
+            q.push(u);
+          } else {
+            t[v].nxt[c] = t[t[v].link].nxt[c];
+          }
+        }
+      }
+    }
+};
+
+int main(){
+  string T; 
+  int n; 
+  cin >> n >> T;
+  vector&lt;string&gt; P(n);
+  for(int i=0;i&lt;n;i++) cin >> P[i];
+
+  Aho aho;
+  vector&lt;int&gt; plen(n);
+  for(int i=0;i&lt;n;i++){
+    aho.add(P[i], i);
+    plen[i] = P[i].size();
+  }
+  aho.build();
+
+  vector&lt;pair&lt;int,int&gt;&gt; events; // (end_pos, pattern_id)
+  int v=0;
+  for(int i=0;i&lt;T.size();i++){
+    v = aho.t[v].nxt[T[i]-'a'];
+    for(int id: aho.t[v].out){
+      events.emplace_back(i, id);
+    }
+  }
+
+  const long long INF = 1e18;
+  vector&lt;int&gt; last(n, -1);
+  int cnt=0;
+  long long best = INF;
+  int L = 0;
+  for(auto &e: events){
+    int pos=e.first, id=e.second;
+    if(last[id]==-1) cnt++;
+    last[id] = pos;
+    while(cnt==n){
+      // compute window: start = min(last[j]-plen[j]+1), end = pos
+      int mn=INT_MAX;
+      for(int j=0;j&lt;n;j++)
+        mn = min(mn, last[j]-plen[j]+1);
+      best = min(best, pos - mn + 1LL);
+      // remove the earliest pattern occurrence to shrink window
+      // find which id gives that mn:
+      int remove_id=-1;
+      for(int j=0;j&lt;n;j++){
+        if(last[j]-plen[j]+1 == mn){ remove_id=j; break;}
+      }
+      // “remove” it by setting last to -1 and decreasing cnt, but that breaks future windows
+      // instead, break to wait for next events
+      break;
+    }
+  }
+
+  if(best==INF) cout &lt;&lt; "-1\n";
+  else cout &lt;&lt; best &lt;&lt; "\n";
+  return 0;
+}
+  </code></pre>
+
+</body>
+</html>

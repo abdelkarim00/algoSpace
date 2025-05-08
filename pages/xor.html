@@ -1,0 +1,259 @@
+<h1>XOR Tricks &amp; Bitwise Algorithms</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+Many “XOR Tricks” hinge on these core properties of bitwise exclusive-OR (<code>^</code>):
+</p>
+<ul>
+  <li><code>a ^ a = 0</code></li>
+  <li><code>a ^ 0 = a</code></li>
+  <li>Commutative &amp; associative: <code>a ^ b = b ^ a</code>, <code>(a ^ b) ^ c = a ^ (b ^ c)</code></li>
+</ul>
+<p>
+A common pattern is to build a <strong>prefix-xor array</strong>  
+<code>px[0]=0</code>, <code>px[i]=px[i–1] ^ a[i]</code>.  
+Then the xor of any subarray <code>a[l…r]</code> is  
+<code>px[r] ^ px[l–1]</code> in O(1) time.
+</p>
+
+<h3>Time Complexity</h3>
+<p>
+For most XOR-trick solutions you scan the array once (O(<em>n</em>)) or do one pass plus some log-factor data-structure operations (O(<em>n</em> log <em>n</em>)).  
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+You typically store:
+<ul>
+  <li>The input array, O(<em>n</em>).</li>
+  <li>A prefix-xor array or small extra arrays/maps, O(<em>n</em>).</li>
+</ul>
+Total: O(<em>n</em>).</p>
+
+<hr>
+
+<h2>2. Easy Problems</h2>
+
+<h3>2.1 – Ultra-Fast Mathematician (Codeforces 61A)</h3>
+<p>
+Given two binary strings of equal length, output a new string where each bit is the bitwise XOR of the corresponding bits.
+</p>
+<pre>
+<b>Input:</b>
+10101
+00111
+
+<b>Output:</b>
+10010
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+int main() {
+    string a, b;
+    cin &gt;&gt; a &gt;&gt; b;
+    int n = a.size();
+    string ans(n, '0');
+    for (int i = 0; i &lt; n; i++) {
+        // XOR of '0'/'1' characters:
+        ans[i] = (a[i] != b[i] ? '1' : '0');
+    }
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – XOR Mixup (Codeforces 1698A)</h3>
+<p>
+Given an array of <em>n–1</em> integers, append one number so that the total XOR of the array becomes zero.
+Output that number.
+</p>
+<pre>
+<b>Input:</b>
+5
+1 2 3 4
+
+<b>Output:</b>
+4
+</pre>
+<pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+    int x = 0, v;
+    for (int i = 0; i &lt; n-1; i++) {
+        cin &gt;&gt; v;
+        x ^= v;          // accumulate XOR of given elements
+    }
+    cout &lt;&lt; x &lt;&lt; "\n"; // x ^ x = 0, so appending x zeroes total XOR
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Intermediate Problems</h2>
+
+<h3>3.1 – XOR Queries (Codeforces <span style="text-decoration: underline;">#trending</span>)</h3>
+<p>
+You have an array <code>a[1…n]</code> and <code>q</code> queries of form <code>(l, r)</code>.  
+For each query, print <code>a[l] ^ a[l+1] ^ … ^ a[r]</code>.
+</p>
+<pre>
+<b>Input:</b>
+5 3
+1 2 3 4 5
+1 3
+2 5
+1 5
+
+<b>Output:</b>
+0
+4
+1
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, q;
+    cin &gt;&gt; n &gt;&gt; q;
+    vector&lt;int&gt; a(n+1), px(n+1, 0);
+    for (int i = 1; i &lt;= n; i++) {
+        cin &gt;&gt; a[i];
+        px[i] = px[i-1] ^ a[i];  
+    }
+    while (q--) {
+        int l, r;
+        cin &gt;&gt; l &gt;&gt; r;
+        cout &lt;&lt; (px[r] ^ px[l-1]) &lt;&lt; "\n";
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – Count Pairs with Given XOR (Codeforces <span style="text-decoration: underline;">#practice</span>)</h3>
+<p>
+Given an array and a target <code>K</code>, count pairs <code>(i, j), i<j</code> with <code>a[i] ^ a[j] = K</code>.
+</p>
+<pre>
+<b>Input:</b>
+5 2
+1 3 1 1 2
+
+<b>Output:</b>
+3
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, K;
+    cin &gt;&gt; n &gt;&gt; K;
+    unordered_map&lt;int,int&gt; freq;
+    long long ans = 0;
+    for (int i = 0, x; i &lt; n; i++) {
+        cin &gt;&gt; x;
+        // For current x, any previous y with (y ^ x) = K ⇒ y = x ^ K
+        ans += freq[x ^ K];
+        freq[x]++;
+    }
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. Hard Problem</h2>
+
+<h3>4.1 – XOR on Tree Paths (Codeforces <span style="text-decoration: underline;">#advanced</span>)</h3>
+<p>
+Given a rooted tree with values <code>a[v]</code> at each node, answer queries:  
+“What is the XOR of all values on the path from node <u>u</u> to the root?”  
+Up to 2·10<sup>5</sup> nodes and queries.
+</p>
+<pre>
+<b>Input:</b>
+5 3
+1 2 3 4 5
+1 2
+1 3
+3 4
+3 5
+4
+5
+2
+
+<b>Output:</b>
+1^3^4 = 6
+1^3^5 = 7
+1^2   = 3
+</pre>
+<pre><code>#include &lt;iiostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+static const int MAXN = 200000;
+vector&lt;int&gt; adj[MAXN+1];
+int a[MAXN+1], px[MAXN+1];
+
+void dfs(int u, int p) {
+    // px[u] = xor of path from root (1) to u
+    px[u] = px[p] ^ a[u];
+    for (int v : adj[u]) {
+        if (v == p) continue;
+        dfs(v, u);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, q;
+    cin &gt;&gt; n &gt;&gt; q;
+    for (int i = 1; i <= n; i++) {
+        cin &gt;&gt; a[i];
+    }
+    for (int i = 0; i < n-1; i++) {
+        int u, v;
+        cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    // Precompute prefix-xor along root-to-node paths
+    px[0] = 0;
+    dfs(1, 0);
+
+    while (q--) {
+        int u;
+        cin &gt;&gt; u;
+        cout &lt;&lt; px[u] &lt;&lt; "\n";
+    }
+    return 0;
+}
+</code></pre>
+
+<p>
+Each of these problems leverages one or more XOR properties:
+<ul>
+  <li>prefix-xor for O(1) range queries,</li>
+  <li>hashing / frequency maps for pair counts,</li>
+  <li>simple tree-dfs with xor accumulation,</li>
+  <li>character-by-character xor for binary strings.</li>
+</ul>
+All run in O(<em>n</em> log <em>n</em>) or O(<em>n</em>) time and O(<em>n</em>) memory.  
+Embed this HTML directly—no extra CSS needed.  

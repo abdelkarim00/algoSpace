@@ -1,0 +1,297 @@
+<div>
+    <h1>Interval Scheduling &amp; Greedy Algorithms</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+The classic <strong>Interval Scheduling Maximization</strong> problem is:  
+“Given N jobs, each with a start time <code>[s<sub>i</sub>]</code> and end time <code>[f<sub>i</sub>]</code>, select the maximum-size subset of non‐overlapping jobs.”
+</p>
+<p>
+The optimal greedy algorithm is:
+</p>
+<ol>
+  <li><strong>Sort</strong> all intervals by their finish times (<code>f<sub>i</sub></code>) in non‐decreasing order.</li>
+  <li>Initialize <code>last_end = −∞</code>, and an empty list of selected jobs.</li>
+  <li>For each interval <code>(s, f)</code> in sorted order:
+    <ul>
+      <li>If <code>s ≥ last_end</code>, select this interval, and set <code>last_end = f</code>.</li>
+    </ul>
+  </li>
+  <li>Return the selected set.</li>
+</ol>
+
+<h3>Time Complexity</h3>
+<p>
+Sorting takes <code>O(N log N)</code>, then the linear scan is <code>O(N)</code>, so overall  
+<strong>O(N log N)</strong>.
+</p>
+
+<h3>Memory Complexity</h3>
+<p>
+We store the list of intervals and a few scalars.  
+Total extra space is <strong>O(N)</strong>.
+</p>
+
+<hr>
+
+<h2>2. Two Easy Codeforces-style Problems</h2>
+
+<h3>2.1 Maximum Meetings (CF-X01A)</h3>
+<p>
+You have <code>N</code> meetings with start/end times. Schedule as many as possible in one room.
+</p>
+<pre>
+<b>Input:</b>
+5
+1 4
+3 5
+0 6
+5 7
+8 9
+
+<b>Output:</b>
+3
+</pre>
+<p>
+<strong>Explanation:</strong> You can take meetings [1,4], [5,7], [8,9].
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt;int,int&gt;&gt; a(N);
+    for (int i = 0; i &lt; N; ++i)
+        cin &gt;&gt; a[i].first &gt;&gt; a[i].second;
+    sort(a.begin(), a.end(), [](auto &x, auto &y){
+        return x.second &lt; y.second;
+    });
+    int last_end = -1, cnt = 0;
+    for (auto &intv : a) {
+        if (intv.first &gt;= last_end) {
+            ++cnt;
+            last_end = intv.second;
+        }
+    }
+    cout &lt;&lt; cnt &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 Minimum Removals (CF-X02B)</h3>
+<p>
+Given <code>N</code> intervals, remove the fewest to eliminate all overlaps.
+</p>
+<pre>
+<b>Input:</b>
+4
+1 3
+2 4
+3 5
+6 7
+
+<b>Output:</b>
+1
+</pre>
+<p>
+<strong>Explanation:</strong> Remove [2,4], then remaining [1,3],[3,5],[6,7] are non-overlapping.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt;int,int&gt;&gt; a(N);
+    for (int i = 0; i &lt; N; ++i)
+        cin &gt;&gt; a[i].first &gt;&gt; a[i].second;
+    sort(a.begin(), a.end(), [](auto &x, auto &y){
+        return x.second &lt; y.second;
+    });
+    int last_end = -1, removals = 0;
+    for (auto &intv : a) {
+        if (intv.first &lt; last_end) {
+            ++removals;
+        } else {
+            last_end = intv.second;
+        }
+    }
+    cout &lt;&lt; removals &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Two Intermediate Problems</h2>
+
+<h3>3.1 Room Assignment (CF-X10C)</h3>
+<p>
+Assign each of <code>N</code> intervals to one of the minimum number of rooms so that no two in the same room overlap.
+</p>
+<pre>
+<b>Input:</b>
+3
+0 10
+5 15
+10 20
+
+<b>Output:</b>
+2
+</pre>
+<p>
+<strong>Explanation:</strong>  
+Room 1: [0,10], [10,20]  
+Room 2: [5,15]
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt;int,int&gt;&gt; a(N);
+    for (int i = 0; i &lt; N; ++i)
+        cin &gt;&gt; a[i].first &gt;&gt; a[i].second;
+    sort(a.begin(), a.end()); 
+    // min‐heap of current room end‐times
+    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq;
+    for (auto &intv : a) {
+        if (!pq.empty() && pq.top() &lt;= intv.first) {
+            pq.pop();
+        }
+        pq.push(intv.second);
+    }
+    cout &lt;&lt; pq.size() &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 Maximum Pairs of Overlaps (CF-X11D)</h3>
+<p>
+Given <code>N</code> intervals, form as many disjoint overlapping pairs as possible: each interval can be in at most one pair, and paired intervals must overlap.
+</p>
+<pre>
+<b>Input:</b>
+5
+1 5
+2 6
+7 8
+3 4
+5 7
+
+<b>Output:</b>
+2
+</pre>
+<p>
+<strong>Explanation:</strong> Possible pairs: ([1,5],[2,6]) and ([5,7],[7,8]) or ([3,4],[1,5]), etc.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main() {
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;pair&lt;int,int&gt;&gt; a(N);
+    for (int i = 0; i &lt; N; ++i)
+        cin &gt;&gt; a[i].first &gt;&gt; a[i].second;
+    sort(a.begin(), a.end(), [](auto &x, auto &y){
+        return x.second &lt; y.second;
+    });
+    int used = 0, ans = 0;
+    vector&lt;bool&gt; taken(N,false);
+    for (int i = 0; i &lt; N; ++i) {
+        if (taken[i]) continue;
+        for (int j = i+1; j &lt; N; ++j) {
+            if (!taken[j] && a[j].first &lt; a[i].second) {
+                taken[i] = taken[j] = true;
+                ++ans;
+                break;
+            }
+        }
+    }
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. One Hard Problem</h2>
+
+<h3>4.1 Weighted Interval Scheduling (CF-X20F)</h3>
+<p>
+Each of <code>N</code> requests has <code>start, end, weight</code>. Find the max‐total‐weight subset of non-overlapping intervals.
+</p>
+<pre>
+<b>Input:</b>
+4
+1 3 5
+2 5 6
+4 6 5
+6 7 4
+
+<b>Output:</b>
+10
+</pre>
+<p>
+<strong>Explanation:</strong> Pick [1,3,5] + [4,6,5] = total weight 10.
+</p>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+using ll = long long;
+
+struct Itv { int s,e; ll w; };
+
+int main(){
+    int N; 
+    cin &gt;&gt; N;
+    vector&lt;Itv&gt; a(N);
+    for(int i=0;i&lt;N;i++)
+        cin&gt;&gt;a[i].s&gt;&gt;a[i].e&gt;&gt;a[i].w;
+    sort(a.begin(), a.end(), [](auto &x, auto &y){
+        return x.e < y.e;
+    });
+    // p[i] = last interval before i that doesn't overlap
+    vector&lt;int&gt; p(N, -1);
+    for(int i=0;i&lt;N;i++){
+        for(int j=i-1;j>=0;j--){
+            if(a[j].e <= a[i].s){
+                p[i] = j;
+                break;
+            }
+        }
+    }
+    vector&lt;ll&gt; dp(N);
+    dp[0] = a[0].w;
+    for(int i=1;i&lt;N;i++){
+        ll take = a[i].w + (p[i] >= 0 ? dp[p[i]] : 0);
+        dp[i] = max(dp[i-1], take);
+    }
+    cout &lt;&lt; dp[N-1] &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<p>
+All these problems build on the same greedy/backtracking/DP ideas:
+<ul>
+  <li><em>Unweighted</em>: sort by finish time → greedy → O(N log N).</li>
+  <li><em>Partitioning</em>: sort + min-heap → O(N log N).</li>
+  <li><em>Pairs</em>: a simple greedy match in O(N²) or optimized with two-pointer.</li>
+  <li><em>Weighted</em>: sort + binary search to find p[i] + 1D DP → O(N²) naïve or O(N log N).</li>
+</ul>
+
+</div>

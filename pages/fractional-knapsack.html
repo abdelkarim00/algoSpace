@@ -1,0 +1,294 @@
+<div>
+    <h1>Fractional Knapsack &amp; Greedy</h1>
+
+<h2>1. Algorithm &amp; Complexity</h2>
+<p>
+The <strong>Fractional Knapsack</strong> problem is:  
+Given <em>n</em> items, each with weight <code>w[i]</code> and value <code>v[i]</code>, and a knapsack of capacity <code>C</code>, maximize total value by taking whole items or fractions of items.
+</p>
+<p>
+<strong>Greedy strategy (Dantzig’s algorithm)</strong>:
+<ol>
+  <li>Compute ratio <code>r[i] = v[i] / w[i]</code> for each item.</li>
+  <li>Sort all items in descending order of <code>r[i]</code>.</li>
+  <li>Iterate sorted items:
+    <ul>
+      <li>If <code>w[i] ≤ remainingCapacity</code>, take the whole item → add <code>v[i]</code>, subtract <code>w[i]</code>.</li>
+      <li>Else take fraction <code>f = remainingCapacity / w[i]</code> → add <code>f * v[i]</code>, fill the knapsack, stop.</li>
+    </ul>
+  </li>
+</ol>
+</p>
+
+<h3>Time Complexity</h3>
+<ul>
+  <li>Sorting by ratio: <code>O(n log n)</code></li>
+  <li>Scanning items once: <code>O(n)</code></li>
+</ul>
+<p><strong>Total:</strong> <code>O(n log n)</code></p>
+
+<h3>Memory Complexity</h3>
+<ul>
+  <li>Store <code>n</code> tuples and a few scalars → <code>O(n)</code></li>
+</ul>
+
+<hr>
+
+<h2>2. Two Easy Codeforces-Style Problems</h2>
+
+<h3>2.1 – “Simple Knapsack” (CF-style)</h3>
+<p>
+Given <code>n ≤ 10</code>, lists <code>w[i]</code>, <code>v[i]</code> and capacity <code>C ≤ 100</code>, compute maximum value allowing fractions.
+</p>
+<pre>
+<b>Input:</b>
+3 50
+10 60
+20 100
+30 120
+
+<b>Output:</b>
+240.000000
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int n;
+    double C;
+    cin &gt;&gt; n &gt;&gt; C;
+    vector&lt;pair&lt;double,int&gt;&gt; items(n);
+    vector&lt;double&gt; w(n), v(n);
+    for(int i=0;i&lt;n;i++){
+        cin&gt;&gt;w[i]&gt;&gt;v[i];
+        items[i] = {v[i]/w[i], i};
+    }
+    sort(items.begin(), items.end(),
+         [&](auto &a, auto &b){ return a.first &gt; b.first; });
+    double ans = 0;
+    for(auto &it : items){
+        int i = it.second;
+        if(C &gt;= w[i]){
+            C -= w[i];
+            ans += v[i];
+        } else {
+            ans += it.first * C;
+            break;
+        }
+    }
+    cout.setf(std::ios::fixed);
+    cout.precision(6);
+    cout &lt;&lt; ans &lt;&lt; "\n";
+    return 0;
+}
+</code></pre>
+
+<h3>2.2 – “Greedy Medal Allocation”</h3>
+<p>
+You have <code>n</code> students, each with score <code>s[i]</code> and effort <code>e[i]</code>. You have <code>E</code> effort‐points. Maximize sum of scores by spending effort, fractions allowed.
+</p>
+<pre>
+<b>Input:</b>
+3 5.5
+4  10
+2  5
+6  12
+
+<b>Output:</b>
+3.833333
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int main(){
+    int n; double E;
+    cin&gt;&gt;n&gt;&gt;E;
+    struct S{ double score, eff, r; };
+    vector&lt;S&gt; a(n);
+    for(int i=0;i&lt;n;i++){
+        cin&gt;&gt;a[i].score&gt;&gt;a[i].eff;
+        a[i].r = a[i].score / a[i].eff;
+    }
+    sort(a.begin(), a.end(),
+         [&](auto &A, auto &B){ return A.r &gt; B.r; });
+    double total = 0;
+    for(auto &x : a){
+        if(E &gt;= x.eff){
+            E -= x.eff;
+            total += x.score;
+        } else {
+            total += x.r * E;
+            break;
+        }
+    }
+    cout.setf(std::ios::fixed);
+    cout.precision(6);
+    cout&lt;&lt;total&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>3. Two Intermediate Codeforces-Style Problems</h2>
+
+<h3>3.1 – “Buy Maximum Toys”</h3>
+<p>
+You have <code>n</code> toy types, price <code>p[i]</code> and discount weight <code>d[i]</code>. You can buy full toys or fractions of a toy (by weight). Budget <code>B</code>, maximize total discount value.
+</p>
+<pre>
+<b>Input:</b>
+4 20
+5 10
+8 15
+3 6
+7 14
+
+<b>Output:</b>
+21.000000
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+struct T{ double disc, wt, r; };
+int main(){
+    int n; double B;
+    cin&gt;&gt;n&gt;&gt;B;
+    vector&lt;T&gt; a(n);
+    for(int i=0;i&lt;n;i++){
+        cin&gt;&gt;a[i].wt&gt;&gt;a[i].disc;
+        a[i].r = a[i].disc / a[i].wt;
+    }
+    sort(a.begin(), a.end(),
+         [&](auto &A, auto &B){ return A.r &gt; B.r; });
+    double ans=0;
+    for(auto &x : a){
+        if(B &gt;= x.wt){
+            B-=x.wt;
+            ans+=x.disc;
+        } else {
+            ans+=x.r*B;
+            break;
+        }
+    }
+    cout.setf(std::ios::fixed);
+    cout.precision(6);
+    cout&lt;&lt;ans&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<h3>3.2 – “Resource Allocation”</h3>
+<p>
+There are <code>m</code> projects, each requires <code>r[j]</code> units of resource and yields <code>g[j]</code> profit. You have <code>R</code> resources, can allocate fractionally. Maximize profit.
+</p>
+<pre>
+<b>Input:</b>
+3 100
+20  80
+50 200
+40 160
+
+<b>Output:</b>
+320.000000
+</pre>
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+struct P{ double res, gain, rg; };
+int main(){
+    int m; double R;
+    cin&gt;&gt;m&gt;&gt;R;
+    vector&lt;P&gt; v(m);
+    for(int i=0;i&lt;m;i++){
+        cin&gt;&gt;v[i].res&gt;&gt;v[i].gain;
+        v[i].rg = v[i].gain / v[i].res;
+    }
+    sort(v.begin(), v.end(),
+         [&](auto &A, auto &B){ return A.rg &gt; B.rg; });
+    double total=0;
+    for(auto &pr : v){
+        if(R &gt;= pr.res){
+            R -= pr.res;
+            total += pr.gain;
+        } else {
+            total += pr.rg * R;
+            break;
+        }
+    }
+    cout.setf(std::ios::fixed);
+    cout.precision(6);
+    cout&lt;&lt;total&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<hr>
+
+<h2>4. One Hard Codeforces-Style Problem</h2>
+
+<h3>4.1 – “Global Resource Distribution”</h3>
+<p>
+There are <code>k</code> countries, each produces <code>p[i]</code> units of a commodity at cost <code>c[i]</code> per unit. A global market demand is <code>D</code>, you can buy fractions from any country. Minimize total cost.
+</p>
+<pre>
+<b>Input:</b>
+5 120.0
+10  15.0
+50  14.0
+20  16.0
+80  13.5
+30  15.5
+
+<b>Output:</b>
+1640.000000
+</pre>
+<pre><code>#include &lt;iostream&gt>
+#include &lt;vector&gt>
+#include &lt;algorithm&gt>
+using namespace std;
+struct C{ double prod, cost, rc; };
+int main(){
+    int k; double D;
+    cin&gt;&gt;k&gt;&gt;D;
+    vector&lt;C&gt; a(k);
+    for(int i=0;i&lt;k;i++){
+        cin&gt;&gt;a[i].prod&gt;&gt;a[i].cost;
+        a[i].rc = a[i].cost / a[i].prod;
+    }
+    // minimize cost per unit → sort by cost ascending
+    sort(a.begin(), a.end(),
+         [&](auto &A, auto &B){ return (A.cost/A.prod) &lt; (B.cost/B.prod); });
+    double totalCost=0;
+    for(auto &x : a){
+        if(D &gt;= x.prod){
+            D -= x.prod;
+            totalCost += x.cost;
+        } else {
+            // fraction of production: cost per unit = x.cost / x.prod
+            double unitCost = x.cost / x.prod;
+            totalCost += unitCost * D;
+            break;
+        }
+    }
+    cout.setf(std::ios::fixed);
+    cout.precision(6);
+    cout&lt;&lt;totalCost&lt;&lt;'\n';
+    return 0;
+}
+</code></pre>
+
+<p>
+All five examples share the same greedy blueprint:  
+<ul>
+  <li>Compute “value per unit” (ratio).</li>
+  <li>Sort by that ratio (descending to maximize, ascending to minimize cost).</li>
+  <li>Take whole items until capacity/demand remains, then take a fraction.</li>
+</ul>
+</div>>
