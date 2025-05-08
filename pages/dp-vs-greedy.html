@@ -64,15 +64,47 @@
 
 <h2>DP vs. Greedy: The Key Differences Summarized</h2>
 
-| Feature           | Greedy Algorithm                               | Dynamic Programming                                    |
-|-------------------|------------------------------------------------|--------------------------------------------------------|
-| Decision Making   | Makes locally optimal choices at each step.     | Considers all possible choices and their consequences. |
-| Exploration       | Does not explore alternatives.                 | Explores overlapping subproblems and stores solutions.  |
-| Optimality        | May not always yield the globally optimal solution. | Guarantees the globally optimal solution (if applicable). |
-| Complexity        | Often more efficient (lower time complexity).   | Can be more computationally intensive (higher time/space complexity). |
-| Implementation    | Generally simpler to implement.                | Can be more complex to implement (due to memoization/tabulation). |
-| Problem Structure | Requires greedy choice property.               | Requires optimal substructure and overlapping subproblems. |
-
+<table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Greedy Algorithm</th>
+        <th>Dynamic Programming</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Decision Making</td>
+        <td>Makes locally optimal choices at each step.</td>
+        <td>Considers all possible choices and their consequences.</td>
+      </tr>
+      <tr>
+        <td>Exploration</td>
+        <td>Does not explore alternatives.</td>
+        <td>Explores overlapping subproblems and stores solutions.</td>
+      </tr>
+      <tr>
+        <td>Optimality</td>
+        <td>May not always yield the globally optimal solution.</td>
+        <td>Guarantees the globally optimal solution (if applicable).</td>
+      </tr>
+      <tr>
+        <td>Complexity</td>
+        <td>Often more efficient (lower time complexity).</td>
+        <td>Can be more computationally intensive (higher time/space complexity).</td>
+      </tr>
+      <tr>
+        <td>Implementation</td>
+        <td>Generally simpler to implement.</td>
+        <td>Can be more complex to implement (due to memoization/tabulation).</td>
+      </tr>
+      <tr>
+        <td>Problem Structure</td>
+        <td>Requires greedy choice property.</td>
+        <td>Requires optimal substructure and overlapping subproblems.</td>
+      </tr>
+    </tbody>
+  </table>
 <h2>Choosing the Right Approach</h2>
 
 <p>Deciding whether to use a greedy approach or dynamic programming depends on the specific problem:</p>
