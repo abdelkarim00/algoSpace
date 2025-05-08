@@ -213,7 +213,78 @@
         </footer>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const pageContentDiv = document.getElementById('page-content');
+            const loadingDiv = document.getElementById('loading');
+            const navLinks = sidebar.querySelectorAll('a');
+            const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+
+            function loadPage(page) {
+                loadingDiv.style.display = 'block';
+                fetch(`pages/${page}.html`)
+                    .then(response => response.text())
+                    .then(html => {
+                        pageContentDiv.innerHTML = html;
+                        hljs.highlightAll();
+                        loadingDiv.style.display = 'none';
+                        if (mobileNavToggle && sidebar.classList.contains('open')) {
+                            sidebar.classList.remove('open');
+                            mobileNavToggle.classList.remove('open');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading page:', error);
+                        pageContentDiv.innerHTML = '<p>Error loading content.</p>';
+                        loadingDiv.style.display = 'none';
+                        if (mobileNavToggle && sidebar.classList.contains('open')) {
+                            sidebar.classList.remove('open');
+                            mobileNavToggle.classList.remove('open');
+                        }
+                    });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const page = this.parentNode.getAttribute('data-page');
+                    if (page) {
+                        loadPage(page);
+                        window.location.hash = this.getAttribute('href');
+                    }
+                });
+            });
+
+            // Load initial content if a hash is present
+            if (window.location.hash) {
+                const initialPage = window.location.hash.substring(1);
+                loadPage(initialPage);
+            } else {
+                // Optionally load a default page on initial load
+                loadPage('home'); // Create a home.html if you want a default
+            }
+
+            // Mobile navigation toggle functionality
+            if (mobileNavToggle) {
+                mobileNavToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('open');
+                    mobileNavToggle.classList.toggle('open');
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (event) => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open') && !sidebar.contains(event.target) && event.target !== mobileNavToggle) {
+                    sidebar.classList.remove('open');
+                    mobileNavToggle.classList.remove('open');
+                }
+            });
+        });
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
+
 </body>
 </html>
