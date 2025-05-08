@@ -1,0 +1,322 @@
+
+<div>
+
+<h1>Sliding Window Algorithm Explained</h1>
+
+<p>The sliding window algorithm is a powerful technique used to solve problems involving subarrays or substrings of a specific size. Instead of repeatedly iterating through all possible subarrays or substrings, it efficiently "slides" a window of a fixed size across the data structure, performing computations only on the elements within the window.</p>
+
+<h2>Algorithm</h2>
+
+<p>The general idea behind the sliding window algorithm involves these steps:</p>
+
+<ol>
+  <li><strong>Define the Window:</strong> Determine the size (k) of the window you need to consider.</li>
+  <li><strong>Initialize the Window:</strong> Create an initial window of size k, usually starting from the beginning of the array or string.</li>
+  <li><strong>Perform Operations:</strong> Calculate the desired value (e.g., sum, maximum, count) within the current window.</li>
+  <li><strong>Slide the Window:</strong> Move the window one element to the right. This typically involves:
+    <ul>
+      <li>Removing the element that just left the window (the leftmost element).</li>
+      <li>Adding the new element that just entered the window (the rightmost element).</li>
+    </ul>
+  </li>
+  <li><strong>Repeat:</strong> Continue steps 3 and 4 until the window reaches the end of the data structure.</li>
+  <li><strong>Store Results:</strong> Keep track of the results obtained for each window position.</li>
+</ol>
+
+<h2>Mathematics</h2>
+
+<p>The mathematics involved in the sliding window algorithm often depends on the specific problem you are trying to solve. However, some fundamental mathematical concepts are frequently used:</p>
+
+<ul>
+  <li><strong>Summation:</strong> For problems involving the sum of elements in a window, you'll be dealing with sums of consecutive elements. If $W_i$ represents the window at position $i$, containing elements $a_i, a_{i+1}, ..., a_{i+k-1}$, the sum $S_i$ is given by:
+    $$S_i = \sum_{j=i}^{i+k-1} a_j = a_i + a_{i+1} + ... + a_{i+k-1}$$
+    When the window slides to $W_{i+1}$ (elements $a_{i+1}, a_{i+2}, ..., a_{i+k}$), the new sum $S_{i+1}$ can be efficiently calculated using the previous sum:
+    $$S_{i+1} = S_i - a_i + a_{i+k}$$
+    This avoids recalculating the sum of $k$ elements in each step.</li>
+  <li><strong>Counting:</strong> For problems involving counting occurrences of certain elements within a window, you might use frequency maps or counters. When the window slides, you decrement the count of the element leaving the window and increment the count of the element entering.</li>
+  <li><strong>Maximum/Minimum:</strong> Finding the maximum or minimum element within a sliding window can be done naively by iterating through the window in each step. However, more efficient techniques using data structures like dequeues can maintain the maximum or minimum in $O(1)$ average time per slide.</li>
+</ul>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Time Complexity:</strong> In most cases, the sliding window algorithm iterates through the input array or string only once. The operations performed within each window (addition, subtraction, comparison, hash map updates) usually take constant time or logarithmic time (if using balanced trees or heaps for maintaining maximum/minimum). Therefore, the overall time complexity is often linear, i.e., $O(n)$, where $n$ is the size of the input.</li>
+  <li><strong>Memory Complexity:</strong> The memory complexity depends on the information you need to store for each window. For simple problems like finding the maximum sum, the memory usage is typically constant, $O(1)$. However, if you need to store frequencies of elements within the window (e.g., using a hash map), the memory complexity might be proportional to the size of the window in the worst case, i.e., $O(k)$, where $k$ is the window size, or the number of distinct elements in the input if that's the limiting factor.</li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<h3>Problem 1: Maximum Sum Subarray of Size K (Codeforces)</h3>
+<p><a href="https://codeforces.com/problemset/problem/1925/A">Codeforces Problem 1925A (Hypothetical - No such easy problem with direct sliding window application exists at this level. This is for illustration.)</a></p>
+<p><strong>Problem Statement (Hypothetical):</strong> Given an array of integers and an integer $k$, find the maximum sum of any contiguous subarray of size $k$.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+array = [1, 4, 2, 10, 2, 3, 1, 0, 20]
+k = 4
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+24 (from subarray [2, 10, 2, 3])
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include <iostream>
+#include <vector>
+#include <numeric>
+#include <algorithm>
+
+int main() {
+    std::vector<int> arr = {1, 4, 2, 10, 2, 3, 1, 0, 20};
+    int k = 4;
+    int n = arr.size();
+
+    if (k > n) {
+        std::cout << "Invalid value of k" << std::endl;
+        return 1;
+    }
+
+    int windowSum = std::accumulate(arr.begin(), arr.begin() + k, 0);
+    int maxSum = windowSum;
+
+    for (int i = k; i < n; ++i) {
+        windowSum = windowSum - arr[i - k] + arr[i];
+        maxSum = std::max(maxSum, windowSum);
+    }
+
+    std::cout << maxSum << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Count Occurrences of Anagrams (Hypothetical)</h3>
+<p><strong>Problem Statement (Hypothetical):</strong> Given a string `text` and a string `pattern`, find the number of occurrences of `pattern`'s anagrams within `text`. Assume both strings contain only lowercase English letters.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+text = "cbaebabacd"
+pattern = "abc"
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+2 (occurrences at index 0 "cba" and index 6 "bac")
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+bool areAnagrams(const std::string& s1, const std::string& s2) {
+    if (s1.length() != s2.length()) {
+        return false;
+    }
+    std::string sortedS1 = s1;
+    std::string sortedS2 = s2;
+    std::sort(sortedS1.begin(), sortedS1.end());
+    std::sort(sortedS2.begin(), sortedS2.end());
+    return sortedS1 == sortedS2;
+}
+
+int main() {
+    std::string text = "cbaebabacd";
+    std::string pattern = "abc";
+    int n = text.length();
+    int m = pattern.length();
+    int count = 0;
+
+    if (m > n) {
+        std::cout << 0 << std::endl;
+        return 0;
+    }
+
+    for (int i = 0; i <= n - m; ++i) {
+        std::string sub = text.substr(i, m);
+        if (areAnagrams(sub, pattern)) {
+            count++;
+        }
+    }
+
+    std::cout << count << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Minimum Size Subarray Sum (Codeforces - Variation)</h3>
+<p><a href="https://codeforces.com/problemset/problem/1833/C">Codeforces Problem 1833C (Unrelated, but similar difficulty might exist. This is a conceptual adaptation.)</a></p>
+<p><strong>Problem Statement (Variation):</strong> Given an array of positive integers and a target sum $S$, find the minimum length of a contiguous subarray whose sum is greater than or equal to $S$. If there is no such subarray, return 0.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+array = [2, 3, 1, 2, 4, 3]
+targetSum = 7
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+2 (subarray [4, 3] has sum 7 and length 2)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    std::vector<int> arr = {2, 3, 1, 2, 4, 3};
+    int targetSum = 7;
+    int n = arr.size();
+    int minLength = n + 1;
+    int windowSum = 0;
+    int windowStart = 0;
+
+    for (int windowEnd = 0; windowEnd < n; ++windowEnd) {
+        windowSum += arr[windowEnd];
+        while (windowSum >= targetSum) {
+            minLength = std::min(minLength, windowEnd - windowStart + 1);
+            windowSum -= arr[windowStart];
+            windowStart++;
+        }
+    }
+
+    if (minLength > n) {
+        std::cout << 0 << std::endl;
+    } else {
+        std::cout << minLength << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Longest Substring Without Repeating Characters (Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given a string `s`, find the length of the longest substring without repeating characters.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+s = "abcabcbb"
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+3 ("abc" has length 3)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+
+int main() {
+    std::string s = "abcabcbb";
+    int n = s.length();
+    int maxLength = 0;
+    int windowStart = 0;
+    std::unordered_map<char, int> charIndexMap;
+
+    for (int windowEnd = 0; windowEnd < n; ++windowEnd) {
+        char currentChar = s[windowEnd];
+        if (charIndexMap.count(currentChar) && charIndexMap[currentChar] >= windowStart) {
+            windowStart = charIndexMap[currentChar] + 1;
+        }
+        charIndexMap[currentChar] = windowEnd;
+        maxLength = std::max(maxLength, windowEnd - windowStart + 1);
+    }
+
+    std::cout << maxLength << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Minimum Window Substring (Conceptual Adaptation - Harder Variant)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation - Harder Variant):</strong> Given two strings `s` and `t`, find the shortest substring in `s` that contains all the characters in `t` (including duplicates). If no such substring exists, return an empty string.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+s = "ADOBECODEBANC"
+t = "ABC"
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+"BANC"
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+
+int main() {
+    std::string s = "ADOBECODEBANC";
+    std::string t = "ABC";
+    int n = s.length();
+    int m = t.length();
+
+    if (m > n || m == 0) {
+        std::cout << "" << std::endl;
+        return 0;
+    }
+
+    std::unordered_map<char, int> targetMap;
+    for (char c : t) {
+        targetMap[c]++;
+    }
+
+    int windowStart = 0;
+    int minLength = n + 1;
+    int head = 0;
+    int formed = 0;
+    std::unordered_map<char, int> windowMap;
+
+    for (int windowEnd = 0; windowEnd < n; ++windowEnd) {
+        char currentChar = s[windowEnd];
+        windowMap[currentChar]++;
+
+        if (targetMap.count(currentChar) && windowMap[currentChar] <= targetMap[currentChar]) {
+            formed++;
+        }
+
+        while (formed == m) {
+            if (windowEnd - windowStart + 1 < minLength) {
+                minLength = windowEnd - windowStart + 1;
+                head = windowStart;
+            }
+
+            char startChar = s[windowStart];
+            windowMap[startChar]--;
+            if (targetMap.count(startChar) && windowMap[startChar] < targetMap[startChar]) {
+                formed--;
+            }
+            windowStart++;
+        }
+    }
+
+    if (minLength > n) {
+        std::cout << "" << std::endl;
+    } else {
+        std::cout << s.substr(head, minLength) << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+
+</div>

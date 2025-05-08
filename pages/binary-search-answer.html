@@ -1,0 +1,359 @@
+<div>
+
+<h1>Binary Search on Answer Explained</h1>
+
+<p>Binary Search on Answer is a powerful technique used to solve optimization problems where the answer lies within a certain range and we can efficiently check if a given value is a feasible (or optimal) solution. Instead of directly calculating the answer, we binary search over the possible range of the answer.</p>
+
+<h2>Algorithm</h2>
+
+<p>The general steps for Binary Search on Answer are:</p>
+
+<ol>
+  <li><strong>Define the Search Space:</strong> Determine the range of possible values for the answer. This usually involves finding a lower bound and an upper bound for the optimal solution.</li>
+  <li><strong>Implement a Check Function:</strong> Create a function (often called `check(value)`) that takes a value within the search space and returns a boolean indicating whether this value is a valid (or achievable) answer. The key property of this function is that if `check(x)` is true, then `check(y)` is also true (or false, depending on whether we are minimizing or maximizing) for all $y$ in a consistent direction from $x$. This monotonicity is crucial for binary search to work.</li>
+  <li><strong>Perform Binary Search:</strong> While the search space (defined by the lower and upper bounds) is valid:
+    <ol type="a">
+      <li>Calculate the middle value: `mid = lower_bound + (upper_bound - lower_bound) / 2`.</li>
+      <li>Call the `check(mid)` function.</li>
+      <li>If `check(mid)` is true, it means `mid` is a possible answer (or potentially better than the current best). Adjust the search space accordingly (e.g., try for a better answer in the appropriate half).</li>
+      <li>If `check(mid)` is false, it means `mid` is not a valid answer (or not good enough). Adjust the search space to the other half.</li>
+    </ol>
+  </li>
+  <li><strong>Return the Answer:</strong> Once the binary search terminates (e.g., lower bound and upper bound converge), the optimal answer will be within a small range, and the exact answer can be determined based on the problem requirements and the final state of the bounds.</li>
+</ol>
+
+<h2>Mathematics</h2>
+
+<p>The correctness of Binary Search on Answer relies on the monotonic property of the `check` function. If the function is monotonic, it means that the possible answers form a contiguous range within the defined search space. This allows us to efficiently narrow down the search space by half in each step.</p>
+
+<p>Let the search space be $[L, R]$. In each step of the binary search, we evaluate the `check` function at the midpoint $M = \lfloor (L + R) / 2 \rfloor$.</p>
+
+<ul>
+  <li>If `check(M)` is true and we are looking for the minimum valid answer, we know that the optimal answer is in the range $[L, M]$.</li>
+  <li>If `check(M)` is true and we are looking for the maximum valid answer, we know that the optimal answer is in the range $[M, R]$.</li>
+  <li>If `check(M)` is false and we are looking for the minimum valid answer, we know that the optimal answer is in the range $[M + 1, R]$.</li>
+  <li>If `check(M)` is false and we are looking for the maximum valid answer, we know that the optimal answer is in the range $[L, M - 1]$.</li>
+</ul>
+
+<p>The number of iterations in the binary search is logarithmic with respect to the size of the initial search space. If the initial range is of size $N = R - L + 1$, the binary search will take approximately $\log_2(N)$ iterations to converge.</p>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Time Complexity:</strong> The time complexity of Binary Search on Answer is determined by the number of iterations of the binary search multiplied by the time complexity of the `check` function. If the search space has a size of $N$ and the `check` function takes $T_{check}$ time, then the overall time complexity is $O(\log(N) \cdot T_{check})$. The range $N$ is the difference between the initial upper and lower bounds of the answer.</li>
+  <li><strong>Memory Complexity:</strong> The memory complexity of Binary Search on Answer is usually dominated by the memory used within the `check` function and the storage for the input data. The binary search itself typically uses a constant amount of extra memory, i.e., $O(1)$.</li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<h3>Problem 1: Find the Smallest Divisor Given a Threshold (Codeforces - Hypothetical)</h3>
+<p><strong>Problem Statement (Hypothetical):</strong> Given an array of integers `nums` and an integer `threshold`, find the smallest positive integer divisor such that the sum of the result of dividing each element of `nums` by the divisor (using integer division) is less than or equal to `threshold`. The divisor must be at least 1.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+nums = [1, 2, 5, 9]
+threshold = 6
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+3 (1/3 + 2/3 + 5/3 + 9/3 = 0 + 0 + 1 + 3 = 4 &lt;= 6. For divisor 2, sum is 0 + 1 + 2 + 4 = 7 &gt; 6)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+#include &lt;algorithm&gt;
+
+bool checkDivisor(const std::vector&lt;int&gt;& nums, int divisor, int threshold) {
+    int sum = 0;
+    for (int num : nums) {
+        sum += (num + divisor - 1) / divisor; // Ceiling division
+    }
+    return sum &lt;= threshold;
+}
+
+int smallestDivisor(const std::vector&lt;int&gt;& nums, int threshold) {
+    int left = 1;
+    int right = *std::max_element(nums.begin(), nums.end());
+    int ans = right;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (checkDivisor(nums, mid, threshold)) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    std::vector&lt;int&gt; nums = {1, 2, 5, 9};
+    int threshold = 6;
+    std::cout &lt;&lt; smallestDivisor(nums, threshold) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Allocate Minimum Number of Pages (Codeforces - Hypothetical)</h3>
+<p><strong>Problem Statement (Hypothetical):</strong> You have `n` books with a[i] pages each. You have to allocate these books to `m` students such that each student gets at least one book. The books should be allocated in contiguous order. You have to allocate the books in such a way that the maximum number of pages allocated to a student is minimized. Find this minimum maximum number of pages.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+pages = [10, 20, 30, 40]
+num_students = 2
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+60 (Student 1 gets [10, 20, 30] (60 pages), Student 2 gets [40] (40 pages). Max is 60. Other allocations will have a higher maximum.)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+#include &lt;algorithm&gt;
+
+bool isPossibleAllocation(const std::vector&lt;int&gt;& pages, int num_students, int max_pages) {
+    int students_needed = 1;
+    int current_pages = 0;
+    for (int page : pages) {
+        if (page &gt; max_pages) {
+            return false;
+        }
+        if (current_pages + page &lt;= max_pages) {
+            current_pages += page;
+        } else {
+            students_needed++;
+            current_pages = page;
+        }
+    }
+    return students_needed &lt;= num_students;
+}
+
+int allocateMinimumPages(const std::vector&lt;int&gt;& pages, int num_students) {
+    int n = pages.size();
+    if (num_students &gt; n) {
+        return -1; // Invalid case
+    }
+    int left = *std::max_element(pages.begin(), pages.end());
+    int right = std::accumulate(pages.begin(), pages.end(), 0);
+    int ans = right;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (isPossibleAllocation(pages, num_students, mid)) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    std::vector&lt;int&gt; pages = {10, 20, 30, 40};
+    int num_students = 2;
+    std::cout &lt;&lt; allocateMinimumPages(pages, num_students) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Aggressive Cows (Codeforces)</h3>
+<p><a href="https://codeforces.com/problemset/problem/1095/F">Codeforces Problem 1095F (Unrelated, but similar difficulty might exist. This is a conceptual adaptation.)</a></p>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> There is a straight line with `n` stalls. You are given an array of integers representing the positions of these stalls. You have to place `c` cows in these stalls such that the minimum distance between any two cows is as large as possible. Find the largest minimum distance.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+positions = [1, 2, 8, 4, 9]
+num_cows = 3
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+3 (Cows can be placed at positions 1, 4, and 8, with minimum distance 3)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+bool canPlaceCows(const std::vector&lt;int&gt;& positions, int num_cows, int min_distance) {
+    int last_pos = positions[0];
+    int cows_placed = 1;
+    for (int i = 1; i &lt; positions.size(); ++i) {
+        if (positions[i] - last_pos >= min_distance) {
+            cows_placed++;
+            last_pos = positions[i];
+        }
+    }
+    return cows_placed >= num_cows;
+}
+
+int aggressiveCows(std::vector&lt;int&gt;& positions, int num_cows) {
+    std::sort(positions.begin(), positions.end());
+    int n = positions.size();
+    int left = 1;
+    int right = positions[n - 1] - positions[0];
+    int ans = 0;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (canPlaceCows(positions, num_cows, mid)) {
+            ans = mid;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    std::vector&lt;int&gt; positions = {1, 2, 8, 4, 9};
+    int num_cows = 3;
+    std::cout &lt;&lt; aggressiveCows(positions, num_cows) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Painter's Partition Problem (Codeforces - Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> You have `n` boards with lengths given in an array `lengths`. You have `k` painters available, and each painter takes 1 unit of time to paint 1 unit of board. All painters can work simultaneously. You need to assign boards to painters such that each board is painted by exactly one painter, and the set of contiguous boards assigned to each painter must be contiguous. Find the minimum time required to paint all the boards.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+lengths = [10, 20, 30, 40]
+num_painters = 2
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+60 (Painter 1 paints [10, 20, 30] (60 units of time), Painter 2 paints [40] (40 units of time). Max is 60.)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+#include &lt;algorithm&gt;
+
+bool canPaint(const std::vector&lt;int&gt;& lengths, int num_painters, int max_time) {
+    int painters_needed = 1;
+    int current_time = 0;
+    for (int length : lengths) {
+        if (length &gt; max_time) {
+            return false;
+        }
+        if (current_time + length &lt;= max_time) {
+            current_time += length;
+        } else {
+            painters_needed++;
+            current_time = length;
+        }
+    }
+    return painters_needed &lt;= num_painters;
+}
+
+int paintersPartition(const std::vector&lt;int&gt;& lengths, int num_painters) {
+    int n = lengths.size();
+    if (num_painters &gt; n) {
+        return *std::max_element(lengths.begin(), lengths.end());
+    }
+    int left = *std::max_element(lengths.begin(), lengths.end());
+    int right = std::accumulate(lengths.begin(), lengths.end(), 0);
+    int ans = right;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (canPaint(lengths, num_painters, mid)) {
+            ans = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    std::vector&lt;int&gt; lengths = {10, 20, 30, 40};
+    int num_painters = 2;
+    std::cout &lt;&lt; paintersPartition(lengths, num_painters) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Minimize Max Distance to Gas Station (Codeforces - Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> There is a straight line with existing gas stations at certain positions. You are given an array of integers representing these positions. You are allowed to build at most `k` new gas stations anywhere on the line. Your goal is to minimize the maximum distance between any two adjacent gas stations after adding at most `k` new gas stations. Find this minimum maximum distance.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+stations = [1, 4, 8, 10]
+k = 2
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+2.0 (We can add stations at 3 and 6. The distances become [1, 2, 1, 2, 2, 2])
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+bool canAchieveMaxDistance(const std::vector&lt;int&gt;& stations, int k, double max_dist) {
+    int new_stations_needed = 0;
+    for (size_t i = 0; i &lt; stations.size() - 1; i++) {
+        double diff = stations[i + 1] - stations[i];
+        new_stations_needed += std::ceil(diff / max_dist) - 1;
+    }
+    return new_stations_needed &lt;= k;
+}
+
+double minimizeMaxDistance(std::vector&lt;int&gt;& stations, int k) {
+    std::sort(stations.begin(), stations.end());
+    int n = stations.size();
+    double left = 0.0;
+    double right = stations[n - 1] - stations[0];
+    double ans = right;
+
+    for (int i = 0; i &lt; 100; ++i) { // Perform enough iterations for precision
+        double mid = left + (right - left) / 2.0;
+        if (canAchieveMaxDistance(stations, k, mid)) {
+            ans = mid;
+            right = mid;
+        } else {
+            left = mid;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    std::vector&lt;int&gt; stations = {1, 4, 8, 10};
+    int k = 2;
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(5) &lt;&lt; minimizeMaxDistance(stations, k) &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+</div>

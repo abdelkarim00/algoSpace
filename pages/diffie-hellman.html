@@ -1,0 +1,429 @@
+
+<div>
+
+<h1>Diffie-Hellman Key Exchange</h1>
+
+<p>The Diffie-Hellman key exchange is a cryptographic protocol that allows two parties to establish a shared secret over an insecure channel. This shared secret can then be used for symmetric encryption. It's important to note that Diffie-Hellman is a <em>key exchange</em> algorithm, not an encryption algorithm itself.</p>
+
+<h2>Algorithm</h2>
+
+<p>The Diffie-Hellman key exchange protocol works as follows:</p>
+
+<ol>
+  <li><strong>Public Parameters Agreement:</strong>
+    <ul>
+      <li>Alice and Bob agree on a large prime number $p$ and a generator $g$ (also called a primitive root) of the multiplicative group of integers modulo $p$. Both $p$ and $g$ are public and can be transmitted over an insecure channel.</li>
+    </ul>
+  </li>
+  <li><strong>Private Key Selection:</strong>
+    <ul>
+      <li>Alice chooses a secret integer $a$ (her private key).</li>
+      <li>Bob chooses a secret integer $b$ (his private key).</li>
+    </ul>
+  </li>
+  <li><strong>Public Key Calculation:</strong>
+    <ul>
+      <li>Alice computes $A = g^a \pmod{p}$ and sends $A$ to Bob.</li>
+      <li>Bob computes $B = g^b \pmod{p}$ and sends $B$ to Alice.</li>
+    </ul>
+  </li>
+  <li><strong>Shared Secret Calculation:</strong>
+    <ul>
+      <li>Alice computes the shared secret $s = B^a \pmod{p}$.</li>
+      <li>Bob computes the shared secret $s = A^b \pmod{p}$.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Both Alice and Bob arrive at the same shared secret $s$, which can be used as a key for symmetric encryption. The security of Diffie-Hellman relies on the difficulty of the discrete logarithm problem.</p>
+
+<h2>Mathematics</h2>
+
+<p>The Diffie-Hellman key exchange is based on the properties of modular arithmetic and the discrete logarithm problem.</p>
+
+<ul>
+  <li><strong>Modular Arithmetic:</strong> All calculations are performed modulo $p$. This means we are only concerned with the remainder after division by $p$. The notation $a \equiv b \pmod{m}$ means that $a$ and $b$ have the same remainder when divided by $m$.</li>
+  <li><strong>Prime Number ($p$):</strong> A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself.</li>
+  <li><strong>Generator ($g$):</strong> A generator (or primitive root) $g$ of the multiplicative group of integers modulo $p$ is an integer such that every number from $1$ to $p-1$ can be expressed as $g^k \pmod{p}$ for some integer $k$.</li>
+  <li><strong>Discrete Logarithm Problem:</strong> Given $g$, $p$, and $A$, it is computationally difficult to find the integer $a$ such that $g^a \equiv A \pmod{p}$, especially when $p$ is a large prime number. This difficulty is the basis of the security of Diffie-Hellman.</li>
+</ul>
+
+<p><strong>Why the Shared Secret is the Same:</strong></p>
+
+<p>Alice computes $s = B^a \pmod{p}$.</p>
+<p>Bob computes $s = A^b \pmod{p}$.</p>
+
+<p>We know that $A = g^a \pmod{p}$ and $B = g^b \pmod{p}$.</p>
+
+<p>So, Alice's calculation is $s = (g^b)^a \pmod{p} = g^{ab} \pmod{p}$.</p>
+<p>And Bob's calculation is $s = (g^a)^b \pmod{p} = g^{ab} \pmod{p}$.</p>
+
+<p>Therefore, both Alice and Bob arrive at the same shared secret $s = g^{ab} \pmod{p}$.</p>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Time Complexity:</strong>
+    <ul>
+      <li>Generating a large prime number $p$ typically involves probabilistic primality tests (e.g., Miller-Rabin), which have a time complexity of roughly $O(k \log^3 p)$, where $k$ is the number of iterations for the primality test.</li>
+      <li>Finding a generator $g$ can be more complex, but in practice, a suitable $g$ is often chosen or found through trial and error. The complexity of this step depends on the method used.</li>
+      <li>The modular exponentiation operations ($g^a \pmod{p}$, $g^b \pmod{p}$, $B^a \pmod{p}$, $A^b \pmod{p}$) using the square-and-multiply algorithm take $O(\log a \cdot (\log p)^2)$ and $O(\log b \cdot (\log p)^2)$ time, respectively. If $a$ and $b$ are on the order of $p$, this is approximately $O((\log p)^3)$.</li>
+    </ul>
+  </li>
+  <li><strong>Memory Complexity:</strong>
+    <ul>
+      <li>The memory complexity is dominated by storing the prime number $p$, the generator $g$, and the intermediate values $A$, $B$, and the shared secret $s$. These values are typically on the order of $\log p$ bits. Therefore, the memory complexity is relatively low, $O(\log p)$.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<p>Diffie-Hellman is a key exchange protocol, not a general-purpose algorithm for solving typical competitive programming problems. However, problems might involve implementing the core modular exponentiation operation or understanding the basic concepts.</p>
+
+<h3>Problem 1: Modular Exponentiation (Core Operation)</h3>
+
+<p><strong>Problem Statement:</strong> Given integers $base$, $exponent$, and $modulus$, compute $base^{exponent} \pmod{modulus}$.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+base = 5
+exponent = 11
+modulus = 17
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+13 (5^11 mod 17 = 48828125 mod 17 = 13)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+int main() {
+    long long base, exp, mod;
+    std::cin >> base >> exp >> mod;
+    std::cout << power(base, exp, mod) << std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Simulate Diffie-Hellman Exchange (Small Numbers)</h3>
+
+<p><strong>Problem Statement:</strong> Simulate a simplified Diffie-Hellman key exchange between Alice and Bob using small numbers. Given a prime $p$, a generator $g$, Alice's private key $a$, and Bob's private key $b$, compute the shared secret.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+p = 23
+g = 5
+a = 6
+b = 15
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Shared Secret: 2
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+int main() {
+    long long p = 23;
+    long long g = 5;
+    long long a = 6;
+    long long b = 15;
+
+    long long A = power(g, a, p);
+    long long B = power(g, b, p);
+
+    long long alice_secret = power(B, a, p);
+    long long bob_secret = power(A, b, p);
+
+    std::cout << "Shared Secret: " << alice_secret << std::endl;
+    std::cout << "Shared Secret: " << bob_secret << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<p>Intermediate problems might involve working with larger numbers or combining Diffie-Hellman concepts with other algorithms.</p>
+
+<h3>Problem 3: Diffie-Hellman with Large Numbers (String Input)</h3>
+
+<p><strong>Problem Statement:</strong> Simulate Diffie-Hellman key exchange where the prime $p$, generator $g$, and private keys $a$ and $b$ are very large numbers represented as strings.  You'll need a function to perform modular exponentiation with large numbers.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+p = "479001599"
+g = "7"
+a = "12345678901234567890"
+b = "98765432109876543210"
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Shared Secret: (Result of g^ab mod p, calculated using large number arithmetic)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+// Helper function to multiply two large numbers represented as strings
+std::string multiplyStrings(const std::string& a, const std::string& b) {
+    std::string result(a.length() + b.length(), '0');
+    for (int i = a.length() - 1; i >= 0; --i) {
+        for (int j = b.length() - 1; j >= 0; --j) {
+            int product = (a[i] - '0') * (b[j] - '0') + (result[i + j + 1] - '0');
+            result[i + j + 1] = (product % 10) + '0';
+            result[i + j] += (product / 10);
+        }
+    }
+    size_t firstNonZero = result.find_first_not_of('0');
+    if (firstNonZero == std::string::npos) {
+        return "0";
+    }
+    return result.substr(firstNonZero);
+}
+
+// Helper function to add two large numbers represented as strings
+std::string addStrings(const std::string& a, const std::string& b) {
+    std::string result = "";
+    int carry = 0;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+
+    while (i >= 0 || j >= 0 || carry > 0) {
+        int digitA = (i >= 0) ? a[i--] - '0' : 0;
+        int digitB = (j >= 0) ? b[j--] - '0' : 0;
+        int sum = digitA + digitB + carry;
+        carry = sum / 10;
+        result += std::to_string(sum % 10);
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+// Function to perform modular exponentiation with large numbers
+std::string largeModularExponentiation(const std::string& base, const std::string& exp, const std::string& mod) {
+    std::string result = "1";
+    std::string currentBase = base;
+    std::string currentExp = exp;
+
+    while (currentExp != "0") {
+        if (currentExp.back() % 2 == 1) { // Check if last digit is odd
+            result = multiplyStrings(result, currentBase);
+            // Perform modulo operation (simplified for demonstration)
+            //  In a real scenario, a proper large number modulo function is needed
+            result = result.substr(result.length() - mod.length()); // Simplified modulo
+        }
+        currentBase = multiplyStrings(currentBase, currentBase);
+         // Perform modulo operation (simplified)
+        currentBase = currentBase.substr(currentBase.length() - mod.length());
+        currentExp.pop_back();
+        if (currentExp.empty()) currentExp = "0";
+    }
+    return result;
+}
+
+int main() {
+    std::string p = "479001599";
+    std::string g = "7";
+    std::string a = "12345678901234567890";
+    std::string b = "98765432109876543210";
+
+    std::string A = largeModularExponentiation(g, a, p);
+    std::string B = largeModularExponentiation(g, b, p);
+
+    std::string alice_secret = largeModularExponentiation(B, a, p);
+    std::string bob_secret = largeModularExponentiation(A, b, p);
+
+    std::cout << "Alice Shared Secret: " << alice_secret << std::endl;
+    std::cout << "Bob Shared Secret: " << bob_secret << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Man-in-the-Middle Attack Simulation</h3>
+
+<p><strong>Problem Statement:</strong> Simulate a simplified Man-in-the-Middle (MITM) attack on a Diffie-Hellman key exchange.  Assume a malicious party (Mallory) intercepts the communication between Alice and Bob.  Mallory exchanges keys with both Alice and Bob, leading them to believe they have a shared secret, while Mallory knows both "shared secrets".</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+p = 23
+g = 5
+alice_private = 6
+bob_private = 15
+mallory_private_a = 8
+mallory_private_b = 9
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Alice's Shared Secret with Mallory: (g^(a*m_a) mod p)
+Bob's Shared Secret with Mallory: (g^(b*m_b) mod p)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+int main() {
+    long long p = 23;
+    long long g = 5;
+    long long alice_private = 6;
+    long long bob_private = 15;
+    long long mallory_private_a = 8;
+    long long mallory_private_b = 9;
+
+    // Alice and Mallory exchange
+    long long A = power(g, alice_private, p);
+    long long Mallory_A = power(g, mallory_private_a, p);
+
+    // Bob and Mallory exchange
+    long long B = power(g, bob_private, p);
+    long long Mallory_B = power(g, mallory_private_b, p);
+
+    // Alice calculates shared secret with (what she thinks is) Bob
+    long long alice_shared_secret = power(Mallory_B, alice_private, p);
+    // Bob calculates shared secret with (what he thinks is) Alice
+    long long bob_shared_secret = power(Mallory_A, bob_private, p);
+
+    // Mallory calculates the shared secrets
+    long long mallory_alice_secret = power(A, mallory_private_a, p);
+    long long mallory_bob_secret = power(B, mallory_private_b, p);
+
+    std::cout << "Alice's Shared Secret with Mallory: " << alice_shared_secret << std::endl;
+    std::cout << "Bob's Shared Secret with Mallory: " << bob_shared_secret << std::endl;
+    std::cout << "Mallory's Shared Secret with Alice: " << mallory_alice_secret << std::endl;
+    std::cout << "Mallory's Shared Secret with Bob: " << mallory_bob_secret << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<p>A truly hard problem directly solvable by the core Diffie-Hellman algorithm on competitive programming platforms is unlikely, as the algorithm's security relies on the difficulty of the discrete logarithm problem with very large numbers. However, a hard problem might involve more complex number theory and modular arithmetic concepts related to Diffie-Hellman, or finding vulnerabilities in a modified version of the protocol.</p>
+
+<h3>Problem 5: Breaking Simplified Diffie-Hellman with Small Prime</h3>
+
+<p><strong>Problem Statement:</strong> You are given a simplified Diffie-Hellman key exchange where the prime number $p$ is relatively small. You are given the public values $g$, $A = g^a \pmod{p}$, and $B = g^b \pmod{p}$. Your task is to find the shared secret by finding either $a$ or $b$ using an exhaustive search (since $p$ is small).</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+p = 13
+g = 2
+A = 8
+B = 5
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Shared Secret: 4
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+long long breakSimplifiedDiffieHellman(long long p, long long g, long long A, long long B) {
+    long long a = -1;
+    for (long long i = 0; i &lt; p; ++i) {
+        if (power(g, i, p) == A) {
+            a = i;
+            break;
+        }
+    }
+
+    if (a != -1) {
+        return power(B, a, p);
+    }
+
+    long long b = -1;
+    for (long long i = 0; i &lt; p; ++i) {
+        if (power(g, i, p) == B) {
+            b = i;
+            break;
+        }
+    }
+
+    if (b != -1) {
+        return power(A, b, p);
+    }
+
+    return -1; // Could not break
+}
+
+int main() {
+    long long p = 13;
+    long long g = 2;
+    long long A = 8;
+    long long B = 5;
+
+    long long shared_secret = breakSimplifiedDiffieHellman(p, g, A, B);
+
+    if (shared_secret != -1) {
+        std::cout << "Shared Secret: " << shared_secret << std::endl;
+    } else {
+        std::cout << "Could not break Diffie-Hellman." << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+
+</div>

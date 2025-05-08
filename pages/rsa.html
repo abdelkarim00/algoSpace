@@ -1,0 +1,388 @@
+<div>
+
+<h1>RSA Algorithm Explained</h1>
+
+<p>RSA (Rivest–Shamir–Adleman) is a widely used public-key cryptography algorithm. It is based on the mathematical properties of prime numbers and is fundamental for secure communication over the internet. RSA enables encryption of sensitive data and digital signatures, ensuring confidentiality and authenticity.</p>
+
+<h2>Algorithm</h2>
+
+<p>The RSA algorithm involves the following steps for key generation, encryption, and decryption:</p>
+
+<h3>1. Key Generation:</h3>
+<ol>
+  <li>Choose two distinct large prime numbers, <span class="math-inline">p</span> and <span class="math-inline">q</span>.</li>
+  <li>Compute <span class="math-inline">n \= p \\times q</span>. <span class="math-inline">n</span> is called the modulus.</li>
+  <li>Compute Euler's totient function <span class="math-inline">\\phi\(n\) \= \(p \- 1\)\(q \- 1\)</span>.</li>
+  <li>Choose an integer <span class="math-inline">e</span> such that <span class="math-inline">1 < e < \\phi\(n\)</span> and <span class="math-inline">\\gcd\(e, \\phi\(n\)\) \= 1</span>. <span class="math-inline">e</span> is the public exponent.</li>
+  <li>Compute an integer <span class="math-inline">d</span> such that <span class="math-inline">\(d \\times e\) \\equiv 1 \\pmod\{\\phi\(n\)\}</span>. <span class="math-inline">d</span> is the private exponent. This can be found using the Extended Euclidean Algorithm.</li>
+  <li>The public key is <span class="math-inline">\(n, e\)</span>.</li>
+  <li>The private key is <span class="math-inline">\(n, d\)</span>. Keep <span class="math-inline">p</span>, <span class="math-inline">q</span>, and <span class="math-inline">\\phi\(n\)</span> secret.</li>
+</ol>
+
+<h3>2. Encryption:</h3>
+<p>To encrypt a message <span class="math-inline">M</span> (where <span class="math-inline">0 \\leq M < n</span>), the sender computes the ciphertext <span class="math-inline">C</span> as:</p>
+<p><span class="math-block">C \= M^e \\pmod\{n\}</span></p>
+
+<h3>3. Decryption:</h3>
+<p>To decrypt the ciphertext <span class="math-inline">C</span>, the receiver computes the original message <span class="math-inline">M</span> as:</p>
+<p><span class="math-block">M \= C^d \\pmod\{n\}</span></p>
+
+<h2>Mathematics</h2>
+
+<p>The security and correctness of RSA rely on several fundamental mathematical concepts:</p>
+
+<ul>
+  <li><strong>Prime Numbers:</strong> The algorithm starts by choosing two large prime numbers. The difficulty of factoring a large number into its prime factors is the basis of RSA's security.</li>
+  <li><strong>Modular Arithmetic:</strong> All calculations in RSA are performed modulo <span class="math-inline">n</span>. This means we are only concerned with the remainder after division by <span class="math-inline">n</span>. The notation <span class="math-inline">a \\equiv b \\pmod\{m\}</span> means that <span class="math-inline">a</span> and <span class="math-inline">b</span> have the same remainder when divided by <span class="math-inline">m</span>, or equivalently, <span class="math-inline">m</span> divides <span class="math-inline">\(a \- b\)</span>.</li>
+  <li><strong>Euler's Totient Function (<span class="math-inline">\\phi\(n\)</span>):</strong> For a positive integer <span class="math-inline">n</span>, <span class="math-inline">\\phi\(n\)</span> counts the number of positive integers less than or equal to <span class="math-inline">n</span> that are relatively prime to <span class="math-inline">n</span> (their greatest common divisor is 1). If <span class="math-inline">n \= p \\times q</span> where <span class="math-inline">p</span> and <span class="math-inline">q</span> are distinct primes, then <span class="math-inline">\\phi\(n\) \= \(p \- 1\)\(q \- 1\)</span>.</li>
+  <li><strong>Euler's Theorem:</strong> If <span class="math-inline">\\gcd\(a, n\) \= 1</span>, then <span class="math-inline">a^\{\\phi\(n\)\} \\equiv 1 \\pmod\{n\}</span>.</li>
+  <li><strong>Modular Inverse:</strong> The private exponent <span class="math-inline">d</span> is the modular multiplicative inverse of the public exponent <span class="math-inline">e</span> modulo <span class="math-inline">\\phi\(n\)</span>. This means <span class="math-inline">d \\cdot e \\equiv 1 \\pmod\{\\phi\(n\)\}</span>. The Extended Euclidean Algorithm can be used to find <span class="math-inline">d</span>.</li>
+</ul>
+
+<p><strong>Why Decryption Works:</strong></p>
+<p>We have <span class="math-inline">d \\cdot e \\equiv 1 \\pmod\{\\phi\(n\)\}</span>, which means <span class="math-inline">d \\cdot e \= 1 \+ k \\cdot \\phi\(n\)</span> for some integer <span class="math-inline">k</span>.</p>
+<p>Then, <span class="math-inline">C^d \\equiv \(M^e\)^d \\equiv M^\{ed\} \\equiv M^\{1 \+ k \\phi\(n\)\} \\equiv M \\cdot \(M^\{\\phi\(n\)\}\)^k \\pmod\{n\}</span>.</p>
+<p>If <span class="math-inline">\\gcd\(M, n\) \= 1</span>, by Euler's Theorem, <span class="math-inline">M^\{\\phi\(n\)\} \\equiv 1 \\pmod\{n\}</span>, so <span class="math-inline">C^d \\equiv M \\cdot 1^k \\equiv M \\pmod\{n\}</span>.</p>
+<p>If <span class="math-inline">\\gcd\(M, n\) \\neq 1</span>, since <span class="math-inline">n \= p \\times q</span> and <span class="math-inline">p, q</span> are prime, <span class="math-inline">M</span> must be a multiple of either <span class="math-inline">p</span> or <span class="math-inline">q</span> (or both). The correctness still holds but requires a slightly more involved argument using the Chinese Remainder Theorem.</p>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Key Generation:</strong>
+    <ul>
+      <li>Finding large prime numbers typically involves probabilistic primality tests (e.g., Miller-Rabin), which have a time complexity of roughly <span class="math-inline">O\(k \\log^3 n\)</span>, where <span class="math-inline">n</span> is the modulus and <span class="math-inline">k</span> is the number of iterations for the primality test.</li>
+      <li>Computing <span class="math-inline">\\phi\(n\)</span> is <span class="math-inline">O\(1\)</span> once <span class="math-inline">p</span> and <span class="math-inline">q</span> are known.</li>
+      <li>Finding the modular inverse <span class="math-inline">d</span> using the Extended Euclidean Algorithm takes <span class="math-inline">O\(\\log^2 \\phi\(n\)\)</span> or approximately <span class="math-inline">O\(\\log^2 n\)</span> time.</li>
+      <li>Memory complexity is dominated by storing the prime numbers and the keys, which is relatively small.</li>
+    </ul>
+  </li>
+  <li><strong>Encryption:</strong>
+    <ul>
+      <li>Modular exponentiation (<span class="math-inline">M^e \\pmod\{n\}</span>) using the square-and-multiply algorithm takes <span class="math-inline">O\(\\log e \\cdot \(\\log n\)^2\)</span> or approximately <span class="math-inline">O\(\(\\log n\)^3\)</span> time, assuming <span class="math-inline">e</span> is roughly the same size as <span class="math-inline">n</span> in the worst case (though often smaller in practice).</li>
+      <li>Memory complexity is dominated by the size of the message and ciphertext, which are typically of the order of <span class="math-inline">\\log n</span> bits.</li>
+    </ul>
+  </li>
+  <li><strong>Decryption:</strong>
+    <ul>
+      <li>Modular exponentiation (<span class="math-inline">C^d \\pmod\{n\}</span>) using the square-and-multiply algorithm takes <span class="math-inline">O\(\\log d \\cdot \(\\log n\)^2\)</span> or approximately <span class="math-inline">O\(\(\\log n\)^3\)</span> time, as <span class="math-inline">d</span> can be as large as <span class="math-inline">\\phi\(n\)</span>.</li>
+      <li>Memory complexity is similar to encryption.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<p>RSA is primarily used for cryptography and is not typically applied to standard algorithmic problems on platforms like Codeforces in its full form. However, problems might involve understanding basic modular arithmetic and number theory concepts that underpin RSA.</p>
+
+<h3>Problem 1: Modular Exponentiation (Core Operation)</h3>
+<p><strong>Problem Statement:</strong> Given integers <span class="math-inline">base</span>, <span class="math-inline">exponent</span>, and <span class="math-inline">modulus</span>, compute <span class="math-inline">base^\{exponent\} \\pmod\{modulus\}</span>.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+base = 5
+exponent = 11
+modulus = 17
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+13 (5^11 mod 17 = 48828125 mod 17 = 13)
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+int main() {
+    long long base, exp, mod;
+    std::cin >> base >> exp >> mod;
+    std::cout << power(base, exp, mod) << std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Finding Modular Inverse (Key Step)</h3>
+<p><strong>Problem Statement:</strong> Given two integers <span class="math-inline">a</span> and <span class="math-inline">m</span> such that <span class="math-inline">\\gcd\(a, m\) \= 1</span>, find the modular multiplicative inverse of <span class="math-inline">a</span> modulo <span class="math-inline">m</span>. That is, find an integer <span class="math-inline">x</span> such that <span class="math-inline">\(a \\cdot x\) \\equiv 1 \\pmod\{m\}</span>.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+a = 17
+m = 31
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+11 (17 * 11 mod 31 = 187 mod 31 = 1)
+</code></pre>
+
+<p><strong>C++ Code (using Extended Euclidean Algorithm):</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long extendedEuclideanAlgorithm(long long a, long long b, long long &x, long long &y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    long long x1, y1;
+    long long gcd = extendedEuclideanAlgorithm(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return gcd;
+}
+
+long long modInverse(long long a, long long m) {
+    long long x, y;
+    long long g = extendedEuclideanAlgorithm(a, m, x, y);
+    if (g != 1) {
+        return -1; // Inverse doesn't exist
+    } else {
+        return (x % m + m) % m; // Ensure positive result
+    }
+}
+
+int main() {
+    long long a, m;
+    std::cin >> a >> m;
+    long long inverse = modInverse(a, m);
+    std::cout << inverse << std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<p>Problems at this level might involve simulating simplified versions of RSA or using its underlying mathematical principles in more complex scenarios.</p>
+
+<h3>Problem 3: Simple RSA Encryption/Decryption</h3>
+<p><strong>Problem Statement:</strong> Given a public key <span class="math-inline">\(n, e\)</span> and a message <span class="math-inline">M</span>, encrypt the message using RSA. Then, given the ciphertext <span class="math-inline">C</span> and a private key <span class="math-inline">d</span>, decrypt the ciphertext to recover the original message. Assume <span class="math-inline">n</span>, <span class="math-inline">e</span>, <span class="math-inline">d</span>, and <span class="math-inline">M</span> are within the range of standard integer types.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+n = 3233
+e = 17
+d = 2753
+M = 123
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Ciphertext: 855
+Decrypted Message: 123
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+int main() {
+    long long n = 3233;
+    long long e = 17;
+    long long d = 2753;
+    long long m = 123;
+
+    long long ciphertext = power(m, e, n);
+    long long decrypted_message = power(ciphertext, d, n);
+
+    std::cout << "Ciphertext: " << ciphertext << std::endl;
+    std::cout << "Decrypted Message: " << decrypted_message << std::endl;
+
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Cracking Small RSA</h3>
+<p><strong>Problem Statement:</strong> You are given a small modulus <span class="math-inline">n</span> which is a product of two prime numbers <span class="math-inline">p</span> and <span class="math-inline">q</span>, and a public exponent <span class="math-inline">e</span>. You are also given a ciphertext <span class="math-inline">C</span>. Your task is to find the original message <span class="math-inline">M</span>, assuming the prime factors <span class="math-inline">p</span> and <span class="math-inline">q</span> are small enough that you can find them (e.g., by trial division or a simple factorization method). Once you have <span class="math-inline">p</span> and <span class="math-inline">q</span>, you can compute the private key <span class="math-inline">d</span> and decrypt the message.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+n = 91 (7 * 13)
+e = 5
+C = 12
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Message: 8
+</code></pre>
+
+<p><strong>C++ Code (for cracking small RSA):</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+long long extendedEuclideanAlgorithm(long long a, long long b, long long &x, long long &y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    long long x1, y1;
+    long long gcd = extendedEuclideanAlgorithm(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return gcd;
+}
+
+long long modInverse(long long a, long long m) {
+    long long x, y;
+    long long g = extendedEuclideanAlgorithm(a, m, x, y);
+    if (g != 1) {
+        return -1;
+    } else {
+        return (x % m + m) % m;
+    }
+}
+
+int main() {
+    long long n = 91;
+    long long e = 5;
+    long long c = 12;
+
+    long long p = -1, q = -1;
+    for (long long i = 2; i * i &lt;= n; ++i) {
+        if (n % i == 0) {
+            p = i;
+            q = n / i;
+            break;
+        }
+    }
+
+    if (p != -1 && q != -1) {
+        long long phi_n = (p - 1) * (q - 1);
+        long long d = modInverse(e, phi_n);
+        if (d != -1) {
+            long long message = power(c, d, n);
+            std::cout << "Message: " << message << std::endl;
+        } else {
+            std::cout << "Could not find modular inverse." << std::endl;
+        }
+    } else {
+        std::cout << "Could not factor n." << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<p>A truly hard problem directly solvable by the core RSA algorithm on competitive programming platforms is unlikely due to the computational intensity of breaking strong RSA encryption (which relies on factoring very large numbers). However, a hard problem might involve advanced number theory related to RSA or vulnerabilities in simplified RSA schemes.</p>
+
+<h3>Problem 5: Common Modulus Attack</h3>
+<p><strong>Problem Statement:</strong> Alice sends the same message <span class="math-inline">M</span> to Bob and Charlie. Alice uses the same modulus <span class="math-inline">n</span> for both, but different public exponents <span class="math-inline">e\_1</span> (for Bob) and <span class="math-inline">e\_2</span> (for Charlie), such that <span class="math-inline">\\gcd\(e\_1, e\_2\) \= 1</span>. You intercept the ciphertexts <span class="math-inline">C\_1 \= M^\{e\_1\} \\pmod\{n\}</span> and <span class="math-inline">C\_2 \= M^\{e\_2\} \\pmod\{n\}</span>. Your task is to recover the original message <span class="math-inline">M</span>.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+n = 3233
+e1 = 17
+e2 = 23
+c1 = 855
+c2 = 2278
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+Message: 123
+</code></pre>
+
+<p><strong>C++ Code (for Common Modulus Attack):</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;vector&gt;
+#include &lt;numeric&gt;
+
+long long extendedEuclideanAlgorithm(long long a, long long b, long long &x, long long &y) {
+    if (a == 0) {
+        x = 0;
+        y = 1;
+        return b;
+    }
+    long long x1, y1;
+    long long gcd = extendedEuclideanAlgorithm(b % a, a, x1, y1);
+    x = y1 - (b / a) * x1;
+    y = x1;
+    return gcd;
+}
+
+long long power(long long base, long long exp, long long mod) {
+    long long res = 1;
+    base %= mod;
+    while (exp >0) {
+        if (exp % 2 == 1) res = (res * base) % mod;
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return res;
+}
+
+long long commonModulusAttack(long long n, long long e1, long long c1, long long e2, long long c2) {
+    long long s1, s2;
+    long long gcd = extendedEuclideanAlgorithm(e1, e2, s1, s2);
+
+    if (gcd != 1) {
+        return -1; // Attack not directly applicable
+    }
+
+    long long m1 = power(c1, (s1 % (e2 * -1) + (e2 * -1)) % (e2 * -1), n);
+    long long m2 = power(c2, (s2 % (e1 * -1) + (e1 * -1)) % (e1 * -1), n);
+
+    long long m = (m1 * m2) % n;
+    return m;
+}
+
+int main() {
+    long long n = 3233;
+    long long e1 = 17;
+    long long e2 = 23;
+    long long c1 = 855;
+    long long c2 = 2278;
+
+    long long message = commonModulusAttack(n, e1, c1, e2, c2);
+
+    if (message != -1) {
+        std::cout << "Message: " << message << std::endl;
+    } else {
+        std::cout << "Attack failed or not applicable." << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+
+</div>

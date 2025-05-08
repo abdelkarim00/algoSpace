@@ -1,0 +1,375 @@
+<div>
+    <h2>Sqrt Decomposition</h2>
+
+<h3>Introduction</h3>
+<p>Sqrt Decomposition is a technique that divides data into √n blocks to achieve O(√n) time complexity for range queries and updates, balancing between naive O(n) and complex O(log n) solutions.</p>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li>Divide array into √n blocks (each of size √n)</li>
+  <li>Precompute block-level information</li>
+  <li>For queries: Combine results from complete blocks and partial elements</li>
+</ul>
+
+<h3>Mathematics Behind Sqrt Decomposition</h3>
+<p>The algorithm is based on the inequality:</p>
+<p>√n × √n ≥ n</p>
+<p>This ensures:</p>
+<ul>
+  <li>Number of blocks: O(√n)</li>
+  <li>Elements per block: O(√n)</li>
+  <li>Total operations per query: O(√n)</li>
+</ul>
+
+<p><strong>Optimal Block Size:</strong> For array of size n, optimal block size is k = √n, minimizing the sum of:
+<ul>
+  <li>O(n/k) block operations</li>
+  <li>O(k) element operations</li>
+</ul>
+</p>
+
+<h3>Time and Space Complexity</h3>
+<ul>
+  <li><strong>Preprocessing:</strong> O(n)</li>
+  <li><strong>Range Query:</strong> O(√n)</li>
+  <li><strong>Point Update:</strong> O(1)</li>
+  <li><strong>Range Update:</strong> O(√n)</li>
+  <li><strong>Space:</strong> O(n)</li>
+</ul>
+
+<h2>Problem Examples</h2>
+
+<h3>Easy Problems</h3>
+
+<h4>1. Range Sum Queries (Codeforces 633B)</h4>
+<p>Given an array, answer range sum queries and support point updates.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+vector&lt;int&gt; arr, block_sum;
+int block_size;
+
+void build(int n) {
+    block_size = sqrt(n);
+    block_sum.resize((n + block_size - 1) / block_size, 0);
+    
+    for (int i = 0; i < n; i++)
+        block_sum[i / block_size] += arr[i];
+}
+
+void update(int idx, int val) {
+    int block_idx = idx / block_size;
+    block_sum[block_idx] += val - arr[idx];
+    arr[idx] = val;
+}
+
+int query(int l, int r) {
+    int sum = 0;
+    while (l <= r && l % block_size != 0) {
+        sum += arr[l];
+        l++;
+    }
+    while (l + block_size <= r) {
+        sum += block_sum[l / block_size];
+        l += block_size;
+    }
+    while (l <= r) {
+        sum += arr[l];
+        l++;
+    }
+    return sum;
+}
+
+int main() {
+    int n = 8;
+    arr = {1, 3, 5, 7, 9, 11, 13, 15};
+    build(n);
+    
+    cout << query(1, 5) << endl; // 3+5+7+9+11 = 35
+    update(3, 10);
+    cout << query(1, 5) << endl; // 3+5+10+9+11 = 38
+    
+    return 0;
+}
+</code></pre>
+
+<h4>Input/Output Example</h4>
+<pre>
+Input: (built into code)
+Array: [1, 3, 5, 7, 9, 11, 13, 15]
+
+Output:
+35
+38
+</pre>
+
+<h4>2. Range Minimum Queries (Codeforces 514B)</h4>
+<p>Find minimum in range with point updates.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+vector&lt;int&gt; arr, block_min;
+int block_size;
+
+void build(int n) {
+    block_size = sqrt(n);
+    block_min.resize((n + block_size - 1) / block_size, INT_MAX);
+    
+    for (int i = 0; i < n; i++)
+        block_min[i / block_size] = min(block_min[i / block_size], arr[i]);
+}
+
+void update(int idx, int val) {
+    int block_idx = idx / block_size;
+    arr[idx] = val;
+    int start = block_idx * block_size;
+    int end = min(start + block_size, (int)arr.size());
+    block_min[block_idx] = INT_MAX;
+    for (int i = start; i < end; i++)
+        block_min[block_idx] = min(block_min[block_idx], arr[i]);
+}
+
+int query(int l, int r) {
+    int mn = INT_MAX;
+    while (l <= r && l % block_size != 0) {
+        mn = min(mn, arr[l]);
+        l++;
+    }
+    while (l + block_size <= r) {
+        mn = min(mn, block_min[l / block_size]);
+        l += block_size;
+    }
+    while (l <= r) {
+        mn = min(mn, arr[l]);
+        l++;
+    }
+    return mn;
+}
+
+int main() {
+    int n = 8;
+    arr = {5, 3, 8, 1, 7, 4, 2, 6};
+    build(n);
+    
+    cout << query(1, 5) << endl; // min(3,8,1,7,4) = 1
+    update(3, 10);
+    cout << query(1, 5) << endl; // min(3,8,10,7,4) = 3
+    
+    return 0;
+}
+</code></pre>
+
+<h3>Intermediate Problems</h3>
+
+<h4>1. Range Sum with Range Update (Codeforces 52C)</h4>
+<p>Support range addition and range sum queries.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+vector&lt;long long&gt; arr, block_sum, block_add;
+int block_size;
+
+void build(int n) {
+    block_size = sqrt(n);
+    block_sum.resize((n + block_size - 1) / block_size, 0);
+    block_add.resize((n + block_size - 1) / block_size, 0);
+    
+    for (int i = 0; i < n; i++)
+        block_sum[i / block_size] += arr[i];
+}
+
+void range_update(int l, int r, int val) {
+    while (l <= r && l % block_size != 0) {
+        arr[l] += val;
+        block_sum[l / block_size] += val;
+        l++;
+    }
+    while (l + block_size <= r) {
+        block_add[l / block_size] += val;
+        block_sum[l / block_size] += val * block_size;
+        l += block_size;
+    }
+    while (l <= r) {
+        arr[l] += val;
+        block_sum[l / block_size] += val;
+        l++;
+    }
+}
+
+long long range_query(int l, int r) {
+    long long sum = 0;
+    while (l <= r && l % block_size != 0) {
+        sum += arr[l] + block_add[l / block_size];
+        l++;
+    }
+    while (l + block_size <= r) {
+        sum += block_sum[l / block_size];
+        l += block_size;
+    }
+    while (l <= r) {
+        sum += arr[l] + block_add[l / block_size];
+        l++;
+    }
+    return sum;
+}
+
+int main() {
+    int n = 8;
+    arr = {1, 3, 5, 7, 9, 11, 13, 15};
+    build(n);
+    
+    cout << range_query(1, 5) << endl; // 3+5+7+9+11 = 35
+    range_update(2, 6, 2);
+    cout << range_query(1, 5) << endl; // 3+7+9+11+13 = 43
+    
+    return 0;
+}
+</code></pre>
+
+<h4>2. Mo's Algorithm (Codeforces 86D)</h4>
+<p>Count distinct elements in range queries (offline processing).</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+struct Query {
+    int l, r, idx;
+};
+
+vector&lt;int&gt; arr, cnt, ans;
+vector&lt;Query&gt; queries;
+int curr_ans = 0;
+
+void add(int x) {
+    if (cnt[x] == 0) curr_ans++;
+    cnt[x]++;
+}
+
+void remove(int x) {
+    cnt[x]--;
+    if (cnt[x] == 0) curr_ans--;
+}
+
+int main() {
+    int n = 8, q = 3;
+    arr = {1, 2, 3, 1, 1, 2, 1, 2};
+    cnt.resize(4, 0);
+    queries = {{0, 4, 0}, {1, 6, 1}, {2, 7, 2}};
+    ans.resize(q);
+    
+    int block_size = sqrt(n);
+    sort(queries.begin(), queries.end(), [&](Query a, Query b) {
+        if (a.l / block_size != b.l / block_size)
+            return a.l < b.l;
+        return (a.l / block_size % 2) ? a.r > b.r : a.r < b.r;
+    });
+    
+    int l = 0, r = -1;
+    for (Query q : queries) {
+        while (l > q.l) add(arr[--l]);
+        while (r < q.r) add(arr[++r]);
+        while (l < q.l) remove(arr[l++]);
+        while (r > q.r) remove(arr[r--]);
+        ans[q.idx] = curr_ans;
+    }
+    
+    for (int x : ans) cout << x << " "; // 3 3 2
+    return 0;
+}
+</code></pre>
+
+<h3>Hard Problem</h3>
+
+<h4>1. Online Range Mode Query (Codeforces 840D)</h4>
+<p>Find the most frequent element in a range that appears more than threshold times.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;int&gt; arr;
+vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; block_mode;
+vector&lt;unordered_map&lt;int, int&gt;&gt; block_freq;
+int block_size;
+
+void build(int n) {
+    block_size = sqrt(n);
+    int blocks = (n + block_size - 1) / block_size;
+    block_mode.resize(blocks);
+    block_freq.resize(blocks);
+    
+    for (int b = 0; b < blocks; b++) {
+        int start = b * block_size;
+        int end = min(start + block_size, n);
+        unordered_map&lt;int, int&gt; freq;
+        vector&lt;pair&lt;int, int&gt;&gt; mode;
+        
+        for (int i = start; i < end; i++) {
+            freq[arr[i]]++;
+            mode.emplace_back(freq[arr[i]], arr[i]);
+        }
+        sort(mode.rbegin(), mode.rend());
+        block_mode[b] = mode;
+        block_freq[b] = freq;
+    }
+}
+
+int query(int l, int r, int threshold) {
+    unordered_map&lt;int, int&gt; freq;
+    int res = -1;
+    
+    while (l <= r && l % block_size != 0) {
+        freq[arr[l]]++;
+        if (freq[arr[l]] > threshold && (res == -1 || arr[l] < res))
+            res = arr[l];
+        l++;
+    }
+    while (l + block_size <= r) {
+        int b = l / block_size;
+        for (auto [cnt, val] : block_mode[b]) {
+            if (cnt + freq[val] > threshold) {
+                if (res == -1 || val < res) res = val;
+            } else break;
+        }
+        for (auto [val, cnt] : block_freq[b]) {
+            freq[val] += cnt;
+        }
+        l += block_size;
+    }
+    while (l <= r) {
+        freq[arr[l]]++;
+        if (freq[arr[l]] > threshold && (res == -1 || arr[l] < res))
+            res = arr[l];
+        l++;
+    }
+    return res;
+}
+
+int main() {
+    int n = 10, q = 2;
+    arr = {1, 2, 3, 1, 2, 1, 1, 3, 2, 1};
+    build(n);
+    
+    cout << query(1, 7, 2) << endl; // 1 (appears 4 times)
+    cout << query(0, 9, 3) << endl; // 1 (appears 5 times)
+    
+    return 0;
+}
+</code></pre>
+</div>

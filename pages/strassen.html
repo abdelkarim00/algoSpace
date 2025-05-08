@@ -1,0 +1,533 @@
+
+<div>
+
+<h1>Strassen's Matrix Multiplication Explained</h1>
+
+<p>Strassen's algorithm is an efficient algorithm for matrix multiplication. It was developed by Volker Strassen in 1969 and provides a faster alternative to the standard matrix multiplication algorithm, especially for large matrices. It is a classic example of the Divide &amp; Conquer paradigm.</p>
+
+<h2>Algorithm</h2>
+
+<p>Strassen's algorithm works by recursively dividing the input matrices into smaller submatrices and performing a series of seven multiplications on these submatrices, along with some additions and subtractions. This reduces the number of multiplications compared to the standard algorithm, which leads to a lower time complexity.</p>
+
+<p>Let <span class="math-inline">A</span> and <span class="math-inline">B</span> be two <span class="math-inline">n \\times n</span> matrices that we want to multiply to get the result matrix <span class="math-inline">C \= A \\times B</span>. If <span class="math-inline">n</span> is not a power of 2, the matrices are padded with rows and columns of zeros.</
+
+<p>The algorithm can be summarized as follows:</p>
+
+<ol>
+  <li><strong>Divide:</strong> Divide the matrices <span class="math-inline">A</span> and <span class="math-inline">B</span> into four <span class="math-inline">n/2 \\times n/2</span> submatrices each:
+    
+    <span class="math-block">A \= \\begin\{bmatrix\} A\_\{11\} & A\_\{12\} \\\\ A\_\{21\} & A\_\{22\} \\end\{bmatrix\}, \\quad B \= \\begin\{bmatrix\} B\_\{11\} & B\_\{12\} \\\\ B\_\{21\} & B\_\{22\} \\end\{bmatrix\}</span>
+  </li>
+  <li><strong>Compute Seven Products:</strong> Compute the following seven matrix products:
+    
+    $$
+    \begin{aligned}
+      P_1 &= (A_{11} + A_{22}) \times (B_{11} + B_{22}) \\
+      P_2 &= (A_{21} + A_{22}) \times B_{11} \\
+      P_3 &= A_{11} \times (B_{12} - B_{22}) \\
+      P_4 &= A_{22} \times (B_{21} - B_{11}) \\
+      P_5 &= (A_{11} + A_{12}) \times B_{22} \\
+      P_6 &= (A_{21} - A_{11}) \times (B_{11} + B_{12}) \\
+      P_7 &= (A_{12} - A_{22}) \times (B_{21} + B_{22})
+    \end{aligned}
+    $$
+  </li>
+  <li><strong>Combine:</strong> Compute the submatrices of the result matrix <span class="math-inline">C</span>:
+    
+    $$
+    \begin{aligned}
+      C_{11} &= P_1 + P_4 - P_5 + P_7 \\
+      C_{12} &= P_3 + P_5 \\
+      C_{21} &= P_2 + P_4 \\
+      C_{22} &= P_1 - P_2 + P_3 + P_6
+    \end{aligned}
+    $$
+  </li>
+  <li><strong>Recurse:</strong> Recursively apply the algorithm to the <span class="math-inline">n/2 \\times n/2</span> matrices until the matrices are small enough to be multiplied using the standard method.</li>
+</ol>
+
+<h2>Mathematics</h2>
+
+<p>The key idea behind Strassen's algorithm is to reduce the number of multiplications. The standard matrix multiplication algorithm requires eight multiplications of <span class="math-inline">n/2 \\times n/2</span> matrices. Strassen's algorithm reduces this to seven, at the cost of some extra additions and subtractions.</p>
+
+<p>Let <span class="math-inline">T\(n\)</span> be the time complexity of multiplying two <span class="math-inline">n \\times n</span> matrices using Strassen's algorithm. The recurrence relation for <span class="math-inline">T\(n\)</span> is:</p>
+
+<p><span class="math-inline">T\(n\) \= 7T\(n/2\) \+ O\(n^2\)</span></p>
+
+<p>where <span class="math-inline">7T\(n/2\)</span> represents the seven recursive calls to multiply <span class="math-inline">n/2 \\times n/2</span> matrices, and <span class="math-inline">O\(n^2\)</span> represents the time taken for the additions and subtractions.</p>
+
+<p>Using the Master Theorem, we can solve this recurrence relation:</p>
+
+<p>In the Master Theorem: <span class="math-inline">a \= 7</span>, <span class="math-inline">b \= 2</span>, and <span class="math-inline">f\(n\) \= O\(n^2\)</span>.</p>
+<p>We compare <span class="math-inline">f\(n\) \= n^2</span> with <span class="math-inline">n^\{\\log\_b a\} \= n^\{\\log\_2 7\} \\approx n^\{2\.807\}</span>.</p>
+<p>Since <span class="math-inline">f\(n\) \= O\(n^2\) \= O\(n^\{\\log\_2 7 \- \\epsilon\}\)</span> for some <span class="math-inline">\\epsilon \> 0</span> (e.g., <span class="math-inline">\\epsilon \\approx 0\.807</span>), we fall into case 1 of the Master Theorem.</p>
+<p>Therefore, <span class="math-inline">T\(n\) \= \\Theta\(n^\{\\log\_2 7\}\) \\approx \\Theta\(n^\{2\.807\}\)</span>.</p>
+
+<p>This is asymptotically faster than the <span class="math-inline">O\(n^3\)</span> complexity of the standard matrix multiplication algorithm.</p>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Time Complexity:</strong> The time complexity of Strassen's algorithm is <span class="math-inline">\\Theta\(n^\{\\log\_2 7\}\) \\approx \\Theta\(n^\{2\.807\}\)</span>. This is asymptotically faster than the <span class="math-inline">O\(n^3\)</span> time complexity of the standard matrix multiplication algorithm.</li>
+  <li><strong>Memory Complexity:</strong> The memory complexity of Strassen's algorithm is determined by the depth of the recursion and the temporary storage used for intermediate matrices. The depth of the recursion is <span class="math-inline">O\(\\log n\)</span>, and at each level, we store a constant number of matrices of size <span class="math-inline">\(n/2\)^2</span>. Therefore, the memory complexity is <span class="math-inline">O\(n^2 \\log n\)</span>.</li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<h3>Problem 1: Matrix Addition (Conceptual)</h3>
+<p><strong>Problem Statement (Conceptual):</strong>  While not Strassen's, matrix addition is a fundamental operation. Given two <span class="math-inline">n \\times n</span> matrices, add them.  This highlights the basic matrix operations needed within Strassen's.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+A = [[1, 2], [3, 4]]
+B = [[5, 6], [7, 8]]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+C = [[6, 8], [10, 12]]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;std::vector&lt;int&gt;&gt; matrixAdd(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+    return C;
+}
+
+int main() {
+    std::vector&lt;std::vector&lt;int&gt;&gt; A = {{1, 2}, {3, 4}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; B = {{5, 6}, {7, 8}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; C = matrixAdd(A, B);
+    for (const auto& row : C) {
+        for (int val : row) {
+            std::cout &lt;&lt; val &lt;&lt; " ";
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Matrix Subtraction (Conceptual)</h3>
+<p><strong>Problem Statement (Conceptual):</strong>  Given two <span class="math-inline">n \\times n</span> matrices, subtract them.  This is another basic matrix operation used within Strassen's.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+A = [[5, 6], [7, 8]]
+B = [[1, 2], [3, 4]]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+C = [[4, 4], [4, 4]]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+std::vector&lt;std::vector&lt;int&gt;&gt; matrixSubtract(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            C[i][j] = A[i][j] - B[i][j];
+        }
+    }
+    return C;
+}
+
+int main() {
+    std::vector&lt;std::vector&lt;int&gt;&gt; A = {{5, 6}, {7, 8}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; B = {{1, 2}, {3, 4}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; C = matrixSubtract(A, B);
+    for (const auto& row : C) {
+        for (int val : row) {
+            std::cout &lt;&lt; val &lt;&lt; " ";
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Standard Matrix Multiplication (Divide and Conquer)</h3>
+
+<p><strong>Problem Statement:</strong> Implement standard matrix multiplication using a divide-and-conquer approach.  This will serve as a baseline for comparison with Strassen's.  While still <span class="math-inline">O\(n^3\)</span>, it demonstrates the divide-and-conquer strategy.</p>
+
+<p><strong>Input:</strong></p>
+<pre><code>
+A = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]]
+B = [[16, 15, 14, 13], [12, 11, 10, 9], [8, 7, 6, 5], [4, 3, 2, 1]]
+</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>
+C = [[80, 70, 60, 50], [248, 214, 180, 146], [416, 358, 300, 242], [584, 502, 420, 338]]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Function to split a matrix into four submatrices
+void splitMatrix(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, std::vector&lt;std::vector&lt;int&gt;&gt;& A11, std::vector&lt;std::vector&lt;int&gt;&gt;& A12,
+                 std::vector&lt;std::vector&lt;int&gt;&gt;& A21, std::vector&lt;std::vector&lt;int&gt;&gt;& A22) {
+    int n = A.size();
+    int half = n / 2;
+
+    for (int i = 0; i &lt; half; ++i) {
+        for (int j = 0; j &lt; half; ++j) {
+            A11[i][j] = A[i][j];
+            A12[i][j] = A[i][j + half];
+            A21[i][j] = A[i + half][j];
+            A22[i][j] = A[i + half][j + half];
+        }
+    }
+}
+
+// Function to combine four submatrices into a single matrix
+void combineMatrix(const std::vector&lt;std::vector&lt;int&gt;&gt;& C11, const std::vector&lt;std::vector&lt;int&gt;&gt;& C12,
+                   const std::vector&lt;std::vector&lt;int&gt;&gt;& C21, const std::vector&lt;std::vector&lt;int&gt;&gt;& C22,
+                   std::vector&lt;std::vector&lt;int&gt;&gt;& C) {
+    int n = C11.size();
+    int half = n;
+
+    for (int i = 0; i &lt; half; ++i) {
+        for (int j = 0; j &lt; half; ++j) {
+            C[i][j] = C11[i][j];
+            C[i][j + half] = C12[i][j];
+            C[i + half][j] = C21[i][j];
+            C[i + half][j + half] = C22[i][j];
+        }
+    }
+}
+
+// Function to perform standard matrix multiplication using divide and conquer
+std::vector&lt;std::vector&lt;int&gt;&gt; matrixMultiplyDivideAndConquer(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n, 0));
+
+    if (n == 1) {
+        C[0][0] = A[0][0] * B[0][0];
+        return C;
+    }
+
+    int half = n / 2;
+
+    // Divide matrices A and B into submatrices
+    std::vector&lt;std::vector&lt;int&gt;&gt; A11(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; A12(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; A21(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; A22(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; B11(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; B12(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; B21(half, std::vector&lt;int&gt;(half));
+    std::vector&lt;std::vector&lt;int&gt;&gt; B22(half, std::vector&lt;int&gt;(half));
+
+    splitMatrix(A, A11, A12, A21, A22);
+    splitMatrix(B, B11, B12, B21, B22);
+
+    // Recursively compute the eight products
+    std::vector&lt;std::vector&lt;int&gt;&gt; C11 = matrixMultiplyDivideAndConquer(A11, B11) + matrixMultiplyDivideAndConquer(A12, B21);
+    std::vector&lt;std::vector&lt;int&gt;&gt; C12 = matrixMultiplyDivideAndConquer(A11, B12) + matrixMultiplyDivideAndConquer(A12, B22);
+    std::vector&lt;std::vector&lt;int&gt;&gt; C21 = matrixMultiplyDivideAndConquer(A21, B11) + matrixMultiplyDivideAndConquer(A22, B21);
+    std::vector&lt;std::vector&lt;int&gt;&gt; C22 = matrixMultiplyDivideAndConquer(A21, B12) + matrixMultiplyDivideAndConquer(A22, B22);
+
+    // Combine the results
+    combineMatrix(C11, C12, C21, C22, C);
+    return C;
+}
+
+// Overload the + operator for matrix addition
+std::vector&lt;std::vector&lt;int&gt;&gt; operator+(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+    return C;
+}
+
+int main() {
+    std::vector&lt;std::vector&lt;int&gt;&gt; A = {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 16}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; B = {{16, 15, 14, 13}, {12, 11, 10, 9}, {8, 7, 6, 5}, {4, 3, 2, 1}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; C = matrixMultiplyDivideAndConquer(A, B);
+
+    for (const auto& row : C) {
+        for (int val : row) {
+            std::cout &lt;&lt; val &lt;&lt; " ";
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Strassen's Matrix Multiplication (2x2 Matrices)</h3>
+
+<p><strong>Problem Statement:</strong> Implement Strassen's matrix multiplication algorithm for 2x2 matrices. This simplifies the recursion to a single level, making it easier to understand the core logic.</p>
+
+<p><strong>Input:</strong></p>
+<pre><code>
+A = [[1, 2], [3, 4]]
+B = [[5, 6], [7, 8]]
+</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>
+C = [[19, 22], [43, 50]]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// Function to perform matrix addition
+std::vector&lt;std::vector&lt;int&gt;&gt; matrixAdd(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            C[i][j] = A[i][j] + B[i][j];
+        }
+    }
+    return C;
+}
+
+// Function to perform matrix subtraction
+std::vector&lt;std::vector&lt;int&gt;&gt; matrixSubtract(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    int n = A.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            C[i][j] = A[i][j] - B[i][j];
+        }
+    }
+    return C;
+}
+
+// Function to perform Strassen's matrix multiplication for 2x2 matrices
+std::vector&lt;std::vector&lt;int&gt;&gt; strassen2x2(const std::vector&lt;std::vector&lt;int&gt;&gt;& A, const std::vector&lt;std::vector&lt;int&gt;&gt;& B) {
+    std::vector&lt;std::vector&lt;int&gt;&gt; C(2, std::vector&lt;int&gt;(2));
+
+    int a11 = A[0][0]; int a12 = A[0][1];
+    int a21 = A[1][0]; int a22 = A[1][1];
+    int b11 = B[0][0]; int b12 = B[0][1];
+    int b21 = B[1][0]; int b22 = B[1][1];
+
+    int p1 = (a11 + a22) * (b11 + b22);
+    int p2 = (a21 + a22) * b11;
+    int p3 = a11 * (b12 - b22);
+    int p4 = a22 * (b21 - b11);
+    int p5 = (a11 + a12) * b22;
+    int p6 = (a21 - a11) * (b11 + b12);
+    int p7 = (a12 - a22) * (b21 + b22);
+
+    C[0][0] = p1 + p4 - p5 + p7;
+    C[0][1] = p3 + p5;
+    C[1][0] = p2 + p4;
+    C[1][1] = p1 - p2 + p3 + p6;
+
+    return C;
+}
+
+int main() {
+    std::vector&lt;std::vector&lt;int&gt;&gt; A = {{1, 2}, {3, 4}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; B = {{5, 6}, {7, 8}};
+    std::vector&lt;std::vector&lt;int&gt;&gt; C = strassen2x2(A, B);
+
+    for (const auto& row : C) {
+        for (int val : row) {
+            std::cout &lt;&lt; val &lt;&lt; " ";
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Strassen's Matrix Multiplication (General Case)</h3>
+
+<p><strong>Problem Statement:</strong> Implement Strassen's matrix multiplication algorithm for general <span class="math-inline">n \\times n</span> matrices, where <span class="math-inline">n</span> is a power of 2.  Optimize your implementation for performance.</p>
+
+<h4>Input</h4>
+<pre><code>
+n
+A[n][n] (the first n x n matrix)
+B[n][n] (the second n x n matrix)
+</code></pre>
+<p>where $n$ is a power of 2 (e.g., 2, 4, 8, 16, ...).</p>
+
+<h4>Output</h4>
+<pre><code>
+C[n][n] (the product of A and B)
+</code></pre>
+<p>The resulting $n \times n$ matrix $C = A \times B$, with elements $C_{ij} = \sum_{k=0}^{n-1} A_{ik} B_{kj}$.</p>
+
+<h4>Input Example</h4>
+<pre><code>
+2
+1 2
+3 4
+5 6
+7 8
+</code></pre>
+
+<h4>Output Example</h4>
+<pre><code>
+19 22
+43 50
+</code></pre>
+
+<h4>C++ Code Solution</h4>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+std::vector&lt;std::vector&lt;int&gt;&gt; multiply(const std::vector&lt;std::vector&lt;int&gt;&>& a, const std::vector&lt;std::vector&lt;int&gt;&>& b) {
+    int n = a.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; result(n, std::vector&lt;int&gt;(n, 0));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            for (int k = 0; k &lt; n; ++k) {
+                result[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+    return result;
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; add(const std::vector&lt;std::vector&lt;int&gt;&>& a, const std::vector&lt;std::vector&lt;int&gt;&>& b) {
+    int n = a.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; result(n, std::vector&lt;int&gt;(n, 0));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            result[i][j] = a[i][j] + b[i][j];
+        }
+    }
+    return result;
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; subtract(const std::vector&lt;std::vector&lt;int&gt;&>& a, const std::vector&lt;std::vector&lt;int&gt;&>& b) {
+    int n = a.size();
+    std::vector&lt;std::vector&lt;int&gt;&gt; result(n, std::vector&lt;int&gt;(n, 0));
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            result[i][j] = a[i][j] - b[i][j];
+        }
+    }
+    return result;
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; getSubmatrix(const std::vector&lt;std::vector&lt;int&gt;&>& matrix, int row_start, int col_start, int size) {
+    std::vector&lt;std::vector&lt;int&gt;&gt; sub(size, std::vector&lt;int&gt;(size));
+    for (int i = 0; i &lt; size; ++i) {
+        for (int j = 0; j &lt; size; ++j) {
+            sub[i][j] = matrix[row_start + i][col_start + j];
+        }
+    }
+    return sub;
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; combineSubmatrices(const std::vector&lt;std::vector&lt;int&gt;&>& c11, const std::vector&lt;std::vector&lt;int&gt;&>& c12,
+                                              const std::vector&lt;std::vector&lt;int&gt;&>& c21, const std::vector&lt;std::vector&lt;int&gt;&>& c22) {
+    int size = c11.size();
+    int n = 2 * size;
+    std::vector&lt;std::vector&lt;int&gt;&gt; result(n, std::vector&lt;int&gt;(n));
+    for (int i = 0; i &lt; size; ++i) {
+        for (int j = 0; j &lt; size; ++j) {
+            result[i][j] = c11[i][j];
+            result[i][j + size] = c12[i][j];
+            result[i + size][j] = c21[i][j];
+            result[i + size][j + size] = c22[i][j];
+        }
+    }
+    return result;
+}
+
+std::vector&lt;std::vector&lt;int&gt;&gt; strassenMultiply(const std::vector&lt;std::vector&lt;int&gt;&>& a, const std::vector&lt;std::vector&lt;int&gt;&>& b) {
+    int n = a.size();
+    if (n &lt;= 64) { // Base case for small matrices, use standard multiplication
+        return multiply(a, b);
+    }
+
+    int half = n / 2;
+
+    std::vector&lt;std::vector&lt;int&gt;&gt; a11 = getSubmatrix(a, 0, 0, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; a12 = getSubmatrix(a, 0, half, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; a21 = getSubmatrix(a, half, 0, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; a22 = getSubmatrix(a, half, half, half);
+
+    std::vector&lt;std::vector&lt;int&gt;&gt; b11 = getSubmatrix(b, 0, 0, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; b12 = getSubmatrix(b, 0, half, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; b21 = getSubmatrix(b, half, 0, half);
+    std::vector&lt;std::vector&lt;int&gt;&gt; b22 = getSubmatrix(b, half, half, half);
+
+    std::vector&lt;std::vector&lt;int&gt;&gt; p1 = strassenMultiply(add(a11, a22), add(b11, b22));
+    std::vector&lt;std::vector&lt;int&gt;&gt; p2 = strassenMultiply(add(a21, a22), b11);
+    std::vector&lt;std::vector&lt;int&gt;&gt; p3 = strassenMultiply(a11, subtract(b12, b22));
+    std::vector&lt;std::vector&lt;int&gt;&gt; p4 = strassenMultiply(a22, subtract(b21, b11));
+    std::vector&lt;std::vector&lt;int&gt;&gt; p5 = strassenMultiply(add(a11, a12), b22);
+    std::vector&lt;std::vector&lt;int&gt;&gt; p6 = strassenMultiply(subtract(a21, a11), add(b11, b12));
+    std::vector&lt;std::vector&lt;int&gt;&gt; p7 = strassenMultiply(subtract(a12, a22), add(b21, b22));
+
+    std::vector&lt;std::vector&lt;int&gt;&gt; c11 = subtract(add(add(p1, p4), p7), p5);
+    std::vector&lt;std::vector&lt;int&gt;&gt; c12 = add(p3, p5);
+    std::vector&lt;std::vector&lt;int&gt;&gt; c21 = add(p2, p4);
+    std::vector&lt;std::vector&lt;int&gt;&gt; c22 = subtract(add(add(p1, p3), p6), p2);
+
+    return combineSubmatrices(c11, c12, c21, c22);
+}
+
+int main() {
+    int n;
+    std::cin >> n;
+    std::vector&lt;std::vector&lt;int&gt;&gt; a(n, std::vector&lt;int&gt;(n));
+    std::vector&lt;std::vector&lt;int&gt;&gt; b(n, std::vector&lt;int&gt;(n));
+
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            std::cin >> a[i][j];
+        }
+    }
+
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            std::cin >> b[i][j];
+        }
+    }
+
+    std::vector&lt;std::vector&lt;int&gt;&gt; c = strassenMultiply(a, b);
+
+    for (int i = 0; i &lt; n; ++i) {
+        for (int j = 0; j &lt; n; ++j) {
+            std::cout << c[i][j] << (j == n - 1 ? "" : " ");
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
+</code></pre>
+</div>

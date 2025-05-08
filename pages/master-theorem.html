@@ -1,0 +1,440 @@
+<div>
+
+<h1>Master Theorem Explained</h1>
+
+<p>The Master Theorem is a formula that provides a way to solve recurrence relations of the form:</p>
+
+<p>$$T(n) = aT(n/b) + f(n)$$</p>
+
+<p>where:</p>
+
+<ul>
+    <li>$T(n)$ is the time complexity of the problem of size $n$.</li>
+    <li>$a \geq 1$ is the number of subproblems in the recursion.</li>
+    <li>$b > 1$ is the factor by which the subproblem size is reduced in each recursive call.</li>
+    <li>$f(n)$ is a function that represents the cost of the work done outside the recursive calls (e.g., the cost of dividing the problem and combining the subproblem solutions).</li>
+</ul>
+
+<p>The Master Theorem is particularly useful for analyzing the time complexity of divide-and-conquer algorithms.</p>
+
+<h2>Algorithm</h2>
+
+<p>The Master Theorem doesn't provide an algorithm in the traditional sense, but rather a method for determining the time complexity of a recursive algorithm given its recurrence relation. The "algorithm" is the application of the theorem itself.</p>
+
+<p>Here's how to apply the Master Theorem:</p>
+
+<ol>
+    <li><strong>Identify a, b, and f(n):</strong> Determine the values of $a$, $b$, and the function $f(n)$ from the given recurrence relation.</li>
+    <li><strong>Compare f(n) with n<sup>log<sub>b</sub>a</sup>:</strong> Compare the asymptotic growth rate of $f(n)$ with that of $n^{\log_b a}$.</li>
+    <li><strong>Apply the appropriate case:</strong> Based on the comparison, apply one of the three cases of the Master Theorem to determine the time complexity $T(n)$.</li>
+</ol>
+
+<h2>Mathematics</h2>
+
+<p>The Master Theorem is based on the idea of comparing the cost of the work done at each level of the recursion with the cost of the work done in the leaves of the recursion tree. The term $n^{\log_b a}$ represents the cost of the work done at the leaves.</p>
+
+<p>The theorem has three cases:</p>
+
+<ol>
+    <li><strong>Case 1:</strong> If $f(n) = O(n^{\log_b a - \epsilon})$ for some constant $\epsilon > 0$, then $T(n) = \Theta(n^{\log_b a})$.
+        <ul>
+            <li>In this case, the work done at the leaves dominates the overall cost.</li>
+        </ul>
+    </li>
+    <li><strong>Case 2:</strong> If $f(n) = \Theta(n^{\log_b a})$, then $T(n) = \Theta(n^{\log_b a} \log n)$.
+        <ul>
+            <li>In this case, the work done at each level is roughly the same, and the total cost is the cost at one level multiplied by the number of levels (which is $\log_b n$).</li>
+        </ul>
+    </li>
+    <li><strong>Case 3:</strong> If $f(n) = \Omega(n^{\log_b a + \epsilon})$ for some constant $\epsilon > 0$, and if $af(n/b) \leq cf(n)$ for some constant $c < 1$ and all sufficiently large $n$ (the regularity condition), then $T(n) = \Theta(f(n))$.
+        <ul>
+            <li>In this case, the work done at the root of the recursion dominates the overall cost. The regularity condition ensures that the cost decreases geometrically as we go down the recursion tree.</li>
+        </ul>
+    </li>
+</ol>
+
+<h2>Time and Memory Complexity</h2>
+
+<p>The Master Theorem itself does not have time or memory complexity in the traditional sense. It's a tool for *analyzing* the time complexity of recursive algorithms. The time complexity it provides is the result of the analysis.</p>
+
+<ul>
+    <li>   <strong>Time Complexity:</strong> The output of the Master Theorem is the time complexity, $T(n)$, of the algorithm described by the recurrence relation.  This will be one of the theta cases described above: $\Theta(n^{\log_b a})$, $\Theta(n^{\log_b a} \log n)$, or $\Theta(f(n))$.</li>
+    <li>   <strong>Memory Complexity:</strong> The Master Theorem doesn't directly tell us about the memory complexity. The memory complexity of the algorithm being analyzed would need to be determined separately, often by considering the recursion depth and the amount of memory used at each level of the recursion.</li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<h3>Problem 1: Binary Search (Recurrence Analysis)</h3>
+
+<p><strong>Problem Statement (Hypothetical):</strong> Analyze the time complexity of the classic binary search algorithm using the Master Theorem. The binary search algorithm works on a sorted array.  It divides the array in half, and searches one half.</p>
+
+<p><strong>Input Example:</strong></p>
+
+<p>Binary Search on an array of size n.</p>
+
+<p><strong>Output Example:</strong></p>
+
+<p>Time Complexity: $\Theta(\log n)$</p>
+
+<p><strong>C++ Code (for Binary Search - for context, not directly related to Master Theorem):</strong></p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int binarySearch(const std::vector&lt;int&gt;& arr, int target) {
+    int left = 0;
+    int right = arr.size() - 1;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid] == target) {
+            return mid;
+        } else if (arr[mid] &lt; target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};
+    int target = 23;
+    int index = binarySearch(arr, target);
+    std::cout &lt;&lt; "Index of " &lt;&lt; target &lt;&lt; ": " &lt;&lt; index &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<p><strong>Master Theorem Analysis:</strong></p>
+
+<p>The recurrence relation for Binary Search is: $T(n) = T(n/2) + O(1)$.</p>
+
+<p>Here, $a = 1$, $b = 2$, and $f(n) = O(1)$.</p>
+
+<p>$n^{\log_b a} = n^{\log_2 1} = n^0 = 1$.</p>
+
+<p>Since $f(n) = O(1) = \Theta(n^{\log_b a})$, we are in Case 2 of the Master Theorem.</p>
+
+<p>Therefore, $T(n) = \Theta(n^{\log_b a} \log n) = \Theta(1 \cdot \log n) = \Theta(\log n)$.</p>
+
+<h3>Problem 2: Merge Sort (Recurrence Analysis)</h3>
+
+<p><strong>Problem Statement (Hypothetical):</strong> Analyze the time complexity of the Merge Sort algorithm using the Master Theorem.  Merge sort divides the array into two halves, recursively sorts them, and merges the sorted halves.</p>
+
+<p><strong>Input Example:</strong></p>
+
+<p>Merge Sort on an array of size n.</p>
+
+<p><strong>Output Example:</strong></p>
+
+<p>Time Complexity: $\Theta(n \log n)$</p>
+
+<p><strong>C++ Code (for Merge Sort - for context):</strong></p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void merge(std::vector&lt;int&gt;& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    std::vector&lt;int&gt; L(n1);
+    std::vector&lt;int&gt; R(n2);
+
+    for (int i = 0; i &lt; n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j &lt; n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+    while (i &lt; n1 &amp;&amp; j &lt; n2) {
+        if (L[i] &lt;= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i &lt; n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j &lt; n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(std::vector&lt;int&gt;& arr, int left, int right) {
+    if (left &lt; right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {12, 11, 13, 5, 6, 7};
+    mergeSort(arr, 0, arr.size() - 1);
+    for (int num : arr)
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<p><strong>Master Theorem Analysis:</strong></p>
+
+<p>The recurrence relation for Merge Sort is: $T(n) = 2T(n/2) + O(n)$.</p>
+
+<p>Here, $a = 2$, $b = 2$, and $f(n) = O(n)$.</p>
+
+<p>$n^{\log_b a} = n^{\log_2 2} = n^1 = n$.</p>
+
+<p>Since $f(n) = O(n) = \Theta(n^{\log_b a})$, we are in Case 2 of the Master Theorem.</p>
+
+<p>Therefore, $T(n) = \Theta(n^{\log_b a} \log n) = \Theta(n \log n)$.</p>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Karatsuba Multiplication (Recurrence Analysis)</h3>
+
+<p><strong>Problem Statement (Hypothetical):</strong> Analyze the time complexity of the Karatsuba multiplication algorithm using the Master Theorem.  Karatsuba multiplication divides the n-digit numbers into smaller parts and performs three multiplications of n/2 digit numbers.</p>
+
+<p><strong>Input Example:</strong></p>
+
+<p>Karatsuba multiplication of two n-digit numbers.</p>
+
+<p><strong>Output Example:</strong></p>
+
+<p>Time Complexity: $\Theta(n^{\log_2 3})$</p>
+
+<p><strong>C++ Code (for Karatsuba - for context):</strong></p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+std::string addStrings(const std::string& a, const std::string& b) {
+    std::string result = "";
+    int carry = 0;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+
+    while (i >= 0 || j >= 0 || carry > 0) {
+        int digitA = (i >= 0) ? a[i--] - '0' : 0;
+        int digitB = (j >= 0) ? b[j--] - '0' : 0;
+        int sum = digitA + digitB + carry;
+        carry = sum / 10;
+        result += std::to_string(sum % 10);
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
+}
+
+std::string subtractStrings(const std::string& a, const std::string& b) {
+    std::string result = "";
+    int borrow = 0;
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+
+    while (i >= 0 || j >= 0) {
+        int digitA = (i >= 0) ? a[i--] - '0' : 0;
+        int digitB = (j >= 0) ? b[j--] - '0' : 0;
+        int diff = digitA - digitB - borrow;
+        if (diff &lt; 0) {
+            diff += 10;
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+        result += std::to_string(diff);
+    }
+    std::reverse(result.begin(), result.end());
+    size_t firstNonZero = result.find_first_not_of('0');
+    if (firstNonZero == std::string::npos) {
+        return "0";
+    }
+    return result.substr(firstNonZero);
+}
+
+std::string multiplyByPowerOf10(const std::string& s, int n) {
+    if (s == "0") return "0";
+    std::string result = s;
+    for (int i = 0; i &lt; n; ++i) {
+        result += '0';
+    }
+    return result;
+}
+
+std::string karatsuba(const std::string& x, const std::string& y) {
+    if (x.length() &lt;= 1 || y.length() &lt;= 1) {
+        return std::to_string(std::stoll(x) * std::stoll(y));
+    }
+
+    int n = std::max(x.length(), y.length());
+    int half = n / 2;
+
+    std::string a = (x.length() &gt; half) ? x.substr(0, x.length() - half) : "0";
+    std::string b = (x.length() &gt; half) ? x.substr(x.length() - half) : x;
+    std::string c = (y.length() &gt; half) ? y.substr(0, y.length() - half) : "0";
+    std::string d = (y.length() &gt; half) ? y.substr(y.length() - half) : y;
+
+
+    std::string p1 = karatsuba(a, c);
+    std::string p2 = karatsuba(b, d);
+    std::string p3 = karatsuba(addStrings(a, b), addStrings(c, d));
+
+    std::string step1 = multiplyByPowerOf10(p1, 2 * half);
+    std::string step2 = multiplyByPowerOf10(subtractStrings(subtractStrings(p3, p1), p2), half);
+    std::string finalResult = addStrings(addStrings(step1, step2), p2);
+
+    return finalResult;
+}
+
+int main() {
+    std::string x = "1234";
+    std::string y = "5678";
+    std::string result = karatsuba(x, y);
+    std::cout &lt;&lt; result &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<p><strong>Master Theorem Analysis:</strong></p>
+
+<p>The recurrence relation for Karatsuba multiplication is: $T(n) = 3T(n/2) + O(n)$.</p>
+
+<p>Here, $a = 3$, $b = 2$, and $f(n) = O(n)$.</p>
+
+<p>$n^{\log_b a} = n^{\log_2 3} \approx n^{1.585}$.</p>
+
+<p>Since $f(n) = O(n) = O(n^{1.585 - \epsilon})$ for some $\epsilon > 0$ (e.g., $\epsilon = 0.585$), we are in Case 1 of the Master Theorem.</p>
+
+<p>Therefore, $T(n) = \Theta(n^{\log_b a}) = \Theta(n^{\log_2 3}) \approx \Theta(n^{1.585})$.</p>
+
+<h3>Problem 4: Divide and Conquer Matrix Multiplication (Recurrence Analysis)</h3>
+
+<p><strong>Problem Statement (Hypothetical):</strong> Consider a divide-and-conquer algorithm for matrix multiplication that divides each $n \times n$ matrix into four $n/2 \times n/2$ submatrices and performs eight multiplications of these submatrices, along with some additions. The time taken for the additions is $O(n^2)$. Analyze the time complexity of this algorithm using the Master Theorem.</p>
+
+<p><strong>Input Example:</strong></p>
+
+<p>Divide and conquer matrix multiplication of two n x n matrices.</p>
+
+<p><strong>Output Example:</strong></p>
+
+<p>Time Complexity: $\Theta(n^3)$</p>
+
+<p><strong>C++ Code (for Divide and Conquer Matrix Multiplication - for context, this is complex to implement fully):</strong></p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+// This is a simplified representation.  A full implementation is quite involved.
+// It's included to give context to the Master Theorem analysis.
+
+// Assume we have functions to:
+// - splitMatrix(matrix, submatrices)
+// - multiplySubmatrices(submatrices)
+// - combineSubmatrices(submatrices, result)
+
+// The core recursive function would look something like this (pseudocode):
+// void multiplyMatrices(matrix A, matrix B, matrix C) {
+//     if (A is small) {
+//         // Perform standard matrix multiplication
+//         return;
+//     }
+//     // 1. Divide A and B into submatrices
+//     // 2. Recursively multiply submatrices (8 multiplications)
+//     // 3. Combine the results to form C
+// }
+
+int main() {
+    //  Illustrative example.  Full matrix multiplication is not performed here.
+    std::cout &lt;&lt; "Matrix multiplication analysis using Master Theorem" &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<p><strong>Master Theorem Analysis:</strong></p>
+
+<p>The recurrence relation for this divide-and-conquer matrix multiplication is: $T(n) = 8T(n/2) + O(n^2)$.</p>
+
+<p>Here, $a = 8$, $b = 2$, and $f(n) = O(n^2)$.</p>
+
+<p>$n^{\log_b a} = n^{\log_2 8} = n^3$.</p>
+
+<p>Since $f(n) = O(n^2) = O(n^{3 - \epsilon})$ for some $\epsilon > 0$ (e.g., $\epsilon = 1$), we are in Case 1 of the Master Theorem.</p>
+
+<p>Therefore, $T(n) = \Theta(n^{\log_b a}) = \Theta(n^3)$.</p>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Strassen's Matrix Multiplication (Recurrence Analysis)</h3>
+
+<p><strong>Problem Statement (Hypothetical):</strong> Strassen's algorithm is a more efficient divide-and-conquer algorithm for matrix multiplication. It divides each $n \times n$ matrix into four $n/2 \times n/2$ submatrices but performs only *seven* multiplications of these submatrices, along with some additions and subtractions. The time taken for the additions and subtractions is still $O(n^2)$. Analyze the time complexity of Strassen's algorithm using the Master Theorem.</p>
+
+<p><strong>Input Example:</strong></p>
+
+<p>Strassen's matrix multiplication of two n x n matrices.</p>
+
+<p><strong>Output Example:</strong></p>
+
+<p>Time Complexity: $\Theta(n^{\log_2 7})$</p>
+
+<p><strong>C++ Code (for Strassen's - for context, this is very complex):</strong></p>
+
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+//  Simplified representation.  A full implementation is extremely involved.
+//  Included to give context to the Master Theorem analysis.
+
+//  Strassen's algorithm involves a complex series of matrix additions, subtractions,
+//  and seven recursive multiplications.
+
+//  The core recursive function would have a structure like this (pseudocode):
+//  void strassenMultiply(matrix A, matrix B, matrix C) {
+//      if (A is small) {
+//          // Perform standard matrix multiplication
+//          return;
+//      }
+//      // 1. Divide A and B into submatrices
+//      // 2. Calculate seven product matrices (M1 to M7) using a specific formula
+//      // 3. Combine M1 to M7 to form the submatrices of C
+//  }
+
+int main() {
+    // Illustrative example.  Full Strassen's algorithm not implemented here.
+    std::cout &lt;&lt; "Strassen's Matrix multiplication analysis using Master Theorem" &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<p><strong>Master Theorem Analysis:</strong></p>
+
+<p>The recurrence relation for Strassen's algorithm is: $T(n) = 7T(n/2) + O(n^2)$.</p>
+
+<p>Here, $a = 7$, $b = 2$, and $f(n) = O(n^2)$.</p>
+
+<p>$n^{\log_b a} = n^{\log_2 7} \approx n^{2.807}$.</p>
+
+<p>Since $f(n) = O(n^2) = O(n^{\log_2 7 - \epsilon})$ for some $\epsilon > 0$ (e.g., $\epsilon \approx 0.807$), we are in Case 1 of the Master Theorem.</p>
+
+<p>Therefore, $T(n) = \Theta(n^{\log_b a}) = \Theta(n^{\log_2 7}) \approx \Theta(n^{2.807})$.</p>
+
+</div>

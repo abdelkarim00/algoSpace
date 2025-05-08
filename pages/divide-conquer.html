@@ -1,0 +1,353 @@
+<div>
+
+<h1>Divide &amp; Conquer Algorithm Explained</h1>
+
+<p>Divide &amp; Conquer is a powerful algorithmic paradigm that solves a problem by recursively breaking it down into smaller subproblems of the same or related type, until these subproblems become simple enough to be solved directly. The solutions to the subproblems are then combined to produce the solution to the original problem.</p>
+
+<h2>Algorithm</h2>
+
+<p>The Divide &amp; Conquer paradigm generally involves the following three steps:</p>
+
+<ol>
+  <li><strong>Divide:</strong> The original problem is divided into smaller subproblems that are similar to the original problem but smaller in size.</li>
+  <li><strong>Conquer:</strong> The subproblems are solved recursively. If the subproblem is small enough, it is solved directly (base case).</li>
+  <li><strong>Combine:</strong> The solutions to the subproblems are combined to obtain the solution to the original problem.</li>
+</ol>
+
+<h2>Mathematics</h2>
+
+<p>The mathematical analysis of Divide &amp; Conquer algorithms often involves recurrence relations. A recurrence relation is an equation that defines a function in terms of its values on smaller inputs. For example, the time complexity of a Divide &amp; Conquer algorithm that divides a problem of size $n$ into $a$ subproblems of size $n/b$ and takes $O(n^k)$ time to combine the solutions can be expressed by the following recurrence relation:</p>
+
+<p>$$T(n) = aT(n/b) + O(n^k)$$</p>
+
+<p>The solution to this recurrence relation can be found using the Master Theorem, which provides a way to determine the asymptotic behavior of many recurrence relations that arise in the analysis of Divide &amp; Conquer algorithms.</p>
+
+<p><strong>Master Theorem:</strong></p>
+<p>Given a recurrence relation of the form:</p>
+<p>$$T(n) = aT(n/b) + f(n)$$</p>
+<p>where $a \geq 1$, $b > 1$, and $f(n)$ is an asymptotically positive function, we can determine the asymptotic behavior of $T(n)$ as follows:</p>
+<ol>
+    <li>If $f(n) = O(n^{\log_b a - \epsilon})$ for some constant $\epsilon > 0$, then $T(n) = \Theta(n^{\log_b a})$.</li>
+    <li>If $f(n) = \Theta(n^{\log_b a})$, then $T(n) = \Theta(n^{\log_b a} \log n)$.</li>
+    <li>If $f(n) = \Omega(n^{\log_b a + \epsilon})$ for some constant $\epsilon > 0$, and if $af(n/b) \leq cf(n)$ for some constant $c < 1$ and all sufficiently large $n$, then $T(n) = \Theta(f(n))$.</li>
+</ol>
+
+<h2>Time and Memory Complexity</h2>
+
+<ul>
+  <li><strong>Time Complexity:</strong> The time complexity of a Divide &amp; Conquer algorithm depends on how the problem is divided and how the subproblem solutions are combined. As mentioned above, recurrence relations and the Master Theorem are used to analyze this. Common examples include:
+    <ul>
+      <li>   Merge Sort: O(n log n)</li>
+      <li>   Quick Sort: Average case O(n log n), Worst case O(n^2)</li>
+      <li>   Binary Search: O(log n)</li>
+    </ul>
+  </li>
+  <li><strong>Memory Complexity:</strong> The memory complexity also depends on the specific algorithm. Divide &amp; Conquer algorithms often involve recursion, which uses stack space.
+      <ul>
+        <li>Merge Sort: O(n) (due to the auxiliary array)</li>
+        <li>Quick Sort: Average case O(log n), Worst case O(n) (due to recursion stack)</li>
+        <li>Binary Search: O(1) (for iterative version), O(log n) for recursive</li>
+      </ul>
+  </li>
+</ul>
+
+<h2>Easy Problems</h2>
+
+<h3>Problem 1: Binary Search (Codeforces - Hypothetical)</h3>
+<p><strong>Problem Statement (Hypothetical):</strong> Given a sorted array of integers `arr` and a target value `target`, find the index of the `target` in `arr`. If the `target` is not found, return -1.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
+target = 23
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+5
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+int binarySearch(const std::vector&lt;int&gt;& arr, int target) {
+    int left = 0;
+    int right = arr.size() - 1;
+
+    while (left &lt;= right) {
+        int mid = left + (right - left) / 2; // Avoid overflow
+        if (arr[mid] == target) {
+            return mid;
+        } else if (arr[mid] &lt; target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};
+    int target = 23;
+    int index = binarySearch(arr, target);
+    std::cout &lt;&lt; index &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 2: Find Minimum in Rotated Sorted Array (Codeforces - Variation)</h3>
+<p><a href="https://codeforces.com/problemset/problem/1907/B">Codeforces Problem 1907B (Unrelated, but similar difficulty might exist. This is a conceptual adaptation.)</a></p>
+<p><strong>Problem Statement (Variation):</strong> Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the rotated array `nums`, find the minimum element of this array.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+nums = [4, 5, 6, 7, 0, 1, 2]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+0
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int findMinRotatedSortedArray(const std::vector&lt;int&gt;& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+
+    while (left &lt; right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] &gt; nums[right]) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+    return nums[left];
+}
+
+int main() {
+    std::vector&lt;int&gt; nums = {4, 5, 6, 7, 0, 1, 2};
+    int minVal = findMinRotatedSortedArray(nums);
+    std::cout &lt;&lt; minVal &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>Intermediate Problems</h2>
+
+<h3>Problem 3: Merge Sort (Codeforces - Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given an unsorted array of integers, sort the array using the Merge Sort algorithm.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+arr = [12, 11, 13, 5, 6, 7]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+[5, 6, 7, 11, 12, 13]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+
+void merge(std::vector&lt;int&gt;& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    std::vector&lt;int&gt; L(n1);
+    std::vector&lt;int&gt; R(n2);
+
+    for (int i = 0; i &lt; n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j &lt; n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+    while (i &lt; n1 &amp;&amp; j &lt; n2) {
+        if (L[i] &lt;= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i &lt; n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j &lt; n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(std::vector&lt;int&gt;& arr, int left, int right) {
+    if (left &lt; right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {12, 11, 13, 5, 6, 7};
+    mergeSort(arr, 0, arr.size() - 1);
+    for (int num : arr)
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h3>Problem 4: Quick Sort (Codeforces - Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given an unsorted array of integers, sort the array using the Quick Sort algorithm.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+arr = [10, 7, 8, 9, 1, 5]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+[1, 5, 7, 8, 9, 10]
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+int partition(std::vector&lt;int&gt;& arr, int low, int high) {
+    int pivot = arr[high];
+    int i = (low - 1);
+
+    for (int j = low; j &lt; high; j++) {
+        if (arr[j] &lt; pivot) {
+            i++;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[i + 1], arr[high]);
+    return (i + 1);
+}
+
+void quickSort(std::vector&lt;int&gt;& arr, int low, int high) {
+    if (low &lt; high) {
+        int pi = partition(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    std::vector&lt;int&gt; arr = {10, 7, 8, 9, 1, 5};
+    quickSort(arr, 0, arr.size() - 1);
+    for (int num : arr)
+        std::cout &lt;&lt; num &lt;&lt; " ";
+    std::cout &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+<h2>Hard Problem</h2>
+
+<h3>Problem 5: Closest Pair of Points (Codeforces - Conceptual Adaptation)</h3>
+<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given a set of points in a 2D plane, find the distance between the closest pair of points.</p>
+
+<p><strong>Input Example:</strong></p>
+<pre><code>
+points = [(2, 3), (12, 30), (40, 50), (5, 1), (12, 10), (30, 41)]
+</code></pre>
+
+<p><strong>Output Example:</strong></p>
+<pre><code>
+3.60555 (Distance between (2, 3) and (5, 1))
+</code></pre>
+
+<p><strong>C++ Code:</strong></p>
+<pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+#include &lt;float.h&gt;
+
+struct Point {
+    int x, y;
+};
+
+double dist(Point p1, Point p2) {
+    return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+}
+
+double bruteForce(const std::vector&lt;Point&gt;& points, int left, int right) {
+    double min_dist = DBL_MAX;
+    for (int i = left; i &lt; right; ++i) {
+        for (int j = i + 1; j &lt;= right; ++j) {
+            min_dist = std::min(min_dist, dist(points[i], points[j]));
+        }
+    }
+    return min_dist;
+}
+
+double closestPair(std::vector&lt;Point&gt;& points, int left, int right) {
+    if (right - left &lt;= 3) {
+        return bruteForce(points, left, right);
+    }
+
+    int mid = left + (right - left) / 2;
+    double dl = closestPair(points, left, mid);
+    double dr = closestPair(points, mid + 1, right);
+    double d = std::min(dl, dr);
+
+    std::vector&lt;Point&gt; strip;
+    for (int i = left; i &lt;= right; ++i) {
+        if (std::abs(points[i].x - points[mid].x) &lt; d) {
+            strip.push_back(points[i]);
+        }
+    }
+    std::sort(strip.begin(), strip.end(), [](const Point& a, const Point& b) {
+        return a.y &lt; b.y;
+    });
+
+    for (int i = 0; i &lt; strip.size(); ++i) {
+        for (int j = i + 1; j &lt; strip.size() &amp;&amp; (strip[j].y - strip[i].y) &lt; d; ++j) {
+            d = std::min(d, dist(strip[i], strip[j]));
+        }
+    }
+
+    return d;
+}
+
+int main() {
+    std::vector&lt;Point&gt; points = {{2, 3}, {12, 30}, {40, 50}, {5, 1}, {12, 10}, {30, 41}};
+    std::sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
+        return a.x &lt; b.x;
+    });
+    double minDistance = closestPair(points, 0, points.size() - 1);
+    std::cout.precision(5);
+    std::cout &lt;&lt; std::fixed &lt;&lt; minDistance &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+
+</div>

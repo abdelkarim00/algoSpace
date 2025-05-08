@@ -1,0 +1,245 @@
+<div>
+    <h2>Monotonic Stack/Queue</h2>
+
+<h3>Introduction</h3>
+<p>Monotonic stacks and queues are specialized data structures that maintain elements in either strictly increasing or decreasing order. They are particularly useful for problems involving finding next/previous greater/smaller elements or maintaining sliding window extremes.</p>
+
+<h3>Key Concepts</h3>
+<ul>
+  <li><strong>Monotonic Stack:</strong> LIFO structure maintaining order</li>
+  <li><strong>Monotonic Queue:</strong> FIFO structure maintaining order</li>
+  <li><strong>Increasing:</strong> Each new element ≥ top/back</li>
+  <li><strong>Decreasing:</strong> Each new element ≤ top/back</li>
+</ul>
+
+<h3>Mathematics Behind Monotonic Structures</h3>
+<p>The core principle relies on <strong>order theory</strong>:</p>
+<ul>
+  <li>For a sequence S = {s₁, s₂, ..., sₙ}, we maintain a subsequence M = {m₁, m₂, ..., mₖ} where:
+    <ul>
+      <li>m₁ ≤ m₂ ≤ ... ≤ mₖ (increasing) or</li>
+      <li>m₁ ≥ m₂ ≥ ... ≥ mₖ (decreasing)</li>
+    </ul>
+  </li>
+  <li>When processing element sᵢ:
+    <ul>
+      <li>Remove elements from M that violate the order condition</li>
+      <li>Add sᵢ to M</li>
+      <li>Each element is added/removed exactly once → O(n) time</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Time and Space Complexity</h3>
+<ul>
+  <li><strong>Time Complexity:</strong> O(n) - Each element processed once</li>
+  <li><strong>Space Complexity:</strong> O(n) - Worst case all elements stored</li>
+  <li><strong>Operations:</strong>
+    <ul>
+      <li>Push: Amortized O(1)</li>
+      <li>Pop: O(1)</li>
+      <li>Get extremum: O(1)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Problem Examples</h2>
+
+<h3>Easy Problems</h3>
+
+<h4>1. Next Greater Element (Codeforces 911G)</h4>
+<p>Find the next greater element for each array element.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+using namespace std;
+
+vector&lt;int&gt; nextGreater(vector&lt;int&gt;& nums) {
+    int n = nums.size();
+    vector&lt;int&gt; res(n, -1);
+    stack&lt;int&gt; st;
+    
+    for (int i = 0; i < n; i++) {
+        while (!st.empty() && nums[st.top()] < nums[i]) {
+            res[st.top()] = nums[i];
+            st.pop();
+        }
+        st.push(i);
+    }
+    return res;
+}
+
+int main() {
+    vector&lt;int&gt; nums = {4, 5, 2, 25};
+    vector&lt;int&gt; result = nextGreater(nums);
+    
+    for (int num : result) 
+        cout << num << " "; // 5 25 25 -1
+    return 0;
+}
+</code></pre>
+
+<h4>Input/Output Example</h4>
+<pre>
+Input: [4, 5, 2, 25]
+Output: [5, 25, 25, -1]
+</pre>
+
+<h4>2. Stock Span Problem (Codeforces 5C)</h4>
+<p>Calculate span for each day where span is the number of consecutive days before it with price ≤ current price.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+using namespace std;
+
+vector&lt;int&gt; stockSpan(vector&lt;int&gt;& prices) {
+    int n = prices.size();
+    vector&lt;int&gt; span(n, 1);
+    stack&lt;int&gt; st; // Stores indices
+    
+    for (int i = 0; i < n; i++) {
+        while (!st.empty() && prices[st.top()] <= prices[i]) {
+            span[i] += span[st.top()];
+            st.pop();
+        }
+        st.push(i);
+    }
+    return span;
+}
+
+int main() {
+    vector&lt;int&gt; prices = {100, 80, 60, 70, 60, 75, 85};
+    vector&lt;int&gt; spans = stockSpan(prices);
+    
+    for (int s : spans)
+        cout << s << " "; // 1 1 1 2 1 4 6
+    return 0;
+}
+</code></pre>
+
+<h3>Intermediate Problems</h3>
+
+<h4>1. Sliding Window Maximum (Codeforces 940E)</h4>
+<p>Find maximum in each sliding window of size k.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;deque&gt;
+using namespace std;
+
+vector&lt;int&gt; maxSlidingWindow(vector&lt;int&gt;& nums, int k) {
+    vector&lt;int&gt; res;
+    deque&lt;int&gt; dq;
+    
+    for (int i = 0; i < nums.size(); i++) {
+        // Remove elements outside window
+        if (!dq.empty() && dq.front() == i - k)
+            dq.pop_front();
+        
+        // Maintain decreasing order
+        while (!dq.empty() && nums[dq.back()] <= nums[i])
+            dq.pop_back();
+        
+        dq.push_back(i);
+        
+        // Window is complete
+        if (i >= k - 1)
+            res.push_back(nums[dq.front()]);
+    }
+    return res;
+}
+
+int main() {
+    vector&lt;int&gt; nums = {1, 3, -1, -3, 5, 3, 6, 7};
+    int k = 3;
+    vector&lt;int&gt; result = maxSlidingWindow(nums, k);
+    
+    for (int num : result)
+        cout << num << " "; // 3 3 5 5 6 7
+    return 0;
+}
+</code></pre>
+
+<h4>2. Largest Rectangle in Histogram (Codeforces 985F)</h4>
+<p>Find the largest rectangular area in a histogram.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;stack&gt;
+using namespace std;
+
+int largestRectangleArea(vector&lt;int&gt;& heights) {
+    int n = heights.size();
+    stack&lt;int&gt; st;
+    int max_area = 0;
+    
+    for (int i = 0; i <= n; i++) {
+        while (!st.empty() && (i == n || heights[st.top()] > heights[i])) {
+            int h = heights[st.top()];
+            st.pop();
+            int w = st.empty() ? i : i - st.top() - 1;
+            max_area = max(max_area, h * w);
+        }
+        st.push(i);
+    }
+    return max_area;
+}
+
+int main() {
+    vector&lt;int&gt; heights = {2, 1, 5, 6, 2, 3};
+    cout << largestRectangleArea(heights); // 10
+    return 0;
+}
+</code></pre>
+
+<h3>Hard Problem</h3>
+
+<h4>1. Constrained Subsequence Sum (Codeforces 1425F)</h4>
+<p>Find maximum sum of subsequence where no two elements are within k distance.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;deque&gt;
+using namespace std;
+
+int constrainedSubsetSum(vector&lt;int&gt;& nums, int k) {
+    int n = nums.size();
+    vector&lt;int&gt; dp(n);
+    deque&lt;int&gt; dq;
+    int max_sum = nums[0];
+    
+    for (int i = 0; i < n; i++) {
+        // Remove elements outside window
+        while (!dq.empty() && dq.front() < i - k)
+            dq.pop_front();
+        
+        dp[i] = nums[i];
+        if (!dq.empty())
+            dp[i] = max(dp[i], dp[dq.front()] + nums[i]);
+        
+        // Maintain decreasing order
+        while (!dq.empty() && dp[dq.back()] <= dp[i])
+            dq.pop_back();
+        
+        dq.push_back(i);
+        max_sum = max(max_sum, dp[i]);
+    }
+    return max_sum;
+}
+
+int main() {
+    vector&lt;int&gt; nums = {10, 2, -10, 5, 20};
+    int k = 2;
+    cout << constrainedSubsetSum(nums, k); // 37
+    return 0;
+}
+</code></pre>
+
+<h4>Input/Output Example</h4>
+<pre>
+Input: [10, 2, -10, 5, 20], k = 2
+Output: 37 (10 + 5 + 20)
+</pre>
+</div>

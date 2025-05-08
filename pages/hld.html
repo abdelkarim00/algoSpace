@@ -1,0 +1,525 @@
+<div>
+    <h2>Heavy-Light Decomposition (HLD)</h2>
+
+<h3>Introduction</h3>
+<p>Heavy-Light Decomposition is a technique for decomposing a tree into a set of disjoint paths that allows efficient path queries and updates. It's particularly useful for solving problems involving tree path operations.</p>
+
+<h3>Algorithm Overview</h3>
+<p>The main idea is to break the tree into chains (called heavy paths) such that:</p>
+<ol>
+  <li>Each path from a node to the root passes through at most O(log n) different chains</li>
+  <li>We can perform operations on these chains efficiently using data structures like segment trees</li>
+</ol>
+
+<h3>Mathematics Behind HLD</h3>
+<p>The decomposition relies on classifying edges as either <strong>heavy</strong> or <strong>light</strong>:</p>
+
+<p>For each non-leaf node u, we select one child v where:</p>
+<ul>
+  <li>size(v) ≥ size(u)/2 (this is the heavy child)</li>
+  <li>The edge (u,v) is a heavy edge</li>
+</ul>
+
+<p>All other edges from u to its children are light edges. The size of a node is the number of nodes in its subtree.</p>
+
+<p><strong>Key Properties:</strong></p>
+<ul>
+  <li>The number of light edges on any path from root to leaf is O(log n)</li>
+  <li>Each heavy path is a single chain that can be processed efficiently</li>
+  <li>Any path in the tree can be broken into O(log n) heavy and light paths</li>
+</ul>
+
+<h3>Time and Space Complexity</h3>
+<ul>
+  <li><strong>Preprocessing:</strong> O(n) time to compute sizes and decompose the tree</li>
+  <li><strong>Path Queries:</strong> O(log²n) per query when using segment trees</li>
+  <li><strong>Space Complexity:</strong> O(n) to store the decomposition</li>
+</ul>
+
+<h2>Problem Examples</h2>
+
+<h3>Easy Problems</h3>
+
+<h4>1. Path Maximum Query (Codeforces EDU)</h4>
+<p>Given a tree with node values, answer queries about the maximum value on a path between two nodes.</p>
+
+<pre>
+<code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+const int MAXN = 1e5 + 5;
+vector&lt;int&gt; adj[MAXN];
+int val[MAXN], parent[MAXN], depth[MAXN], size[MAXN];
+int chain[MAXN], head[MAXN], pos[MAXN];
+int seg[MAXN * 4];
+int n, chain_num, pos_num;
+
+void dfs_size(int u, int p) {
+    size[u] = 1;
+    parent[u] = p;
+    for (int &v : adj[u]) {
+        if (v != p) {
+            depth[v] = depth[u] + 1;
+            dfs_size(v, u);
+            size[u] += size[v];
+            if (size[v] > size[adj[u][0]] || adj[u][0] == p)
+                swap(v, adj[u][0]);
+        }
+    }
+}
+
+void dfs_hld(int u, int p) {
+    pos[u] = pos_num++;
+    chain[u] = chain_num;
+    for (int v : adj[u]) {
+        if (v != p) {
+            if (v == adj[u][0])
+                head[v] = head[u];
+            else {
+                chain_num++;
+                head[v] = v;
+            }
+            dfs_hld(v, u);
+        }
+    }
+}
+
+void build_seg(int node, int l, int r) {
+    if (l == r) {
+        seg[node] = val[l];
+        return;
+    }
+    int mid = (l + r) / 2;
+    build_seg(node * 2, l, mid);
+    build_seg(node * 2 + 1, mid + 1, r);
+    seg[node] = max(seg[node * 2], seg[node * 2 + 1]);
+}
+
+int query_seg(int node, int l, int r, int ql, int qr) {
+    if (qr < l || r < ql) return -1;
+    if (ql <= l && r <= qr) return seg[node];
+    int mid = (l + r) / 2;
+    return max(query_seg(node * 2, l, mid, ql, qr),
+               query_seg(node * 2 + 1, mid + 1, r, ql, qr));
+}
+
+int query_path(int u, int v) {
+    int res = -1;
+    while (chain[u] != chain[v]) {
+        if (depth[head[u]] > depth[head[v]]) swap(u, v);
+        res = max(res, query_seg(1, 0, n-1, pos[head[v]], pos[v]));
+        v = parent[head[v]];
+    }
+    if (depth[u] > depth[v]) swap(u, v);
+    res = max(res, query_seg(1, 0, n-1, pos[u], pos[v]));
+    return res;
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i < n; i++) {
+        int u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int i = 1; i <= n; i++) cin >> val[i];
+    
+    dfs_size(1, 0);
+    head[1] = 1;
+    dfs_hld(1, 0);
+    build_seg(1, 0, n-1);
+    
+    int q; cin >> q;
+    while (q--) {
+        int u, v; cin >> u >> v;
+        cout << query_path(u, v) << "\n";
+    }
+    return 0;
+}
+</code>
+</pre>
+
+<h4>Input/Output Example</h4>
+<pre>
+Input:
+5
+1 2
+1 3
+3 4
+3 5
+10 20 30 40 50
+3
+1 5
+2 4
+4 5
+
+Output:
+50
+40
+50
+</pre>
+
+<h4>2. Subtree Sum Query</h4>
+<p>Given a tree with node values, answer queries about the sum of values in a subtree.</p>
+
+<pre>
+<code>     
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAXN = 1e5 + 5;
+vector&lt;int&gt; adj[MAXN];
+int val[MAXN], in[MAXN], out[MAXN], flat[MAXN], seg[MAXN * 4];
+int n, timer;
+
+void dfs(int u, int p) {
+    in[u] = timer++;
+    flat[in[u]] = val[u];
+    for (int v : adj[u]) {
+        if (v != p) dfs(v, u);
+    }
+    out[u] = timer - 1;
+}
+
+void build(int node, int l, int r) {
+    if (l == r) {
+        seg[node] = flat[l];
+        return;
+    }
+    int mid = (l + r) / 2;
+    build(node * 2, l, mid);
+    build(node * 2 + 1, mid + 1, r);
+    seg[node] = seg[node * 2] + seg[node * 2 + 1];
+}
+
+int query(int node, int l, int r, int ql, int qr) {
+    if (qr < l || r < ql) return 0;
+    if (ql <= l && r <= qr) return seg[node];
+    int mid = (l + r) / 2;
+    return query(node * 2, l, mid, ql, qr) + 
+           query(node * 2 + 1, mid + 1, r, ql, qr);
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i < n; i++) {
+        int u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int i = 1; i <= n; i++) cin >> val[i];
+    
+    dfs(1, 0);
+    build(1, 0, n-1);
+    
+    int q; cin >> q;
+    while (q--) {
+        int u; cin >> u;
+        cout << query(1, 0, n-1, in[u], out[u]) << "\n";
+    }
+    return 0;
+}
+</code> 
+</pre>
+
+<h3>Intermediate Problems</h3>
+
+<h4>1. Dynamic Tree Connectivity (Codeforces 117E)</h4>
+<p>Maintain a tree that supports edge addition/removal and connectivity queries.</p>
+
+<pre>
+// This problem requires Link-Cut Trees which are more advanced
+// Implementation would be too long for this example
+</pre>
+
+<h4>2. Path XOR Query (Codeforces 888G)</h4>
+<p>Given a tree with node values, answer queries about XOR on paths between nodes.</p>
+
+<pre>
+<code>    
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+const int MAXN = 1e5 + 5;
+vector&lt;int&gt; adj[MAXN];
+int val[MAXN], parent[MAXN], depth[MAXN], size[MAXN];
+int chain[MAXN], head[MAXN], pos[MAXN], xor_up[MAXN];
+int n, chain_num, pos_num;
+
+void dfs_size(int u, int p) {
+    size[u] = 1;
+    parent[u] = p;
+    for (int &v : adj[u]) {
+        if (v != p) {
+            depth[v] = depth[u] + 1;
+            xor_up[v] = xor_up[u] ^ val[v];
+            dfs_size(v, u);
+            size[u] += size[v];
+            if (size[v] > size[adj[u][0]] || adj[u][0] == p)
+                swap(v, adj[u][0]);
+        }
+    }
+}
+
+void dfs_hld(int u, int p) {
+    pos[u] = pos_num++;
+    chain[u] = chain_num;
+    for (int v : adj[u]) {
+        if (v != p) {
+            if (v == adj[u][0])
+                head[v] = head[u];
+            else {
+                chain_num++;
+                head[v] = v;
+            }
+            dfs_hld(v, u);
+        }
+    }
+}
+
+int lca(int u, int v) {
+    while (chain[u] != chain[v]) {
+        if (depth[head[u]] > depth[head[v]]) swap(u, v);
+        v = parent[head[v]];
+    }
+    return depth[u] < depth[v] ? u : v;
+}
+
+int query_xor(int u, int v) {
+    int ancestor = lca(u, v);
+    return xor_up[u] ^ xor_up[v] ^ val[ancestor];
+}
+
+int main() {
+    cin >> n;
+    for (int i = 1; i < n; i++) {
+        int u, v; cin >> u >> v;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    for (int i = 1; i <= n; i++) cin >> val[i];
+    
+    xor_up[1] = val[1];
+    dfs_size(1, 0);
+    head[1] = 1;
+    dfs_hld(1, 0);
+    
+    int q; cin >> q;
+    while (q--) {
+        int u, v; cin >> u >> v;
+        cout << query_xor(u, v) << "\n";
+    }
+    return 0;
+}
+</code>
+</pre>
+
+<h3>Hard Problem</h3>
+
+<h4>1. Dynamic Tree Diameter (Codeforces 1192B)</h4>
+<p>Maintain a tree that supports edge weight updates and answers diameter queries.</p>
+
+<pre><code>#include &lt;iostream&gt;
+    #include &lt;vector&gt;
+    #include &lt;algorithm&gt;
+    using namespace std;
+    
+    const int MAXN = 1e5 + 5;
+    const int INF = 1e9;
+    
+    struct Edge {
+        int u, v, w;
+    };
+    
+    vector&lt;pair&lt;int, int&gt;&gt; adj[MAXN];
+    vector&lt;Edge&gt; edges;
+    int parent[MAXN], depth[MAXN], size[MAXN];
+    int chain[MAXN], head[MAXN], pos[MAXN], edge_pos[MAXN];
+    int base[MAXN], chain_num, pos_num;
+    int n, q;
+    long long W;
+    
+    struct Node {
+        long long max_dist;
+        long long left_max, right_max;
+        long long diameter;
+        Node() : max_dist(-INF), left_max(-INF), right_max(-INF), diameter(-INF) {}
+        Node(long long d) : max_dist(d), left_max(d), right_max(d), diameter(0) {}
+    };
+    
+    Node seg[MAXN * 4];
+    long long lazy[MAXN * 4];
+    
+    Node combine(Node a, Node b) {
+        Node res;
+        res.max_dist = max(a.max_dist, b.max_dist);
+        res.left_max = max(a.left_max, b.left_max);
+        res.right_max = max(a.right_max, b.right_max);
+        res.diameter = max({a.diameter, b.diameter, a.right_max + b.left_max});
+        return res;
+    }
+    
+    void build(int node, int l, int r) {
+        if (l == r) {
+            seg[node] = Node(base[l]);
+            return;
+        }
+        int mid = (l + r) / 2;
+        build(node * 2, l, mid);
+        build(node * 2 + 1, mid + 1, r);
+        seg[node] = combine(seg[node * 2], seg[node * 2 + 1]);
+    }
+    
+    void push(int node, int l, int r) {
+        if (lazy[node] == 0) return;
+        seg[node].max_dist += lazy[node];
+        seg[node].left_max += lazy[node];
+        seg[node].right_max += lazy[node];
+        if (l != r) {
+            lazy[node * 2] += lazy[node];
+            lazy[node * 2 + 1] += lazy[node];
+        }
+        lazy[node] = 0;
+    }
+    
+    void update(int node, int l, int r, int ql, int qr, long long val) {
+        push(node, l, r);
+        if (qr < l || r < ql) return;
+        if (ql <= l && r <= qr) {
+            lazy[node] += val;
+            push(node, l, r);
+            return;
+        }
+        int mid = (l + r) / 2;
+        update(node * 2, l, mid, ql, qr, val);
+        update(node * 2 + 1, mid + 1, r, ql, qr, val);
+        seg[node] = combine(seg[node * 2], seg[node * 2 + 1]);
+    }
+    
+    Node query(int node, int l, int r, int ql, int qr) {
+        push(node, l, r);
+        if (qr < l || r < ql) return Node();
+        if (ql <= l && r <= qr) return seg[node];
+        int mid = (l + r) / 2;
+        return combine(query(node * 2, l, mid, ql, qr),
+                       query(node * 2 + 1, mid + 1, r, ql, qr));
+    }
+    
+    void dfs_size(int u, int p) {
+        size[u] = 1;
+        parent[u] = p;
+        for (auto &[v, idx] : adj[u]) {
+            if (v != p) {
+                depth[v] = depth[u] + 1;
+                dfs_size(v, u);
+                size[u] += size[v];
+                if (size[v] > size[adj[u][0].first] || adj[u][0].first == p)
+                    swap(v, adj[u][0].first), swap(idx, adj[u][0].second);
+            }
+        }
+    }
+    
+    void dfs_hld(int u, int p, int edge_idx) {
+        pos[u] = pos_num;
+        if (edge_idx != -1) {
+            edge_pos[edge_idx] = pos_num;
+            base[pos_num++] = edges[edge_idx].w;
+        } else {
+            base[pos_num++] = 0;
+        }
+        chain[u] = chain_num;
+        
+        bool heavy = true;
+        for (auto [v, idx] : adj[u]) {
+            if (v != p) {
+                if (heavy) {
+                    head[v] = head[u];
+                    dfs_hld(v, u, idx);
+                    heavy = false;
+                } else {
+                    chain_num++;
+                    head[v] = v;
+                    dfs_hld(v, u, idx);
+                }
+            }
+        }
+    }
+    
+    void update_edge(int idx, long long new_w) {
+        long long delta = new_w - edges[idx].w;
+        edges[idx].w = new_w;
+        int u = edges[idx].u, v = edges[idx].v;
+        if (depth[u] > depth[v]) swap(u, v);
+        update(1, 0, pos_num - 1, edge_pos[idx], edge_pos[idx], delta);
+    }
+    
+    long long get_diameter() {
+        Node res = query(1, 0, pos_num - 1, 0, pos_num - 1);
+        return res.diameter;
+    }
+    
+    int main() {
+        ios_base::sync_with_stdio(false);
+        cin.tie(nullptr);
+        
+        cin >> n >> q >> W;
+        edges.resize(n - 1);
+        for (int i = 0; i < n - 1; i++) {
+            cin >> edges[i].u >> edges[i].v >> edges[i].w;
+            adj[edges[i].u].emplace_back(edges[i].v, i);
+            adj[edges[i].v].emplace_back(edges[i].u, i);
+        }
+        
+        dfs_size(1, 0);
+        head[1] = 1;
+        dfs_hld(1, 0, -1);
+        build(1, 0, pos_num - 1);
+        
+        long long last = 0;
+        while (q--) {
+            long long d, e;
+            cin >> d >> e;
+            d = (d + last) % (n - 1);
+            e = (e + last) % W;
+            update_edge(d, e);
+            last = get_diameter();
+            cout << last << '\n';
+        }
+        
+        return 0;
+    }
+    </code></pre>
+    
+    <h4>Explanation:</h4>
+    <p>This solution maintains a tree that supports edge weight updates and answers diameter queries using HLD with a segment tree. Key components:</p>
+    <ol>
+      <li><strong>HLD Decomposition:</strong> The tree is decomposed into heavy paths</li>
+      <li><strong>Segment Tree:</strong> Stores node information including maximum distances and diameter</li>
+      <li><strong>Updates:</strong> When an edge weight changes, we update the corresponding segment in the tree</li>
+      <li><strong>Queries:</strong> The diameter is maintained by combining information from all paths</li>
+    </ol>
+    
+    <h4>Input/Output Example:</h4>
+    <pre>
+    Input:
+    3 3 100
+    1 2 10
+    2 3 20
+    1 40
+    0 60
+    1 80
+    
+    Output:
+    60
+    80
+    100
+    </pre>
+    
+ <p>The solution efficiently handles edge weight updates and diameter queries in O(log²n) time per operation.</p>
+
+</div>

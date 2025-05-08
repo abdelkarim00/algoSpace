@@ -35,15 +35,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Load page based on URL hash
         loadPageFromHash: function() {
-            const page = window.location.hash.substring(1) || 'home';
+            const page = window.location.hash.substring(1) || 'bubble-sort';
             this.loadPage(page);
         },
         
         // Load page content from external file
         loadPage: async function(page) {
             // Show loading indicator
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('page-content').style.display = 'none';
+            // document.getElementById('loading').style.display = 'block';
+            // document.getElementById('page-content').style.display = 'none';
             
             try {
                 // Fetch the page content

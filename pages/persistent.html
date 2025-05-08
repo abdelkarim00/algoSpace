@@ -1,0 +1,383 @@
+<div>
+    <h2>Persistent Data Structures</h2>
+
+<h3>Introduction</h3>
+<p>Persistent data structures maintain all previous versions of themselves when modified. This allows efficient querying of past states without altering the current state.</p>
+
+<h3>Types of Persistence</h3>
+<ul>
+  <li><strong>Partial Persistence:</strong> Only the latest version can be modified, but all versions can be queried</li>
+  <li><strong>Full Persistence:</strong> Any version can be modified or queried</li>
+  <li><strong>Confluent Persistence:</strong> Versions can be merged</li>
+</ul>
+
+<h3>Mathematics Behind Persistence</h3>
+<p>The key mathematical concept is <strong>path copying</strong>:</p>
+<ul>
+  <li>When modifying a node, we create a new copy of it and all nodes along the path to the root</li>
+  <li>This creates a new version while preserving the old one</li>
+  <li>The number of new nodes created per update is O(log n) for balanced trees</li>
+</ul>
+
+<p><strong>Version Tree:</strong> Each version forms a node in a version tree, where edges represent modifications.</p>
+
+<h3>Time and Space Complexity</h3>
+<ul>
+  <li><strong>Persistent Segment Tree:</strong> O(log n) time per query/update, O(m log n) space for m versions</li>
+  <li><strong>Persistent Union-Find:</strong> O(α(n)) time per operation, O(n + mα(n)) space</li>
+  <li><strong>Persistent Trie:</strong> O(L) time per operation (L = key length), O(mL) space</li>
+</ul>
+
+<h2>Problem Examples</h2>
+
+<h3>Easy Problems</h3>
+
+<h4>1. Persistent Stack (Codeforces EDU)</h4>
+<p>Implement a stack that supports push, pop, and querying previous versions.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct Node {
+    int value;
+    Node* prev;
+    Node(int v, Node* p) : value(v), prev(p) {}
+};
+
+vector&lt;Node*&gt; versions;
+
+void push(int version, int x) {
+    Node* new_node = new Node(x, versions[version]);
+    versions.push_back(new_node);
+}
+
+int pop(int version) {
+    Node* top = versions[version];
+    versions.push_back(top->prev);
+    return top->value;
+}
+
+int top(int version) {
+    return versions[version]->value;
+}
+
+int main() {
+    versions.push_back(nullptr); // version 0: empty stack
+    
+    push(0, 1); // version 1
+    push(1, 2); // version 2
+    push(2, 3); // version 3
+    
+    cout << top(3) << endl; // 3
+    pop(3); // version 4
+    cout << top(4) << endl; // 2
+    
+    push(2, 4); // version 5 (branch from version 2)
+    cout << top(5) << endl; // 4
+    
+    return 0;
+}
+</code></pre>
+
+<h4>Input/Output Example</h4>
+<pre>
+Output:
+3
+2
+4
+</pre>
+
+<h4>2. Persistent Array (Codeforces 707D)</h4>
+<p>Implement an array that supports updates and queries on previous versions.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+    Node(int v) : value(v), left(nullptr), right(nullptr) {}
+};
+
+Node* build(int l, int r, const vector&lt;int&gt;& arr) {
+    Node* node = new Node(0);
+    if (l == r) {
+        node->value = arr[l];
+    } else {
+        int mid = (l + r) / 2;
+        node->left = build(l, mid, arr);
+        node->right = build(mid+1, r, arr);
+    }
+    return node;
+}
+
+Node* update(Node* root, int l, int r, int idx, int value) {
+    Node* new_node = new Node(root->value);
+    if (l == r) {
+        new_node->value = value;
+    } else {
+        int mid = (l + r) / 2;
+        if (idx <= mid) {
+            new_node->left = update(root->left, l, mid, idx, value);
+            new_node->right = root->right;
+        } else {
+            new_node->left = root->left;
+            new_node->right = update(root->right, mid+1, r, idx, value);
+        }
+    }
+    return new_node;
+}
+
+int query(Node* root, int l, int r, int idx) {
+    if (l == r) return root->value;
+    int mid = (l + r) / 2;
+    if (idx <= mid) return query(root->left, l, mid, idx);
+    else return query(root->right, mid+1, r, idx);
+}
+
+int main() {
+    vector&lt;int&gt; arr = {1, 2, 3, 4};
+    vector&lt;Node*&gt; versions;
+    
+    versions.push_back(build(0, 3, arr)); // version 0
+    
+    Node* v1 = update(versions[0], 0, 3, 1, 10); // version 1
+    versions.push_back(v1);
+    
+    Node* v2 = update(versions[1], 0, 3, 3, 20); // version 2
+    versions.push_back(v2);
+    
+    cout << query(versions[0], 0, 3, 1) << endl; // 2
+    cout << query(versions[1], 0, 3, 1) << endl; // 10
+    cout << query(versions[2], 0, 3, 3) << endl; // 20
+    
+    return 0;
+}
+</code></pre>
+
+<h3>Intermediate Problems</h3>
+
+<h4>1. Persistent Segment Tree (Codeforces 840D)</h4>
+<p>Find the k-th smallest element in a range across different versions.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+struct Node {
+    int count;
+    Node* left;
+    Node* right;
+    Node() : count(0), left(nullptr), right(nullptr) {}
+};
+
+vector&lt;Node*&gt; roots;
+vector&lt;int&gt; sorted;
+
+Node* build(int l, int r) {
+    Node* node = new Node();
+    if (l != r) {
+        int mid = (l + r) / 2;
+        node->left = build(l, mid);
+        node->right = build(mid+1, r);
+    }
+    return node;
+}
+
+Node* update(Node* prev, int l, int r, int idx) {
+    Node* node = new Node();
+    *node = *prev;
+    node->count++;
+    if (l != r) {
+        int mid = (l + r) / 2;
+        if (idx <= mid) node->left = update(prev->left, l, mid, idx);
+        else node->right = update(prev->right, mid+1, r, idx);
+    }
+    return node;
+}
+
+int query(Node* u, Node* v, int l, int r, int k) {
+    if (l == r) return l;
+    int mid = (l + r) / 2;
+    int left_count = v->left->count - u->left->count;
+    if (left_count >= k) return query(u->left, v->left, l, mid, k);
+    return query(u->right, v->right, mid+1, r, k - left_count);
+}
+
+int main() {
+    vector&lt;int&gt; arr = {1, 3, 2, 5, 4};
+    sorted = arr;
+    sort(sorted.begin(), sorted.end());
+    
+    roots.push_back(build(0, 4)); // version 0
+    
+    for (int x : arr) {
+        int idx = lower_bound(sorted.begin(), sorted.end(), x) - sorted.begin();
+        roots.push_back(update(roots.back(), 0, 4, idx));
+    }
+    
+    // Query k-th smallest in [L, R] (1-based)
+    int L = 2, R = 4, k = 2;
+    cout << sorted[query(roots[L-1], roots[R], 0, 4, k)] << endl; // 4
+    
+    return 0;
+}
+</code></pre>
+
+<h4>2. Persistent Trie (Codeforces 706D)</h4>
+<p>Implement a XOR trie that supports adding numbers and querying maximum XOR with any number in previous versions.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+struct TrieNode {
+    TrieNode* children[2];
+    int count;
+    TrieNode() : children{nullptr, nullptr}, count(0) {}
+};
+
+vector&lt;TrieNode*&gt; roots;
+
+void insert(TrieNode* prev, TrieNode* curr, int num, int bit) {
+    if (bit < 0) return;
+    int b = (num >> bit) & 1;
+    curr->children[b] = new TrieNode();
+    if (prev && prev->children[b]) {
+        *curr->children[b] = *prev->children[b];
+    }
+    curr->children[b]->count++;
+    insert(prev ? prev->children[b] : nullptr, 
+           curr->children[b], num, bit-1);
+}
+
+int max_xor(TrieNode* node, int num, int bit) {
+    if (bit < 0) return 0;
+    int b = (num >> bit) & 1;
+    int flip = 1 - b;
+    if (node->children[flip] && node->children[flip]->count > 0) {
+        return (1 << bit) | max_xor(node->children[flip], num, bit-1);
+    }
+    return max_xor(node->children[b], num, bit-1);
+}
+
+int main() {
+    roots.push_back(new TrieNode()); // version 0
+    
+    // Version 1: insert 3
+    roots.push_back(new TrieNode());
+    insert(roots[0], roots[1], 3, 30);
+    
+    // Version 2: insert 5
+    roots.push_back(new TrieNode());
+    insert(roots[1], roots[2], 5, 30);
+    
+    cout << max_xor(roots[1], 6, 30) << endl; // 5 (3^6=5)
+    cout << max_xor(roots[2], 6, 30) << endl; // 3 (5^6=3)
+    
+    return 0;
+}
+</code></pre>
+
+<h3>Hard Problem</h3>
+
+<h4>1. Persistent Union-Find (Codeforces 813F)</h4>
+<p>Implement a dynamic connectivity structure that supports adding/removing edges and querying connectivity across versions.</p>
+
+<pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;map&gt;
+using namespace std;
+
+struct Node {
+    int parent, rank;
+    Node(int p = 0, int r = 0) : parent(p), rank(r) {}
+};
+
+struct Update {
+    int u, v;
+    bool united;
+    Update(int _u, int _v, bool _united) : u(_u), v(_v), united(_united) {}
+};
+
+vector&lt;vector&lt;Node&gt;&gt; snapshots;
+vector&lt;vector&lt;Update&gt;&gt; updates;
+vector&lt;int&gt; parent, rank;
+
+void make_set(int n) {
+    parent.resize(n+1);
+    rank.resize(n+1);
+    for (int i = 1; i <= n; i++) {
+        parent[i] = i;
+        rank[i] = 0;
+    }
+}
+
+int find(int u) {
+    if (parent[u] != u) return find(parent[u]);
+    return u;
+}
+
+bool unite(int u, int v) {
+    u = find(u);
+    v = find(v);
+    if (u == v) return false;
+    
+    if (rank[u] < rank[v]) swap(u, v);
+    updates.back().emplace_back(v, u, rank[u] == rank[v]);
+    parent[v] = u;
+    if (rank[u] == rank[v]) rank[u]++;
+    return true;
+}
+
+void persist() {
+    snapshots.push_back(vector&lt;Node&gt;(parent.size()));
+    for (int i = 1; i < parent.size(); i++) {
+        snapshots.back()[i] = Node(parent[i], rank[i]);
+    }
+}
+
+void rollback(int version) {
+    parent.resize(snapshots[version].size());
+    rank.resize(snapshots[version].size());
+    for (int i = 1; i < snapshots[version].size(); i++) {
+        parent[i] = snapshots[version][i].parent;
+        rank[i] = snapshots[version][i].rank;
+    }
+}
+
+int main() {
+    int n = 4;
+    make_set(n);
+    
+    // Version 0: initial state
+    persist();
+    
+    // Version 1: add edge 1-2
+    updates.emplace_back();
+    unite(1, 2);
+    persist();
+    
+    // Version 2: add edge 3-4
+    updates.emplace_back();
+    unite(3, 4);
+    persist();
+    
+    // Query connectivity in version 1
+    rollback(1);
+    cout << (find(1) == find(2)) << endl; // 1 (connected)
+    cout << (find(1) == find(3)) << endl; // 0 (not connected)
+    
+    // Query connectivity in version 2
+    rollback(2);
+    cout << (find(1) == find(3)) << endl; // 0 (not connected)
+    cout << (find(3) == find(4)) << endl; // 1 (connected)
+    
+    return 0;
+}
+</code></pre>
+</div>
