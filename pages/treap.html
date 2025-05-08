@@ -1,0 +1,119 @@
+<div class="entry-content">
+    <h2 style="color:#333399; text-decoration:underline;"><strong>Motivation</strong></h2>
+    <ol>
+        <li>Imagine implementing a balanced binary search tree (BST) without needing any rotations.</li>
+        <li>Now imagine an array where you can:
+            <ul>
+                <li>Insert or delete an element at any index in O(log n).</li>
+                <li>Reverse a sub-array in O(log n).</li>
+                <li>Swap two sub-arrays in O(log n).</li>
+            </ul>
+            This article introduces a powerful implementation — the Treap — that can handle these tasks.
+        </li>
+    </ol>
+    <p><strong style="color:#0000ff;">Note:</strong> While this article focuses on a Treap implementation, other data structures can achieve similar tasks.</p>
+
+    <h2 style="color:#333399; text-decoration:underline;"><strong>Introduction</strong></h2>
+    <p>The Treap is a binary search tree where each node has a randomly assigned numeric priority. You can learn more from <a href="https://en.wikipedia.org/wiki/Treap" target="_blank" style="color:#0000ff;">Wikipedia</a>.</p>
+
+    <h2 style="color:#000080; text-decoration:underline;"><strong>Definitions</strong></h2>
+    <ol>
+        <li><strong style="color:#ff0000;">Right tree (r):</strong> All keys are greater than a specific key.</li>
+        <li><strong style="color:#ff0000;">Left tree (l):</strong> All keys are less than or equal to a specific key.</li>
+    </ol>
+
+    <h2 style="color:#333399; text-decoration:underline;"><strong>Implementation Details</strong></h2>
+    <p>This section outlines a basic Treap implementation with the following operations:</p>
+    <ol>
+        <li><strong style="color:#0000ff;">Split:</strong> Given a tree and key, returns two trees <span style="color:#ff0000;">l</span> and <span style="color:#ff0000;">r</span>.</li>
+        <li><strong style="color:#0000ff;">Insert:</strong> Inserts a node into the tree.</li>
+        <li><strong style="color:#0000ff;">Merge:</strong> Combines two trees (<span style="color:#ff0000;">l</span> and <span style="color:#ff0000;">r</span>) back into one.</li>
+        <li><strong style="color:#0000ff;">Erase:</strong> Removes a key from the tree.</li>
+        <li><strong style="color:#0000ff;">Reverse:</strong> Swaps the left and right children at each node in the tree.</li>
+    </ol>
+
+    <h3 style="color:#000080; text-decoration:underline;"><strong>Data Structure</strong></h3>
+    <pre>
+struct Node {
+    int priority;
+    int key;
+    Node* l;
+    Node* r;
+
+    Node() : priority(0), key(0), l(NULL), r(NULL) {}
+    Node(int priority, int key) : priority(priority), key(key), l(NULL), r(NULL) {}
+};
+    </pre>
+    <p>Each node holds a key (for BST ordering), a priority (for heap ordering), and pointers to its left (<code>l</code>) and right (<code>r</code>) subtrees. Use a random number generator, like <code>rand()</code> in C++, for priority values.</p>
+
+    <h3 style="color:#333399; text-decoration:underline;"><strong>Split Function</strong></h3>
+    <pre>
+void split(Node* root, int key, Node*& l, Node*& r) {
+    if (!root)
+        l = r = NULL;
+    else if (key < root->key) {
+        r = root;
+        split(root->l, key, l, root->l);
+    } else {
+        l = root;
+        split(root->r, key, root->r, r);
+    }
+}
+    </pre>
+    <p>The split function divides the tree into two: nodes ≤ key go to <code>l</code>, and nodes &gt; key go to <code>r</code>.</p>
+
+    <h3 style="color:#333399; text-decoration:underline;"><strong>Insert Function</strong></h3>
+    <pre>
+Node* insert(Node* root, Node* node) {
+    if (!root)
+        return node;
+    if (node->priority > root->priority) {
+        split(root, node->key, node->l, node->r);
+        return node;
+    }
+    if (node->key < root->key)
+        root->l = insert(root->l, node);
+    else
+        root->r = insert(root->r, node);
+    return root;
+}
+    </pre>
+    <p>The insert function finds the right spot for a node based on priority and key, preserving both BST and heap properties.</p>
+
+    <h3 style="color:#333399; text-decoration:underline;"><strong>Merge Function</strong></h3>
+    <pre>
+void merge(Node*& root, Node* l, Node* r) {
+    if (!l || !r)
+        root = l ? l : r;
+    else if (l->priority > r->priority) {
+        root = l;
+        merge(root->r, l->r, r);
+    } else {
+        root = r;
+        merge(root->l, l, r->l);
+    }
+}
+    </pre>
+    <p>The merge function combines two trees into one, respecting the heap priority rules.</p>
+
+    <h3 style="color:#000080; text-decoration:underline;"><strong>Erase Function</strong></h3>
+    <pre>
+void erase(Node*& root, int key) {
+    if (!root)
+        return;
+    if (root->key == key)
+        merge(root, root->l, root->r);
+    else if (key < root->key)
+        erase(root->l, key);
+    else
+        erase(root->r, key);
+}
+    </pre>
+    <p>To erase a node, find it and merge its left and right subtrees.</p>
+
+    <h2><strong>References</strong></h2>
+    <ul>
+        <li>2016 Camp at 72B El Manial Street (explained by Coach Fegla).</li>
+        <li><a href="http://e-maxx.ru/">E-maxx.ru</a> (implementation details in Russian).</li>
+    </ul>
+</div>
