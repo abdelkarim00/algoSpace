@@ -125,13 +125,16 @@ code {
 
     #sidebar {
         width: 100%;
-        height: auto;
+        height: auto; /* Allow height to adjust to content */
+        max-height: 100vh; /* Ensure it doesn't extend beyond the viewport initially */
         position: fixed;
         top: 0;
         left: 0;
         z-index: 20;
         transform: translateX(-100%);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        overflow-y: auto; /* Enable vertical scrolling when content overflows */
+        -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS */
     }
 
     #sidebar.open {
