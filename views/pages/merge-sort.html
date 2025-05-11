@@ -21,7 +21,7 @@
       Pseudocode:
       <pre><code>
 function mergeSort(A, left, right):
-    if left >= right:
+    if left &gt;= right:
         return
     mid = (left + right) / 2
     mergeSort(A, left, mid)
@@ -32,13 +32,13 @@ function mergeSort(A, left, right):
 
     <h3>Time Complexity</h3>
     <p>
-      At each level of recursion, we do O(n) work to merge. There are O(log n) levels.  
+      At each level of recursion, we do O(n) work to merge. There are O(log n) levels.
       Therefore, the overall time complexity is <strong>O(n log n)</strong>.
     </p>
 
     <h3>Memory Complexity</h3>
     <p>
-      Merge step requires an auxiliary array of size n. The recursion uses O(log n) stack space.  
+      Merge step requires an auxiliary array of size n. The recursion uses O(log n) stack space.
       Overall additional memory is <strong>O(n)</strong>.
     </p>
 
@@ -50,23 +50,23 @@ function mergeSort(A, left, right):
     </p>
     <pre><code class="language-cpp">
 // Merge Sort for array of ints
-#include <bits/stdc++.h>
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
-void merge(vector<int>& A, int l, int m, int r) {
-    vector<int> tmp(r - l + 1);
+void merge(vector&lt;int&gt;& A, int l, int m, int r) {
+    vector&lt;int&gt; tmp(r - l + 1);
     int i = l, j = m + 1, k = 0;
-    while (i <= m && j <= r) {
-        tmp[k++] = (A[i] <= A[j] ? A[i++] : A[j++]);
+    while (i &lt;= m && j &lt;= r) {
+        tmp[k++] = (A[i] &lt;= A[j] ? A[i++] : A[j++]);
     }
-    while (i <= m) tmp[k++] = A[i++];
-    while (j <= r) tmp[k++] = A[j++];
-    for (int p = 0; p < tmp.size(); ++p)
+    while (i &lt;= m) tmp[k++] = A[i++];
+    while (j &lt;= r) tmp[k++] = A[j++];
+    for (int p = 0; p &lt; tmp.size(); ++p)
         A[l + p] = tmp[p];
 }
 
-void mergeSort(vector<int>& A, int l, int r) {
-    if (l >= r) return;
+void mergeSort(vector&lt;int&gt;& A, int l, int r) {
+    if (l &gt;= r) return;
     int m = l + (r - l) / 2;
     mergeSort(A, l, m);
     mergeSort(A, m + 1, r);
@@ -74,9 +74,9 @@ void mergeSort(vector<int>& A, int l, int r) {
 }
 
 int main() {
-    vector<int> A = {5, 2, 8, 1, 3};
+    vector&lt;int&gt; A = {5, 2, 8, 1, 3};
     mergeSort(A, 0, A.size() - 1);
-    for (int x : A) cout << x << " ";
+    for (int x : A) cout &lt;&lt; x &lt;&lt; " ";
     return 0;
 }
     </code></pre>
@@ -87,20 +87,20 @@ int main() {
     </p>
     <pre><code class="language-cpp">
 // Find k-th smallest by sorting with merge sort
-#include <bits/stdc++.h>
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 // (reuse merge and mergeSort from above)
 
-int kthSmallest(vector<int>& A, int k) {
+int kthSmallest(vector&lt;int&gt;& A, int k) {
     mergeSort(A, 0, A.size() - 1);
     return A[k - 1];
 }
 
 int main() {
-    vector<int> A = {7, 10, 4, 3, 20, 15};
+    vector&lt;int&gt; A = {7, 10, 4, 3, 20, 15};
     int k = 3;
-    cout << "3rd smallest is " << kthSmallest(A, k);
+    cout &lt;&lt; "3rd smallest is " &lt;&lt; kthSmallest(A, k);
     return 0;
 }
     </code></pre>
@@ -113,30 +113,30 @@ int main() {
     </p>
     <pre><code class="language-cpp">
 // Count inversions using modified merge sort
-#include <bits/stdc++.h>
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
-long long mergeCount(vector<int>& A, int l, int m, int r) {
-    vector<int> tmp;
+long long mergeCount(vector&lt;int&gt;& A, int l, int m, int r) {
+    vector&lt;int&gt; tmp;
     int i = l, j = m + 1;
     long long inv = 0;
-    while (i <= m && j <= r) {
-        if (A[i] <= A[j]) {
+    while (i &lt;= m && j &lt;= r) {
+        if (A[i] &lt;= A[j]) {
             tmp.push_back(A[i++]);
         } else {
             tmp.push_back(A[j++]);
             inv += (m - i + 1);
         }
     }
-    while (i <= m) tmp.push_back(A[i++]);
-    while (j <= r) tmp.push_back(A[j++]);
-    for (int k = 0; k < tmp.size(); ++k)
+    while (i &lt;= m) tmp.push_back(A[i++]);
+    while (j &lt;= r) tmp.push_back(A[j++]);
+    for (int k = 0; k &lt; tmp.size(); ++k)
         A[l + k] = tmp[k];
     return inv;
 }
 
-long long sortCount(vector<int>& A, int l, int r) {
-    if (l >= r) return 0;
+long long sortCount(vector&lt;int&gt;& A, int l, int r) {
+    if (l &gt;= r) return 0;
     int m = l + (r - l) / 2;
     long long inv = sortCount(A, l, m);
     inv += sortCount(A, m + 1, r);
@@ -145,8 +145,8 @@ long long sortCount(vector<int>& A, int l, int r) {
 }
 
 int main() {
-    vector<int> A = {2, 4, 1, 3, 5};
-    cout << "Inversions: " << sortCount(A, 0, A.size() - 1);
+    vector&lt;int&gt; A = {2, 4, 1, 3, 5};
+    cout &lt;&lt; "Inversions: " &lt;&lt; sortCount(A, 0, A.size() - 1);
     return 0;
 }
     </code></pre>
@@ -157,7 +157,7 @@ int main() {
     </p>
     <pre><code class="language-cpp">
 // Merge Sort on linked list
-#include <bits/stdc++.h>
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 struct ListNode {
@@ -169,37 +169,37 @@ struct ListNode {
 ListNode* mergeList(ListNode* a, ListNode* b) {
     ListNode dummy(0), *tail = &dummy;
     while (a && b) {
-        if (a->val <= b->val) { tail->next = a; a = a->next; }
-        else { tail->next = b; b = b->next; }
-        tail = tail->next;
+        if (a-&gt;val &lt;= b-&gt;val) { tail-&gt;next = a; a = a-&gt;next; }
+        else { tail-&gt;next = b; b = b-&gt;next; }
+        tail = tail-&gt;next;
     }
-    tail->next = a ? a : b;
+    tail-&gt;next = a ? a : b;
     return dummy.next;
 }
 
 ListNode* sortList(ListNode* head) {
-    if (!head || !head->next) return head;
+    if (!head || !head-&gt;next) return head;
     // find middle
-    ListNode *slow = head, *fast = head->next;
-    while (fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
+    ListNode *slow = head, *fast = head-&gt;next;
+    while (fast && fast-&gt;next) {
+        slow = slow-&gt;next;
+        fast = fast-&gt;next-&gt;next;
     }
-    ListNode* mid = slow->next;
-    slow->next = nullptr;
+    ListNode* mid = slow-&gt;next;
+    slow-&gt;next = nullptr;
     return mergeList(sortList(head), sortList(mid));
 }
 
 int main() {
     // Example: 4->2->1->3
     ListNode* head = new ListNode(4);
-    head->next = new ListNode(2);
-    head->next->next = new ListNode(1);
-    head->next->next->next = new ListNode(3);
+    head-&gt;next = new ListNode(2);
+    head-&gt;next-&gt;next = new ListNode(1);
+    head-&gt;next-&gt;next-&gt;next = new ListNode(3);
 
     head = sortList(head);
-    for (ListNode* p = head; p; p = p->next) {
-        cout << p->val << " ";
+    for (ListNode* p = head; p; p = p-&gt;next) {
+        cout &lt;&lt; p-&gt;val &lt;&lt; " ";
     }
     return 0;
 }
@@ -213,7 +213,7 @@ int main() {
     </p>
     <pre><code class="language-cpp">
 // Merge k sorted lists using divide and conquer
-#include <bits/stdc++.h>
+#include &lt;bits/stdc++.h&gt;
 using namespace std;
 
 struct ListNode {
@@ -225,40 +225,40 @@ struct ListNode {
 ListNode* mergeTwo(ListNode* a, ListNode* b) {
     ListNode dummy(0), *tail = &dummy;
     while (a && b) {
-        if (a->val <= b->val) { tail->next = a; a = a->next; }
-        else { tail->next = b; b = b->next; }
-        tail = tail->next;
+        if (a-&gt;val &lt;= b-&gt;val) { tail-&gt;next = a; a = a-&gt;next; }
+        else { tail-&gt;next = b; b = b-&gt;next; }
+        tail = tail-&gt;next;
     }
-    tail->next = a ? a : b;
+    tail-&gt;next = a ? a : b;
     return dummy.next;
 }
 
-ListNode* mergeK(vector<ListNode*>& lists, int l, int r) {
-    if (l > r) return nullptr;
+ListNode* mergeK(vector&lt;ListNode*&gt;& lists, int l, int r) {
+    if (l &gt; r) return nullptr;
     if (l == r) return lists[l];
     int m = l + (r - l) / 2;
     return mergeTwo(mergeK(lists, l, m), mergeK(lists, m+1, r));
 }
 
-ListNode* mergeKLists(vector<ListNode*>& lists) {
+ListNode* mergeKLists(vector&lt;ListNode*&gt;& lists) {
     return mergeK(lists, 0, lists.size() - 1);
 }
 
 int main() {
     // Example: [[1->4->5], [1->3->4], [2->6]]
-    vector<ListNode*> lists;
+    vector&lt;ListNode*&gt; lists;
     lists.push_back(new ListNode(1));
-    lists[0]->next = new ListNode(4);
-    lists[0]->next->next = new ListNode(5);
+    lists[0]-&gt;next = new ListNode(4);
+    lists[0]-&gt;next-&gt;next = new ListNode(5);
     lists.push_back(new ListNode(1));
-    lists[1]->next = new ListNode(3);
-    lists[1]->next->next = new ListNode(4);
+    lists[1]-&gt;next = new ListNode(3);
+    lists[1]-&gt;next-&gt;next = new ListNode(4);
     lists.push_back(new ListNode(2));
-    lists[2]->next = new ListNode(6);
+    lists[2]-&gt;next = new ListNode(6);
 
     ListNode* head = mergeKLists(lists);
-    for (ListNode* p = head; p; p = p->next) {
-        cout << p->val << " ";
+    for (ListNode* p = head; p; p = p-&gt;next) {
+        cout &lt;&lt; p-&gt;val &lt;&lt; " ";
     }
     return 0;
 }
