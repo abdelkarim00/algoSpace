@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA with Dynamic Loading</title>
+    <link rel="stylesheet" href="highlight-default.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <button class="mobile-nav-toggle">☰ Menu</button>
+
+    <div id="sidebar">
+        <h1>Problem Solving Algorithms</h1>
+        <p style="font-style: italic; color: #bdc3c7;">Core Topics for Competitive Programming</p>
+    
+        <div class="book-section">
+            <h2>Sorting Algorithms</h2>
+            <ul>
+                <li><a href="/bubble-sort">Bubble Sort</a></li>
+                <li><a href="/selection-sort">Selection Sort</a></li>
+                <li><a href="/insertion-sort">Insertion Sort</a></li>
+                <li><a href="/merge-sort">Merge Sort</a></li>
+                <li><a href="/quick-sort">Quick Sort</a></li>
+                <li><a href="/heap-sort">Heap Sort</a></li>
+                <li><a href="/counting-sort">Counting Sort</a></li>
+                <li><a href="/radix-sort">Radix Sort</a></li>
+                <li><a href="/bucket-sort">Bucket Sort</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Searching Algorithms</h2>
+            <ul>
+                <li><a href="/linear-search">Linear Search</a></li>
+                <li><a href="/binary-search">Binary Search</a></li>
+                <li><a href="/ternary-search">Ternary Search</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Mathematical Algorithms</h2>
+            <ul>
+                <li><a href="/gcd-lcm">GCD / LCM</a></li>
+                <li><a href="/sieve">Sieve of Eratosthenes</a></li>
+                <li><a href="/modular-arithmetic">Modular Arithmetic</a></li>
+                <li><a href="/fermat">Fermat’s Theorem</a></li>
+                <li><a href="/euler">Euler’s Totient Function</a></li>
+                <li><a href="/fast-exponentiation">Fast Exponentiation</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Graph Algorithms</h2>
+            <ul>
+                <li><a href="/bfs">Breadth-First Search (BFS)</a></li>
+                <li><a href="/dfs">Depth-First Search (DFS)</a></li>
+                <li><a href="/dijkstra">Dijkstra’s Algorithm</a></li>
+                <li><a href="/bellman-ford">Bellman-Ford Algorithm</a></li>
+                <li><a href="/floyd-warshall">Floyd-Warshall Algorithm</a></li>
+                <li><a href="/topological-sort">Topological Sort</a></li>
+                <li><a href="/union-find">Union-Find (DSU)</a></li>
+                <li><a href="/kruskal">Kruskal’s Algorithm</a></li>
+                <li><a href="/prim">Prim’s Algorithm</a></li>
+                <li><a href="/tarjan">Tarjan’s Algorithm</a></li>
+                <li><a href="/kosaraju">Kosaraju’s Algorithm</a></li>
+                <li><a href="/a-star">A* Search</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Dynamic Programming</h2>
+            <ul>
+                <li><a href="/knapsack">0/1 Knapsack</a></li>
+                <li><a href="/lcs">Longest Common Subsequence (LCS)</a></li>
+                <li><a href="/lis">Longest Increasing Subsequence (LIS)</a></li>
+                <li><a href="/matrix-chain">Matrix Chain Multiplication</a></li>
+                <li><a href="/dp-trees">DP on Trees</a></li>
+                <li><a href="/bitmask-dp">Bitmask DP</a></li>
+                <li><a href="/knuth">Knuth Optimization</a></li>
+                <li><a href="/convex-hull-dp">Convex Hull Trick</a></li>
+                <li><a href="/digit-dp">Digit DP</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>String Algorithms</h2>
+            <ul>
+                <li><a href="/kmp">KMP Algorithm</a></li>
+                <li><a href="/z-algorithm">Z-Algorithm</a></li>
+                <li><a href="/rabin-karp">Rabin-Karp</a></li>
+                <li><a href="/suffix-array">Suffix Arrays</a></li>
+                <li><a href="/aho-corasick">Aho-Corasick</a></li>
+                <li><a href="/rolling-hash">Rolling Hashes</a></li>
+                <li><a href="/manacher">Manacher’s Algorithm</a></li>
+                <li><a href="/edit-distance">Edit Distance</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Data Structure</h2>
+            <ul>
+                <li><a href="/treap">Treap</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Backtracking</h2>
+            <ul>
+                <li><a href="/n-queens">N-Queens Problem</a></li>
+                <li><a href="/sudoku">Sudoku Solver</a></li>
+                <li><a href="/hamiltonian">Hamiltonian Path</a></li>
+                <li><a href="/subsets">Subsets/Permutations</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Greedy Algorithms</h2>
+            <ul>
+                <li><a href="/activity-selection">Activity Selection</a></li>
+                <li><a href="/huffman">Huffman Coding</a></li>
+                <li><a href="/fractional-knapsack">Fractional Knapsack</a></li>
+                <li><a href="/interval">Interval Scheduling</a></li>
+                <li><a href="/job-sequencing">Job Sequencing</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Bit Manipulation</h2>
+            <ul>
+                <li><a href="/bitwise-ops">Bit Operations</a></li>
+                <li><a href="/xor">XOR Tricks</a></li>
+                <li><a href="/bit-count">Count Set Bits</a></li>
+                <li><a href="/bitmasking">Bitmask Subsets</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Geometry Algorithms</h2>
+            <ul>
+                <li><a href="/convex-hull">Convex Hull</a></li>
+                <li><a href="/line-intersection">Line Intersection</a></li>
+                <li><a href="/sweep-line">Sweep Line</a></li>
+                <li><a href="/point-in-polygon">Point in Polygon</a></li>
+                <li><a href="/rotating-calipers">Rotating Calipers</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Advanced Techniques</h2>
+            <ul>
+                <li><a href="/mo">Mo’s Algorithm</a></li>
+                <li><a href="/hld">Heavy-Light Decomposition</a></li>
+                <li><a href="/centroid">Centroid Decomposition</a></li>
+                <li><a href="/persistent">Persistent Data Structures</a></li>
+                <li><a href="/sqrt-decomposition">Sqrt Decomposition</a></li>
+                <li><a href="/monotonic">Monotonic Stack / Queue</a></li>
+                <li><a href="/sliding-window">Sliding Window</a></li>
+                <li><a href="/two-pointers">Two Pointers</a></li>
+                <li><a href="/meet-in-middle">Meet in the Middle</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Recurrence & Divide and Conquer</h2>
+            <ul>
+                <li><a href="/divide-conquer">Divide & Conquer</a></li>
+                <li><a href="/karatsuba">Karatsuba Multiplication</a></li>
+                <li><a href="/binary-search-answer">Binary Search on Answer</a></li>
+                <li><a href="/master-theorem">Master Theorem</a></li>
+                <li><a href="/strassen">Strassen’s Matrix Multiplication</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Cryptographic Algorithms</h2>
+            <ul>
+                <li><a href="/rsa">RSA</a></li>
+                <li><a href="/diffie-hellman">Diffie-Hellman</a></li>
+                <li><a href="/hash-functions">Hash Functions (MD5, SHA)</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Core Problem Solving Skills</h2>
+            <ul>
+                <li><a href="/problem-decomposition">Problem Decomposition</a></li>
+                <li><a href="/complexity-analysis">Time/Space Complexity</a></li>
+                <li><a href="/mathematical-proof">Mathematical Proof Techniques</a></li>
+                <li><a href="/state-representation">State Representation</a></li>
+                <li><a href="/dp-vs-greedy">DP vs Greedy Decisions</a></li>
+                <li><a href="/modeling">Modeling with Graphs & Trees</a></li>
+            </ul>
+        </div>
+    </div>
+    
+
+    <main>
+        <div id="main-content">
+            <div id="page-content">
+                 <!-- SSR_CONTENT -->
+            </div>
+        </div>
+    </main>
+    <script src="highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</body>
+</html>
