@@ -32,16 +32,16 @@
 
 <h3>Problem 1: Sort an Array of Integers</h3>
 <p>Given an array of integers, sort it in non-decreasing order using Bubble Sort.</p>
-<pre><code class="language-cpp">#include <iostream>
-#include <vector>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
 using namespace std;
 
-void bubbleSort(vector<int>& arr) {
+void bubbleSort(vector&lt;int&gt;& arr) {
     int n = arr.size();
-    for (int i = 0; i < n - 1; ++i) {
+    for (int i = 0; i &lt; n - 1; ++i) {
         bool swapped = false;
-        for (int j = 0; j < n - i - 1; ++j) {
-            if (arr[j] > arr[j + 1]) {
+        for (int j = 0; j &lt; n - i - 1; ++j) {
+            if (arr[j] &gt; arr[j + 1]) {
                 swap(arr[j], arr[j + 1]);
                 swapped = true;
             }
@@ -51,25 +51,25 @@ void bubbleSort(vector<int>& arr) {
 }
 
 int main() {
-    vector<int> data = {5, 2, 8, 3, 1};
+    vector&lt;int&gt; data = {5, 2, 8, 3, 1};
     bubbleSort(data);
-    for (int x : data) cout << x << " ";
+    for (int x : data) cout &lt;&lt; x &lt;&lt; " ";
     return 0;
 }
 </code></pre>
 
 <h3>Problem 2: Sort Characters in a String</h3>
 <p>Given a string, sort its characters in ascending order.</p>
-<pre><code class="language-cpp">#include <iostream>
-#include <string>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
 using namespace std;
 
 void bubbleSortString(string& s) {
     int n = s.length();
-    for (int i = 0; i < n - 1; ++i) {
+    for (int i = 0; i &lt; n - 1; ++i) {
         bool swapped = false;
-        for (int j = 0; j < n - i - 1; ++j) {
-            if (s[j] > s[j + 1]) {
+        for (int j = 0; j &lt; n - i - 1; ++j) {
+            if (s[j] &gt; s[j + 1]) {
                 swap(s[j], s[j + 1]);
                 swapped = true;
             }
@@ -81,7 +81,7 @@ void bubbleSortString(string& s) {
 int main() {
     string str = "bubble";
     bubbleSortString(str);
-    cout << str;
+    cout &lt;&lt; str;
     return 0;
 }
 </code></pre>
@@ -90,16 +90,16 @@ int main() {
 
 <h3>Problem 3: Sort a Nearly Sorted Array</h3>
 <p>An array where each element is at most <em>k</em> positions away from its target position. Use Bubble Sort to fix local inversions efficiently for small <em>k</em>.</p>
-<pre><code class="language-cpp">#include <iostream>
-#include <vector>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
 using namespace std;
 
-void bubbleSortNearlySorted(vector<int>& arr, int k) {
+void bubbleSortNearlySorted(vector&lt;int&gt;& arr, int k) {
     int n = arr.size();
-    for (int i = 0; i < n - 1; ++i) {
+    for (int i = 0; i &lt; n - 1; ++i) {
         bool swapped = false;
-        for (int j = 0; j < n - i - 1 && j < i + k; ++j) {
-            if (arr[j] > arr[j + 1]) {
+        for (int j = 0; j &lt; n - i - 1 && j &lt; i + k; ++j) {
+            if (arr[j] &gt; arr[j + 1]) {
                 swap(arr[j], arr[j + 1]);
                 swapped = true;
             }
@@ -109,25 +109,26 @@ void bubbleSortNearlySorted(vector<int>& arr, int k) {
 }
 
 int main() {
-    vector<int> data = {3, 1, 2, 6, 4, 5}; // k=2
+    vector&lt;int&gt; data = {3, 1, 2, 6, 4, 5}; // k=2
     bubbleSortNearlySorted(data, 2);
-    for (int x : data) cout << x << " ";
+    for (int x : data) cout &lt;&lt; x &lt;&lt; " ";
     return 0;
 }
 </code></pre>
 
 <h3>Problem 4: Detect if Array Can Be Sorted with One Swap</h3>
 <p>Determine if the array can be sorted by performing at most one swap. Use one pass of Bubble Sort to count out-of-order pairs.</p>
-<pre><code class="language-cpp">#include <iostream>
-#include <vector>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
 using namespace std;
 
-bool canSortWithOneSwap(vector<int>& arr) {
+bool canSortWithOneSwap(vector&lt;int&gt;& arr) {
     int n = arr.size();
-    vector<pair<int,int>> bad;
-    for (int i = 0; i < n - 1; ++i) {
-        if (arr[i] > arr[i + 1]) bad.emplace_back(i, i + 1);
-        if (bad.size() > 1) return false;
+    vector&lt;pair&lt;int,int&gt;&gt; bad;
+    for (int i = 0; i &lt; n - 1; ++i) {
+        if (arr[i] &gt; arr[i + 1]) bad.emplace_back(i, i + 1);
+        if (bad.size() &gt; 1) return false;
     }
     if (bad.empty()) return true;
     int i = bad[0].first, j = bad[0].second;
@@ -136,8 +137,8 @@ bool canSortWithOneSwap(vector<int>& arr) {
 }
 
 int main() {
-    vector<int> data = {1, 3, 2, 4};
-    cout << (canSortWithOneSwap(data) ? "Yes" : "No");
+    vector&lt;int&gt; data = {1, 3, 2, 4};
+    cout &lt;&lt; (canSortWithOneSwap(data) ? "Yes" : "No");
     return 0;
 }
 </code></pre>
@@ -146,16 +147,16 @@ int main() {
 
 <h3>Problem 5: Count Number of Swaps to Sort an Array</h3>
 <p>Given an array, count the total number of swaps Bubble Sort would perform to sort it. Useful as a measure of "inversion count."</p>
-<pre><code class="language-cpp">#include <iostream>
-#include <vector>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
 using namespace std;
 
-long long countBubbleSortSwaps(vector<int>& arr) {
+long long countBubbleSortSwaps(vector&lt;int&gt;& arr) {
     int n = arr.size();
     long long swapCount = 0;
-    for (int i = 0; i < n - 1; ++i) {
-        for (int j = 0; j < n - i - 1; ++j) {
-            if (arr[j] > arr[j + 1]) {
+    for (int i = 0; i &lt; n - 1; ++i) {
+        for (int j = 0; j &lt; n - i - 1; ++j) {
+            if (arr[j] &gt; arr[j + 1]) {
                 swap(arr[j], arr[j + 1]);
                 ++swapCount;
             }
@@ -165,8 +166,8 @@ long long countBubbleSortSwaps(vector<int>& arr) {
 }
 
 int main() {
-    vector<int> data = {5, 1, 4, 2, 8};
-    cout << "Total swaps: " << countBubbleSortSwaps(data);
+    vector&lt;int&gt; data = {5, 1, 4, 2, 8};
+    cout &lt;&lt; "Total swaps: " &lt;&lt; countBubbleSortSwaps(data);
     return 0;
 }
 </code></pre>
