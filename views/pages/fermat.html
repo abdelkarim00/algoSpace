@@ -17,7 +17,7 @@
     <p>
         To compute <code>a<sup>p-2</sup> mod p</code>, we use binary exponentiation:
     </p>
-    <pre>
+    <pre> <code>
 modular_pow(a, b, p):
     result = 1
     a = a % p
@@ -27,7 +27,7 @@ modular_pow(a, b, p):
         a = (a * a) % p
         b = b // 2
     return result
-    </pre>
+</code> </pre>
 
     <h3>Time and Space Complexity</h3>
     <ul>
@@ -38,7 +38,7 @@ modular_pow(a, b, p):
     <h2>Easy Problems</h2>
 
     <h3>1. Compute a<sup>b</sup> mod p</h3>
-    <pre>
+    <pre> <code>
 // C++
 #include &lt;iostream&gt;
 using namespace std;
@@ -76,12 +76,12 @@ int main() {
     cout &lt;&lt; mod_inverse(a, p) &lt;&lt; endl; // Output: 4
     return 0;
 }
-    </pre>
+</code></pre>
 
     <h2>Intermediate Problems</h2>
 
     <h3>1. Calculate nCr % p (p is prime)</h3>
-    <pre>
+    <pre><code>
 // C++
 #include &lt;iostream&gt;
 using namespace std;
@@ -118,10 +118,10 @@ int main() {
     cout &lt;&lt; nCr_mod_p(10, 3, 13) &lt;&lt; endl; // Output: 3
     return 0;
 }
-    </pre>
+</code> </pre>
 
     <h3>2. Check if a number is a Fermat pseudoprime to base a</h3>
-    <pre>
+    <pre><code>
 // C++
 #include &lt;iostream&gt;
 using namespace std;
@@ -163,7 +163,7 @@ int main() {
     }
     return 0;
 }
-    </pre>
+</code></pre>
 
 </body>
 </html>
