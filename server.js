@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Define route-to-file mapping
 const pageMap = {
   '/': 'bubble-sort.html',
-  '/google18e624c3863568d5': 'google18e624c3863568d5.html',
+  '/google18e624c3863568d5.html': 'google18e624c3863568d5.html',
 
   // Sorting Algorithms
   '/bubble-sort': 'bubble-sort.html',
