@@ -229,5 +229,15 @@
           hljs.highlightAll();
         });
     </script>
+
+    <script>
+        const toggleButton = document.querySelector('.mobile-nav-toggle');
+        const sidebar = document.getElementById('sidebar');
+    
+        toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        toggleButton.classList.toggle('open');
+        });
+  </script>
 </body>
 </html>
