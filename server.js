@@ -163,7 +163,7 @@ async function renderPage(req, res) {
       content = await readFile(path.join(__dirname, 'views/pages', pageFile), 'utf8');
     }
 
-    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', content);
+    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', escapeHtmlInCodeAndPre(content));
     res.send(finalHTML);
   } catch (error) {
     console.error("SSR Error:", error);
@@ -176,3 +176,29 @@ app.get('*', renderPage);
 app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);
 });
+
+function escapeHtmlInCodeAndPre(htmlContent) {
+  // Function to escape HTML special characters
+  function escapeHtml(html) {
+      return html.replace(/[&<>"']/g, function (match) {
+          switch (match) {
+              case '&': return '&amp;';
+              case '<': return '&lt;';
+              case '>': return '&gt;';
+              case '"': return '&quot;';
+              case "'": return '&apos;';
+              default: return match;
+          }
+      });
+  }
+
+  // Regex to find content inside <pre> and <code> tags
+  const regex = /<(pre|code)[^>]*>(.*?)<\/(pre|code)>/gs;
+
+  // Replace the content inside <pre> and <code> tags with escaped content
+  return htmlContent.replace(regex, (match, p1, p2) => {
+      // Escape content inside <pre> and <code> tags
+      const escapedContent = escapeHtml(p2);
+      return `<${p1}>${escapedContent}</${p1}>`;
+  });
+}
