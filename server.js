@@ -163,7 +163,7 @@ async function renderPage(req, res) {
       content = await readFile(path.join(__dirname, 'views/pages', pageFile), 'utf8');
     }
 
-    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', escapeHtml(content));
+    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', content);
     res.send(finalHTML);
   } catch (error) {
     console.error("SSR Error:", error);
@@ -176,17 +176,3 @@ app.get('*', renderPage);
 app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);
 });
-
-
-function escapeHtml(html) {
-  return html.replace(/[&<>"']/g, function (match) {
-      switch (match) {
-          case '&': return '&amp;';
-          case '<': return '&lt;';
-          case '>': return '&gt;';
-          case '"': return '&quot;';
-          case "'": return '&apos;';
-          default: return match;
-      }
-  });
-}
