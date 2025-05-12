@@ -2,6 +2,8 @@ import express from 'express';
 import path from 'path';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
+import { SitemapStream, streamToPromise } from 'sitemap';
+import { Readable } from 'stream';
 
 const app = express();
 const port = 3000;
@@ -10,7 +12,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Define route-to-file mapping
+// Route-to-file mapping
 const pageMap = {
   '/': 'bubble-sort.html',
 
@@ -134,7 +136,23 @@ const pageMap = {
   '/modeling': 'modeling.html'
 };
 
+// Generate dynamic sitemap
+app.get('/sitemap.xml', async (req, res) => {
+  res.header('Content-Type', 'application/xml');
 
+  const hostname = 'https://yourdomain.com'; // Replace with your actual domain
+  const links = Object.keys(pageMap).map(url => ({
+    url,
+    changefreq: 'monthly',
+    priority: url === '/' ? 1.0 : 0.7
+  }));
+
+  const stream = new SitemapStream({ hostname });
+  const xml = await streamToPromise(Readable.from(links).pipe(stream)).then(data => data.toString());
+  res.send(xml);
+});
+
+// Render pages
 async function renderPage(req, res) {
   try {
     const baseHTML = await readFile(path.join(__dirname, 'views/template.html'), 'utf8');
