@@ -163,7 +163,7 @@ async function renderPage(req, res) {
       content = await readFile(path.join(__dirname, 'views/pages', pageFile), 'utf8');
     }
 
-    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', escapeHtmlInCodeAndPre(content));
+    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', processHtmlContent(content));
     res.send(finalHTML);
   } catch (error) {
     console.error("SSR Error:", error);
@@ -177,28 +177,37 @@ app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);
 });
 
-function escapeHtmlInCodeAndPre(htmlContent) {
-  // Function to escape HTML special characters
-  function escapeHtml(html) {
-      return html.replace(/[&<>"']/g, function (match) {
-          switch (match) {
-              case '&': return '&amp;';
-              case '<': return '&lt;';
-              case '>': return '&gt;';
-              case '"': return '&quot;';
-              case "'": return '&apos;';
-              default: return match;
-          }
-      });
-  }
 
-  // Regex to find content inside <pre> and <code> tags
-  const regex = /<(pre|code)[^>]*>(.*?)<\/(pre|code)>/gs;
+function escapeHtml(str) {
+  return str.replace(/[&<>"'`]/g, function (match) {
+      const escapeMap = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+          '`': '&#96;',
+      };
+      return escapeMap[match];
+  });
+}
 
-  // Replace the content inside <pre> and <code> tags with escaped content
-  return htmlContent.replace(regex, (match, p1, p2) => {
-      // Escape content inside <pre> and <code> tags
-      const escapedContent = escapeHtml(p2);
-      return `<${p1}>${escapedContent}</${p1}>`;
+function processHtmlContent(htmlContent) {
+  // Regex to identify <pre> and <code> tags
+  const regex = /<pre>(.*?)<\/pre>/gs;
+
+  // Process the HTML content
+  return htmlContent.replace(regex, (match, p1) => {
+      // Check if the content inside <pre> contains <code> tag
+      if (p1.includes('<code class="language-cpp">')) {
+          // Case 3: If <pre><code class="language-cpp">code-content</code></pre>, skip the content and leave it as is
+          return match; // Just return the original match, no change.
+      } else if (p1.includes('<code>')) {
+          // Case 2: If <pre><code>code-content</code></pre>, add class="language-cpp" and escape special characters
+          return `<pre><code class="language-cpp">${escapeHtml(p1.trim())}</code></pre>`;
+      } else {
+          // Case 1: If <pre>code-content</pre>, add <code class="language-cpp"> to wrap the content and escape special characters
+          return `<pre><code class="language-cpp">${escapeHtml(p1.trim())}</code></pre>`;
+      }
   });
 }
