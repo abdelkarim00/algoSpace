@@ -1,34 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Z-Algorithm</title>
+</head>
 <body>
 
   <h1>Z-Algorithm</h1>
-  
+
   <h2>1. Algorithm Description</h2>
   <p>
     The Z-algorithm computes for a string <code>S</code> of length <code>n</code> an array <code>Z</code> where
     <code>Z[i]</code> is the length of the longest substring starting at <code>i</code> that matches a prefix of <code>S</code>.
     We maintain a window [<code>L</code>, <code>R</code>] which is the interval with maximum <code>R</code> such that
     <code>S[L..R]</code> is a prefix of <code>S</code>. For each position <code>i</code> from 1 to <code>n-1</code>:
-    <ol>
-      <li>If <code>i &gt; R</code>, we naively match from <code>i</code> onward to compute <code>Z[i]</code>, and set <code>L = i, R = i + Z[i] - 1</code>.</li>
-      <li>Otherwise (<code>i ≤ R</code>), let <code>k = i – L</code>.  
-        <ul>
-          <li>If <code>Z[k] &lt; R – i + 1</code>, we set <code>Z[i] = Z[k]</code>.</li>
-          <li>Else, we start matching from <code>R+1</code> onward to extend the match and update <code>Z[i]</code> and <code>L,R</code>.</li>
-        </ul>
-      </li>
-    </ol>
   </p>
-  
+  <ol>
+    <li>If <code>i &gt; R</code>, we naively match from <code>i</code> onward to compute <code>Z[i]</code>, and set <code>L = i, R = i + Z[i] - 1</code>.</li>
+    <li>Otherwise (<code>i ≤ R</code>), let <code>k = i - L</code>.
+      <ul>
+        <li>If <code>Z[k] &lt; R - i + 1</code>, we set <code>Z[i] = Z[k]</code>.</li>
+        <li>Else, we start matching from <code>R+1</code> onward to extend the match and update <code>Z[i]</code> and <code>L,R</code>.</li>
+      </ul>
+    </li>
+  </ol>
+
   <h2>2. Time and Memory Complexity</h2>
   <ul>
     <li><strong>Time:</strong> <code>O(n)</code> — each position is processed in amortized constant time.</li>
     <li><strong>Memory:</strong> <code>O(n)</code> — to store the string and the Z-array.</li>
   </ul>
-  
+
   <h2>3. Easy Problems</h2>
-  
+
   <h3>3.1 Pattern Searching (Exact Match)</h3>
   <p>
     Given text <code>T</code> and pattern <code>P</code>, find all occurrences of <code>P</code> in <code>T</code>.
@@ -47,15 +51,15 @@ vector&lt;int&gt; z_algorithm(const string &amp;s) {
     for (int i = 1; i &lt; n; i++) {
         if (i &gt; R) {
             L = R = i;
-            while (R &lt; n && s[R–L] == s[R]) R++;
-            Z[i] = R–L; R–1;
+            while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+            Z[i] = R - L; R--;
         } else {
-            int k = i–L;
-            if (Z[k] &lt; R–i+1) Z[i] = Z[k];
+            int k = i - L;
+            if (Z[k] &lt; R - i + 1) Z[i] = Z[k];
             else {
                 L = i;
-                while (R &lt; n && s[R–L] == s[R]) R++;
-                Z[i] = R–L; R–1;
+                while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+                Z[i] = R - L; R--;
             }
         }
     }
@@ -68,17 +72,17 @@ int main() {
     string S = P + '$' + T;
     auto Z = z_algorithm(S);
     int m = P.size();
-    for (int i = m+1; i &lt; (int)S.size(); i++) {
+    for (int i = m + 1; i &lt; (int)S.size(); i++) {
         if (Z[i] == m)
             cout &lt;&lt; (i - m - 1) &lt;&lt; '\n';
     }
     return 0;
 }</code></pre>
-  
+
   <h3>3.2 Count Distinct Characters in Every Substring of Length k</h3>
   <p>
     Given string <code>S</code> and integer <code>k</code>, count how many substrings of length <code>k</code> have all distinct characters.
-    Slide a window of length <code>k</code>, and check uniqueness by comparing prefix matches using Z on each window.
+    Slide a window of length <code>k</code>, and check uniqueness using a set.
   </p>
   <pre><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -93,7 +97,7 @@ int main() {
     for (int i = 0; i + k &lt;= n; i++) {
         unordered_set&lt;char&gt; st;
         bool ok = true;
-        for (int j = i; j &lt; i+k; j++) {
+        for (int j = i; j &lt; i + k; j++) {
             if (st.count(S[j])) { ok = false; break; }
             st.insert(S[j]);
         }
@@ -102,13 +106,13 @@ int main() {
     cout &lt;&lt; cnt &lt;&lt; "\n";
     return 0;
 }</code></pre>
-  
+
   <h2>4. Intermediate Problems</h2>
-  
+
   <h3>4.1 Smallest Period of a String</h3>
   <p>
     Find the smallest period <code>p</code> of a string <code>S</code> (smallest <code>p</code> such that <code>S[i] = S[i+p]</code> for all valid <code>i</code>).
-    Compute Z-array on <code>S</code>, then the smallest <code>i&gt;0</code> with <code>i + Z[i] == n</code> is the period.
+    Compute Z-array on <code>S</code>, then the smallest <code>i &gt; 0</code> with <code>i + Z[i] == n</code> is the period.
   </p>
   <pre><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -118,33 +122,33 @@ using namespace std;
 vector&lt;int&gt; z_algorithm(const string &amp;s) {
     int n = s.size();
     vector&lt;int&gt; Z(n);
-    int L=0,R=0;
-    for(int i=1;i&lt;n;i++){
-        if(i&gt;R){
-            L=R=i;
-            while(R&lt;n && s[R-L]==s[R]) R++;
-            Z[i]=R-L; R--;
+    int L = 0, R = 0;
+    for (int i = 1; i &lt; n; i++) {
+        if (i &gt; R) {
+            L = R = i;
+            while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+            Z[i] = R - L; R--;
         } else {
-            int k=i-L;
-            if(Z[k]&lt;R-i+1) Z[i]=Z[k];
-            else{
-                L=i;
-                while(R&lt;n && s[R-L]==s[R]) R++;
-                Z[i]=R-L; R--;
+            int k = i - L;
+            if (Z[k] &lt; R - i + 1) Z[i] = Z[k];
+            else {
+                L = i;
+                while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+                Z[i] = R - L; R--;
             }
         }
     }
     return Z;
 }
 
-int main(){
+int main() {
     string S;
     cin &gt;&gt; S;
     int n = S.size();
     auto Z = z_algorithm(S);
     int period = n;
-    for(int i = 1; i &lt; n; i++){
-        if(i + Z[i] == n){
+    for (int i = 1; i &lt; n; i++) {
+        if (i + Z[i] == n) {
             period = i;
             break;
         }
@@ -152,10 +156,10 @@ int main(){
     cout &lt;&lt; period &lt;&lt; "\n";
     return 0;
 }</code></pre>
-  
+
   <h3>4.2 Lexicographically Minimal Rotation</h3>
   <p>
-    To find the lexicographically smallest rotation of <code>S</code>, consider <code>T = S + S</code>.  
+    To find the lexicographically smallest rotation of <code>S</code>, consider <code>T = S + S</code>.
     Compute Z on <code>T</code> for each suffix <code>i &lt; n</code> to compare with the current best rotation.
   </p>
   <pre><code>#include &lt;iostream&gt;
@@ -166,46 +170,46 @@ using namespace std;
 vector&lt;int&gt; z_algorithm(const string &amp;s) {
     int n = s.size();
     vector&lt;int&gt; Z(n);
-    int L=0,R=0;
-    for(int i=1;i&lt;n;i++){
-        if(i&gt;R){
-            L=R=i;
-            while(R&lt;n && s[R-L]==s[R]) R++;
-            Z[i]=R-L; R--;
+    int L = 0, R = 0;
+    for (int i = 1; i &lt; n; i++) {
+        if (i &gt; R) {
+            L = R = i;
+            while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+            Z[i] = R - L; R--;
         } else {
-            int k=i-L;
-            if(Z[k]&lt;R-i+1) Z[i]=Z[k];
-            else{
-                L=i;
-                while(R&lt;n && s[R-L]==s[R]) R++;
-                Z[i]=R-L; R--;
+            int k = i - L;
+            if (Z[k] &lt; R - i + 1) Z[i] = Z[k];
+            else {
+                L = i;
+                while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+                Z[i] = R - L; R--;
             }
         }
     }
     return Z;
 }
 
-int main(){
+int main() {
     string S;
     cin &gt;&gt; S;
     string T = S + S;
     int n = S.size(), best = 0;
     auto Z = z_algorithm(T);
-    for(int i = 1; i &lt; n; i++){
+    for (int i = 1; i &lt; n; i++) {
         int len = Z[i];
-        if(i+len &lt; 2*n && T[i+len] &lt; T[best+len])
+        if (i + len &lt; 2 * n &amp;&amp; T[i + len] &lt; T[best + len])
             best = i;
     }
     cout &lt;&lt; T.substr(best, n) &lt;&lt; "\n";
     return 0;
 }</code></pre>
-  
+
   <h2>5. Hard Problem</h2>
-  
+
   <h3>5.1 Pattern Matching with ≤k Mismatches</h3>
   <p>
-    Given text <code>T</code>, pattern <code>P</code>, and integer <code>k</code>, find all positions where Hamming distance between <code>P</code> and the substring of <code>T</code> is ≤ <code>k</code>.  
-    Compute Z on both <code>P+'$'+T</code> and <code>rev(P)+'$'+rev(T)</code> to get longest prefix and suffix matches, then check if <code>prefix_len + suffix_len ≥ |P| - k</code>.
+    Given text <code>T</code>, pattern <code>P</code>, and integer <code>k</code>, find all positions where Hamming distance between <code>P</code> and the substring of <code>T</code> is ≤ <code>k</code>.
+    Compute Z on both <code>P + '$' + T</code> and <code>rev(P) + '$' + rev(T)</code> to get longest prefix and suffix matches, then check if <code>prefix_len + suffix_len ≥ |P| - k</code>.
   </p>
   <pre><code>#include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -216,26 +220,26 @@ using namespace std;
 vector&lt;int&gt; z_algorithm(const string &amp;s) {
     int n = s.size();
     vector&lt;int&gt; Z(n);
-    int L=0,R=0;
-    for(int i=1;i&lt;n;i++){
-        if(i&gt;R){
-            L=R=i;
-            while(R&lt;n && s[R-L]==s[R]) R++;
-            Z[i]=R-L; R--;
+    int L = 0, R = 0;
+    for (int i = 1; i &lt; n; i++) {
+        if (i &gt; R) {
+            L = R = i;
+            while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+            Z[i] = R - L; R--;
         } else {
-            int k=i-L;
-            if(Z[k]&lt;R-i+1) Z[i]=Z[k];
-            else{
-                L=i;
-                while(R&lt;n && s[R-L]==s[R]) R++;
-                Z[i]=R-L; R--;
+            int k = i - L;
+            if (Z[k] &lt; R - i + 1) Z[i] = Z[k];
+            else {
+                L = i;
+                while (R &lt; n &amp;&amp; s[R-L] == s[R]) R++;
+                Z[i] = R - L; R--;
             }
         }
     }
     return Z;
 }
 
-int main(){
+int main() {
     string P, T;
     int k;
     cin &gt;&gt; P &gt;&gt; T &gt;&gt; k;
@@ -247,10 +251,10 @@ int main(){
     string S2 = Pr + '$' + Tr;
     auto Z2 = z_algorithm(S2);
 
-    for(int i = 0; i + n &lt;= m; i++){
-        int pre = Z1[n+1 + i];
-        int suf = Z2[n+1 + (m - i - n)];
-        if(pre + suf >= n - k)
+    for (int i = 0; i + n &lt;= m; i++) {
+        int pre = Z1[n + 1 + i];
+        int suf = Z2[n + 1 + (m - i - n)];
+        if (pre + suf >= n - k)
             cout &lt;&lt; i &lt;&lt; "\n";
     }
     return 0;
