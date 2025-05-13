@@ -192,20 +192,6 @@ function escapeHtml(str) {
   });
 }
 
-function escapeHtml(str) {
-  return str.replace(/[&<>"'`]/g, function (match) {
-      const escapeMap = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-          '`': '&#96;',
-      };
-      return escapeMap[match];
-  });
-}
-
 function processHtmlContent(htmlContent) {
   return htmlContent.replace(/<pre>([\s\S]*?)<\/pre>/gi, (match, inner) => {
       // Case 1: <pre><code class="language-cpp">...</code></pre> — leave unchanged
