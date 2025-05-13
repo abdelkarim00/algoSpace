@@ -192,22 +192,36 @@ function escapeHtml(str) {
   });
 }
 
-function processHtmlContent(htmlContent) {
-  // Regex to identify <pre> and <code> tags
-  const regex = /<pre>(.*?)<\/pre>/gs;
+function escapeHtml(str) {
+  return str.replace(/[&<>"'`]/g, function (match) {
+      const escapeMap = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+          '`': '&#96;',
+      };
+      return escapeMap[match];
+  });
+}
 
-  // Process the HTML content
-  return htmlContent.replace(regex, (match, p1) => {
-      // Check if the content inside <pre> contains <code> tag
-      if (p1.includes('<code class="language-cpp">')) {
-          // Case 3: If <pre><code class="language-cpp">code-content</code></pre>, skip the content and leave it as is
-          return match; // Just return the original match, no change.
-      } else if (p1.includes('<code>')) {
-          // Case 2: If <pre><code>code-content</code></pre>, add class="language-cpp" and escape special characters
-          return `<pre><code class="language-cpp">${escapeHtml(p1.trim())}</code></pre>`;
-      } else {
-          // Case 1: If <pre>code-content</pre>, add <code class="language-cpp"> to wrap the content and escape special characters
-          return `<pre><code class="language-cpp">${escapeHtml(p1.trim())}</code></pre>`;
+function processHtmlContent(htmlContent) {
+  return htmlContent.replace(/<pre>([\s\S]*?)<\/pre>/gi, (match, inner) => {
+      // Case 1: <pre><code class="language-cpp">...</code></pre> — leave unchanged
+      if (/<code\s+class=["']language-cpp["']>/i.test(inner)) {
+          return match;
       }
+
+      // Case 2: <pre><code>...</code></pre>
+      if (/<code>[\s\S]*?<\/code>/i.test(inner)) {
+          const stripped = inner.replace(/<\/?code>/gi, '').trim();
+          const escaped = escapeHtml(stripped);
+          return `<pre><code class="language-cpp">${escaped}</code></pre>`;
+      }
+
+      // Case 3: <pre>...</pre>
+      const escaped = escapeHtml(inner.trim());
+      return `<pre><code class="language-cpp">${escaped}</code></pre>`;
   });
 }
