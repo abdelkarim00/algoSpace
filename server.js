@@ -163,7 +163,7 @@ async function renderPage(req, res) {
       content = await readFile(path.join(__dirname, 'views/pages', pageFile), 'utf8');
     }
 
-    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', processHtmlContent(content));
+    const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', content);
     res.send(finalHTML);
   } catch (error) {
     console.error("SSR Error:", error);
@@ -177,37 +177,3 @@ app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);
 });
 
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"'`]/g, function (match) {
-      const escapeMap = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-          '`': '&#96;',
-      };
-      return escapeMap[match];
-  });
-}
-
-function processHtmlContent(htmlContent) {
-  return htmlContent.replace(/<pre>([\s\S]*?)<\/pre>/gi, (match, inner) => {
-      // Case 1: <pre><code class="language-cpp">...</code></pre> — leave unchanged
-      if (/<code\s+class=["']language-cpp["']>/i.test(inner)) {
-          return match;
-      }
-
-      // Case 2: <pre><code>...</code></pre>
-      if (/<code>[\s\S]*?<\/code>/i.test(inner)) {
-          const stripped = inner.replace(/<\/?code>/gi, '').trim();
-          const escaped = escapeHtml(stripped);
-          return `<pre><code class="language-cpp">${escaped}</code></pre>`;
-      }
-
-      // Case 3: <pre>...</pre>
-      const escaped = escapeHtml(inner.trim());
-      return `<pre><code class="language-cpp">${escaped}</code></pre>`;
-  });
-}
