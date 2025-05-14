@@ -239,5 +239,14 @@
         toggleButton.classList.toggle('open');
         });
   </script>
+
+  <script>
+        document.querySelectorAll('.book-section h2').forEach(header => {
+        header.addEventListener('click', () => {
+            const section = header.parentElement;
+            section.classList.toggle('open');
+        });
+        });
+  </script>
 </body>
 </html>
