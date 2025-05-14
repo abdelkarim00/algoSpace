@@ -8,18 +8,37 @@
 
   <h1>Breadth-First Search (BFS)</h1>
 
-  <h2>Algorithm Explanation</h2>
-  <p>BFS is a graph traversal algorithm that explores neighbors level by level starting from a source node. It uses a queue data structure to keep track of vertices to be explored.</p>
+  <h2>What is BFS?</h2>
+  <p>
+    Breadth-First Search (BFS) is a fundamental graph traversal algorithm that explores vertices (or nodes)
+    of a graph layer by layer. It starts from a selected source node and visits all its neighbors before
+    moving to the next level neighbors.
+  </p>
+  <p>
+    BFS is widely used for solving problems involving shortest paths in unweighted graphs, connectivity checks,
+    cycle detection, and more.
+  </p>
 
-  <h2>Time and Memory Complexity</h2>
+  <h2>How Does BFS Work?</h2>
   <ul>
-    <li><strong>Time Complexity:</strong> O(V + E), where V = vertices, E = edges.</li>
-    <li><strong>Space Complexity:</strong> O(V), for the visited array and queue.</li>
+    <li>It uses a <strong>queue</strong> to keep track of nodes to visit next.</li>
+    <li>Each node is <strong>marked as visited</strong> once it's added to the queue to prevent cycles or revisits.</li>
+    <li>The algorithm continues until the queue is empty, meaning all reachable nodes have been visited.</li>
+  </ul>
+
+  <h2>Complexity Analysis</h2>
+  <ul>
+    <li><strong>Time Complexity:</strong> O(V + E), where V = number of vertices and E = number of edges. Every vertex and edge is visited once.</li>
+    <li><strong>Space Complexity:</strong> O(V), due to the visited array and the queue.</li>
   </ul>
 
   <h2>Easy Problems</h2>
 
   <h3>1. Check if a Graph is Bipartite</h3>
+  <p>
+    A graph is bipartite if it is possible to color its vertices with two colors such that no two adjacent vertices have the same color.
+    BFS can be used to try to color the graph in this way, level by level.
+  </p>
   <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -27,7 +46,7 @@
 using namespace std;
 
 bool isBipartite(vector&lt;vector&lt;int&gt;&gt;&amp; graph, int V) {
-    vector&lt;int&gt; color(V, -1);
+    vector&lt;int&gt; color(V, -1); // -1 means unvisited
     for (int start = 0; start &lt; V; ++start) {
         if (color[start] == -1) {
             queue&lt;int&gt; q;
@@ -37,10 +56,10 @@ bool isBipartite(vector&lt;vector&lt;int&gt;&gt;&amp; graph, int V) {
                 int u = q.front(); q.pop();
                 for (int v : graph[u]) {
                     if (color[v] == -1) {
-                        color[v] = 1 - color[u];
+                        color[v] = 1 - color[u]; // alternate color
                         q.push(v);
                     } else if (color[v] == color[u]) {
-                        return false;
+                        return false; // same color on both ends of an edge
                     }
                 }
             }
@@ -50,7 +69,10 @@ bool isBipartite(vector&lt;vector&lt;int&gt;&gt;&amp; graph, int V) {
 }
   </code></pre>
 
-  <h3>2. Find Shortest Path in Unweighted Graph</h3>
+  <h3>2. Find Shortest Path in an Unweighted Graph</h3>
+  <p>
+    BFS finds the shortest path from a source to all other vertices in an unweighted graph because it explores vertices in order of their distance from the source.
+  </p>
   <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -79,7 +101,11 @@ void bfsShortestPath(vector&lt;vector&lt;int&gt;&gt;&amp; graph, int src, vector
 
   <h2>Intermediate Problems</h2>
 
-  <h3>1. Number of Islands (Grid Traversal)</h3>
+  <h3>1. Number of Islands</h3>
+  <p>
+    Treat the grid as a graph. Each land cell ('1') is a node connected to its adjacent land cells.
+    Use BFS to explore and sink each island.
+  </p>
   <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -90,7 +116,7 @@ void bfs(vector&lt;vector&lt;char&gt;&gt;&amp; grid, int i, int j) {
     int m = grid.size(), n = grid[0].size();
     queue&lt;pair&lt;int,int&gt;&gt; q;
     q.push({i, j});
-    grid[i][j] = '0';
+    grid[i][j] = '0'; // mark as visited
     int dirs[4][2] = {{0,1},{1,0},{0,-1},{-1,0}};
     while (!q.empty()) {
         auto [x, y] = q.front(); q.pop();
@@ -118,7 +144,11 @@ int numIslands(vector&lt;vector&lt;char&gt;&gt;&amp; grid) {
 }
   </code></pre>
 
-  <h3>2. Word Ladder (Shortest Transformation)</h3>
+  <h3>2. Word Ladder - Shortest Transformation Sequence</h3>
+  <p>
+    Transform one word into another by changing one letter at a time, using only valid intermediate words.
+    BFS is used to explore all valid one-letter transformations.
+  </p>
   <pre><code>
 #include &lt;iostream&gt;
 #include &lt;unordered_set&gt;
@@ -136,7 +166,7 @@ int ladderLength(string beginWord, string endWord, unordered_set&lt;string&gt;&a
             for (char c = 'a'; c &lt;= 'z'; ++c) {
                 next[i] = c;
                 if (wordList.count(next)) {
-                    wordList.erase(next);
+                    wordList.erase(next); // avoid revisiting
                     q.push({next, level + 1});
                 }
             }
@@ -148,7 +178,11 @@ int ladderLength(string beginWord, string endWord, unordered_set&lt;string&gt;&a
 
   <h2>Hard Problem</h2>
 
-  <h3>Maze Shortest Path with Obstacles</h3>
+  <h3>Maze with Obstacles - Shortest Path with Eliminations</h3>
+  <p>
+    You are allowed to eliminate up to <code>k</code> obstacles in a grid to find the shortest path from the top-left to the bottom-right.
+    BFS is extended by tracking the number of remaining eliminations as part of the state.
+  </p>
   <pre><code>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -184,6 +218,12 @@ int shortestPath(vector&lt;vector&lt;int&gt;&gt;&amp; grid, int k) {
     return -1;
 }
   </code></pre>
+
+  <h2>Conclusion</h2>
+  <p>
+    BFS is a powerful and versatile graph traversal technique useful for many problems including shortest paths, connectivity, and grid-based traversal.
+    Understanding how it works and when to use it is essential for efficient algorithm design.
+  </p>
 
 </body>
 </html>
