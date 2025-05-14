@@ -193,7 +193,7 @@ int main() {
 
   <li>
     <strong>Longest Common Substring of Two Strings</strong>  
-    <p>Concatenate <code>S=T1+'#'+T2+'$'</code>. Build <code>SA</code> and <code>LCP</code>; scan for max LCP where the two suffixes come from different parts.</p>
+    <p>Concatenate <code>S=T1+#+T2+$</code>. Build <code>SA</code> and <code>LCP</code>; scan for max LCP where the two suffixes come from different parts.</p>
     <pre>
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
@@ -203,7 +203,7 @@ using namespace std;
 // build_sa, build_lcp as above
 
 string longest_common_substring(const string &amp;A, const string &amp;B) {
-    string S = A + char('#') + B + char('$');
+    string S = A + char(#) + B + char($);
     int n = S.size(), nA = A.size();
     auto sa = build_sa(S);
     auto lcp = build_lcp(S, sa);
