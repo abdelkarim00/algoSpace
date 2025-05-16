@@ -426,6 +426,11 @@ blockquote p:last-child {
   color: #aaa;
 }
 
+/* ✨ This hides the icon when text is entered */
+#sidebar-search:not(:placeholder-shown) {
+  background-image: none;
+}
+
 #sidebar-search:focus {
   outline: none;
   background-color: #333;
