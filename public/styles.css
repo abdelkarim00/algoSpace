@@ -465,3 +465,9 @@ blockquote p:last-child {
   overflow: hidden;
   padding: 0;
 }
+
+@media (max-width: 767px) {
+  #sidebarToggle {
+    display: none;
+  }
+}
