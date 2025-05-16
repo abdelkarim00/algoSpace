@@ -30,7 +30,7 @@
 <body>
 
     <button class="mobile-nav-toggle">☰ Menu</button>
-
+    <button class="sidebar-toggle" id="sidebarToggle">☰ Topics</button>
     <div id="sidebar">
         <h1 > 
             <a href="/" class="logo-link">
@@ -233,7 +233,7 @@
 
     <main>
         <div id="main-content">
-            <div id="page-content">
+            <div id="page">
                  <!-- SSR_CONTENT -->
             </div>
             <!-- algospacsefooter -->
@@ -260,10 +260,20 @@
     <script>
         const toggleButton = document.querySelector('.mobile-nav-toggle');
         const sidebar = document.getElementById('sidebar');
-    
+        const mainContent = document.getElementById('main-content'); // Get the main content element
         toggleButton.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        toggleButton.classList.toggle('open');
+            sidebar.classList.toggle('open');
+            toggleButton.classList.toggle('open');
+        });
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            // Adjust main content margin based on sidebar state
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginLeft = '80px'; // Width of collapsed sidebar
+            } else {
+                mainContent.style.marginLeft = '320px'; // Width of expanded sidebar
+            }
         });
   </script>
 

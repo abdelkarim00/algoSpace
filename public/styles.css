@@ -437,3 +437,31 @@ blockquote p:last-child {
   border: 1px solid #e53935;
   box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.4);
 }
+
+
+/* Toggle Button Styling */
+.sidebar-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;    /* Change from left: 15px to right: 15px */
+  background-color: #e53935;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-toggle:hover {
+  background-color: #d32f2f;
+}
+
+/* Sidebar hidden state */
+#sidebar.collapsed {
+  width: 0;
+  overflow: hidden;
+  padding: 0;
+}
