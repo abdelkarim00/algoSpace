@@ -373,3 +373,15 @@ body {
     margin-bottom: 0;
   }
   
+
+.logo {
+  width: 60px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  font-size: 1.2em;
+  margin: 10px 0 30px;
+  color: #cccccc;
+}

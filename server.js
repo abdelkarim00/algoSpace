@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Route-to-file mapping
 const pageMap = {
-  '/': 'bubble-sort.html',
+  '/': 'home.html',
 
   // Sorting Algorithms
   '/bubble-sort': 'bubble-sort.html',
