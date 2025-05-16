@@ -41,6 +41,13 @@
             </a>
         </h1>
         <p style="font-style: italic; color: #bdc3c7;">Core Topics for Competitive Programming</p>
+        <input
+        type="text"
+        id="sidebar-search"
+        placeholder=""
+        style="width: 100%; padding: 8px; margin: 10px 0 20px; border-radius: 6px; border: none; font-size: 1em;"
+        />
+
     
         <div class="book-section">
             <h2> Sorting Algorithms</h2>
@@ -273,5 +280,22 @@
     <script>
         (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
+
+<script>
+  document.getElementById('sidebar-search').addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    document.querySelectorAll('#sidebar .book-section').forEach(section => {
+      let matches = 0;
+      section.querySelectorAll('li').forEach(li => {
+        const text = li.textContent.toLowerCase();
+        const isMatch = text.includes(query);
+        li.style.display = isMatch ? '' : 'none';
+        if (isMatch) matches++;
+      });
+      section.style.display = matches ? '' : 'none';
+    });
+  });
+</script>
+
 </body>
 </html>

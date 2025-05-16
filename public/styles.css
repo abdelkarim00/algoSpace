@@ -405,3 +405,30 @@ blockquote p:last-child {
   background: linear-gradient(135deg, #111 0%, #1c1c1c 40%, #2a2a2a 100%);
   box-shadow: 3px 0 10px rgba(229, 57, 53, 0.4);
 }
+
+#sidebar-search {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1em;
+  background-color: #2b2b2b;
+  color: #eee;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23aaa" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M12.9 14.32a8 8 0 111.414-1.414l4.387 4.387-1.414 1.414-4.387-4.387zM8 14a6 6 0 100-12 6 6 0 000 12z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  background-size: 18px 18px;
+  transition: all 0.2s ease-in-out;
+}
+
+#sidebar-search::placeholder {
+  color: #aaa;
+}
+
+#sidebar-search:focus {
+  outline: none;
+  background-color: #333;
+  border: 1px solid #e53935;
+  box-shadow: 0 0 0 2px rgba(229, 57, 53, 0.4);
+}
