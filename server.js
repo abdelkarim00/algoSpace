@@ -113,6 +113,7 @@ const pageMap = {
   '/monotonic': 'monotonic.html',
   '/sliding-window': 'sliding-window.html',
   '/two-pointers': 'two-pointers.html',
+  '/two-heaps': 'two-heaps.html',
   '/meet-in-middle': 'meet-in-middle.html',
 
   // Recurrence / Divide and Conquer

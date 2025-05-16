@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Two Heaps Explained (C++)</title>
+</head>
+<body>
+
+<h1>Two Heaps Explained (C++)</h1>
+
+<h2>Introduction</h2>
+<p>The 'Two Heaps' is a technique used to solve coding problems that involve finding the median, kth smallest/largest element, or dealing with a stream of numbers where you need to maintain some order. This utilizes two heaps: a Min-Heap and a Max-Heap.</p>
+
+<h2>When to Use the Two Heaps Pattern</h2>
+<p>Here are some scenarios where the Two Heaps is useful:</p>
+<ul>
+    <li>Problems involving finding the median of a stream of numbers.</li>
+    <li>Problems where you need to find the kth smallest or largest element in an array or stream.</li>
+    <li>Problems where you need to divide a set of numbers into two parts with certain properties.</li>
+    <li>Problems that require maintaining a sorted order of elements dynamically.</li>
+</ul>
+
+<h2>Core Idea</h2>
+<p>The main idea behind the Two Heaps is to divide the data into two halves.</p>
+<ul>
+    <li><strong>Max-Heap:</strong> Stores the smaller half of the data.</li>
+    <li><strong>Min-Heap:</strong> Stores the larger half of the data.</li>
+</ul>
+<p>By doing this, we can efficiently find the median or kth element.</p>
+
+<h2>Basic Template</h2>
+<p>Here's a general structure for implementing the Two Heaps in C++:</p>
+<pre>
+<code>
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+#include &lt;functional&gt; // Required for std::greater and std::less
+
+using namespace std;
+
+class TwoHeaps {
+public:
+    //  Max-Heap to store the smaller half.
+    priority_queue&lt;int&gt; maxHeap;
+    //  Min-Heap to store the larger half.
+    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap;
+
+    // Function to add a number to the heaps
+    void addNumber(int num) {
+        if (maxHeap.empty() || num &lt;= maxHeap.top()) {
+            maxHeap.push(num);
+        } else {
+            minHeap.push(num);
+        }
+        rebalanceHeaps();
+    }
+
+    // Function to rebalance the heaps
+    void rebalanceHeaps() {
+        if (maxHeap.size() &gt; minHeap.size() + 1) {
+            minHeap.push(maxHeap.top());
+            maxHeap.pop();
+        } else if (minHeap.size() &gt; maxHeap.size()) {
+            maxHeap.push(minHeap.top());
+            minHeap.pop();
+        }
+    }
+
+    // Function to find the median
+    double findMedian() {
+        if (maxHeap.empty() && minHeap.empty()) {
+            return 0.0; // Or throw an exception: "No numbers have been added."
+        }
+        if (maxHeap.size() == minHeap.size()) {
+            return (maxHeap.top() + minHeap.top()) / 2.0;
+        } else {
+            return maxHeap.top();
+        }
+    }
+};
+
+int main() {
+    TwoHeaps twoHeaps;
+    twoHeaps.addNumber(3);
+    cout &lt;&lt; "Median: " &lt;&lt; twoHeaps.findMedian() &lt;&lt; endl; // Output: 3
+    twoHeaps.addNumber(1);
+    cout &lt;&lt; "Median: " &lt;&lt; twoHeaps.findMedian() &lt;&lt; endl; // Output: 2
+    twoHeaps.addNumber(2);
+    cout &lt;&lt; "Median: " &lt;&lt; twoHeaps.findMedian() &lt;&lt; endl; // Output: 2
+    twoHeaps.addNumber(4);
+    cout &lt;&lt; "Median: " &lt;&lt; twoHeaps.findMedian() &lt;&lt; endl; // Output: 2.5
+    twoHeaps.addNumber(5);
+    cout &lt;&lt; "Median: " &lt;&lt; twoHeaps.findMedian() &lt;&lt; endl; // Output: 3
+    return 0;
+}
+</code>
+</pre>
+
+<h2>Explanation:</h2>
+<ol>
+    <li><strong>Initialization:</strong>
+        <ul>
+            <li>maxHeap: A priority queue (max-heap) to store the smaller half of the numbers. In C++, priority_queue&lt;int&gt; is a max-heap by default.</li>
+            <li>minHeap: A priority queue (min-heap) to store the larger half of the numbers. We use priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; to make it a min-heap. greater&lt;int&gt; is a comparator that makes the smallest element have the highest priority.</li>
+        </ul>
+    </li>
+    <li><strong>addNumber(int num):</strong>
+        <ul>
+            <li>Adds a new number num to the appropriate heap.</li>
+            <li>If the maxHeap is empty or the new number is less than or equal to the top of the maxHeap, add it to the maxHeap.</li>
+            <li>Otherwise, add it to the minHeap.</li>
+            <li>Calls rebalanceHeaps() to maintain the balance.</li>
+        </ul>
+    </li>
+    <li><strong>rebalanceHeaps():</strong>
+        <ul>
+            <li>Ensures that the heaps are balanced, meaning the difference in their sizes is not more than 1.</li>
+            <li>If the maxHeap has more than one extra element, move the top element from maxHeap to minHeap.</li>
+            <li>If the minHeap has more elements, move the top element from minHeap to maxHeap.</li>
+        </ul>
+    </li>
+    <li><strong>findMedian():</strong>
+        <ul>
+            <li>Calculates the median based on the elements in the heaps.</li>
+            <li>If both heaps have the same number of elements, the median is the average of the top elements of the maxHeap and minHeap.</li>
+            <li>If the maxHeap has one more element, the median is the top element of the maxHeap.</li>
+            <li>If both heaps are empty, return 0.</li>
+        </ul>
+    </li>
+</ol>
+
+<h2>Example Problem: Find the Median of a Data Stream</h2>
+<p><strong>Problem:</strong> Given a stream of numbers, find the median of the numbers seen so far after each new number is added.</p>
+
+<p><strong>C++ Code:</strong></p>
+<pre>
+<code>
+#include &lt;iostream&gt;
+#include &lt;queue&gt;
+#include &lt;vector&gt;
+#include &lt;functional&gt;
+#include &lt;iomanip&gt;
+
+using namespace std;
+
+class MedianFinder {
+public:
+    priority_queue&lt;int&gt; maxHeap;
+    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; minHeap;
+
+    void addNum(int num) {
+        if (maxHeap.empty() || num &lt;= maxHeap.top()) {
+            maxHeap.push(num);
+        } else {
+            minHeap.push(num);
+        }
+        rebalanceHeaps();
+    }
+
+    void rebalanceHeaps() {
+        if (maxHeap.size() &gt; minHeap.size() + 1) {
+            minHeap.push(maxHeap.top());
+            maxHeap.pop();
+        } else if (minHeap.size() &gt; maxHeap.size()) {
+            maxHeap.push(minHeap.top());
+            maxHeap.pop();
+        }
+    }
+
+    double findMedian() {
+        if (maxHeap.empty() && minHeap.empty()) {
+            return 0.0;
+        }
+        if (maxHeap.size() == minHeap.size()) {
+            return (maxHeap.top() + minHeap.top()) / 2.0;
+        } else {
+            return maxHeap.top();
+        }
+    }
+};
+
+int main() {
+    MedianFinder medianFinder;
+    vector&lt;int&gt; numbers = {5, 2, 8, 10, 1, 7, 4};
+
+    for (int number : numbers) {
+        medianFinder.addNum(number);
+        cout &lt;&lt; "Added " &lt;&lt; number &lt;&lt; ", Median = " &lt;&lt; fixed &lt;&lt; setprecision(1) &lt;&lt; medianFinder.findMedian() &lt;&lt; endl;
+    }
+    return 0;
+}
+</code>
+</pre>
+
+<h2>Key Points</h2>
+
+<ul>
+  <li>The Two Heaps is efficient for maintaining sorted order in dynamic data.</li>
+  <li>Using a max-heap for the smaller half and a min-heap for the larger half allows for quick access to the median or other order statistics.</li>
+  <li>Rebalancing the heaps is crucial for maintaining the desired properties and ensuring the correct median calculation.</li>
+</ul>
+
+<div>
+    <p>
+        You can view the full collection of Two heaps problems and explanations on GitHub:
+    </p>
+    <a href="https://github.com/dipjul/Grokking-the-Coding-Interview-Patterns-for-Coding-Questions/tree/master/9.-pattern-two-heaps">
+        Visit GitHub Repository
+    </a>
+</div>
+</body>
+</html>
