@@ -1,88 +1,305 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Bellman-Ford Algorithm in C++</title>
+<title>Bellman-Ford Algorithm – Enhanced Explanation with Proofs</title>
 </head>
 <body>
 
-<h1>Bellman-Ford Algorithm</h1>
+<h1><strong>Bellman-Ford Algorithm – Enhanced Explanation with Proofs</strong></h1>
 
-<h2>1. Explanation</h2>
-<p>The Bellman-Ford algorithm is used to find the shortest paths from a single source vertex to all other vertices in a weighted graph. Unlike Dijkstra's algorithm, Bellman-Ford can handle graphs with negative weight edges.</p>
+<h2><strong>What is the Bellman-Ford Algorithm?</strong></h2>
+<p>The Bellman-Ford algorithm is a method to find the shortest paths from a single source vertex to all other vertices in a weighted directed graph.</p>
+<p>It works even when some edges have negative weights. This makes it more powerful than Dijkstra’s algorithm, which does not work with negative edge weights.</p>
+<p>Bellman-Ford can also detect negative weight cycles (cycles where the total weight is negative), which means that the shortest path does not exist because it can keep decreasing forever.</p>
 
-<h3>Steps:</h3>
+<h2><strong>When to Use It</strong></h2>
+<ul>
+    <li>You want to find shortest paths from one starting point.</li>
+    <li>Some edges have negative weights.</li>
+    <li>You need to check if the graph has a negative weight cycle.</li>
+</ul>
+
+<h2><strong>Basic Idea</strong></h2>
+<p>The algorithm works by relaxing the edges multiple times.</p>
+
+<h2><strong>What is "Relaxing" an Edge?</strong></h2>
+<p>Suppose there is an edge from node u to node v with weight w.</p>
+<p>If the shortest known distance to u is d[u], and going from u to v is shorter than the current known distance to v, we update it:</p>
+<p>if d[u] + w &lt; d[v] then<br>
+    d[v] = d[u] + w
+</p>
+
+<h2><strong>Edge Relaxation Illustration:</strong></h2>
+<p><img src="bellmanford1.png" alt="Edge relaxation in BellmanFord, showing a before and after state of distance to a node v being updated"></p>
+<p>We do this again and again until no more updates are needed.</p>
+
+<h2><strong>Step-by-Step Algorithm</strong></h2>
+<p>Let the number of vertices be <em>n</em> and the number of edges be <em>m</em>.</p>
 <ol>
-  <li>Initialize the distance to the source as 0 and all other distances as infinity.</li>
-  <li>Relax all edges |V|-1 times (where V is the number of vertices).</li>
-  <li>Check for negative-weight cycles: if you can relax any edge further, a cycle exists.</li>
+    <li>Set the distance to the source node to 0, and all others to infinity.</li>
+    <li>Repeat the following step <em>n</em> - 1 times:
+        <ul>
+            <li>For every edge (u, v) with weight w:
+                <ul>
+                    <li>If d[u] + w &lt; d[v], update d[v] = d[u] + w.</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li>To check for negative cycles:
+        <ul>
+            <li>Repeat the edge loop one more time.</li>
+            <li>If any d[v] gets updated, then there is a negative weight cycle.</li>
+        </ul>
+    </li>
 </ol>
 
-<h3>Time Complexity:</h3>
-<p><code>O(V * E)</code>, where V = number of vertices, E = number of edges.</p>
+<h2><strong>Bellman-Ford Algorithm Visualization:</strong></h2>
+<p><img src="/bellmanford2.png" alt="BellmanFord algorithm visualization, showing distance updates in iterations"></p>
 
-<h3>Space Complexity:</h3>
-<p><code>O(V)</code> for distance array.</p>
+<h2><strong>Implementation in Pseudocode</strong></h2>
+ <pre> <code>
+const int INF = 1e9;
 
-<h2>2. Easy Problems</h2>
-
-<h3>Problem 1: Single Source Shortest Path</h3>
-<pre><code>// C++ Code
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-using namespace std;
-
-struct Edge {
-    int src, dest, weight;
+struct edge {
+    int u, v, cost;
 };
 
-void bellmanFord(int V, int E, int src, vector&lt;Edge&gt;& edges) {
-    vector&lt;int&gt; dist(V, INT_MAX);
-    dist[src] = 0;
+vector&lt;edge&gt; edges;
+vector&lt;int&gt; dist(n, INF);
+dist[source] = 0;
 
-    for (int i = 1; i &lt; V; ++i) {
-        for (auto edge : edges) {
-            if (dist[edge.src] != INT_MAX && dist[edge.src] + edge.weight &lt; dist[edge.dest]) {
-                dist[edge.dest] = dist[edge.src] + edge.weight;
+// Step 2: Relax all edges n - 1 times
+for (int i = 0; i &lt; n - 1; ++i) {
+    for (edge e : edges) {
+        if (dist[e.u] &lt; INF && dist[e.v] &gt; dist[e.u] + e.cost) {
+            dist[e.v] = dist[e.u] + e.cost;
+        }
+    }
+}
+
+// Step 3: Check for negative weight cycles
+bool hasNegativeCycle = false;
+for (edge e : edges) {
+    if (dist[e.u] &lt; INF && dist[e.v] &gt; dist[e.u] + e.cost) {
+        hasNegativeCycle = true;
+        break;
+    }
+}
+</code></pre>
+
+<h2><strong>Why It Works – Proof</strong></h2>
+<p><strong>Goal:</strong> After running the algorithm, dist[v] should hold the shortest distance from the source to vertex v.</p>
+<p><strong>Assumptions:</strong> The graph does not contain negative weight cycles.</p>
+<p><strong>Proof:</strong> Any shortest path from the source to a node contains at most n - 1 edges, because a simple path can’t repeat a node and the graph has n nodes. Each time we relax all edges, we allow paths of one more edge than before.</p>
+<ul>
+    <li>After the 1st pass: shortest paths with 1 edge are correct.</li>
+    <li>After the 2nd pass: shortest paths with 2 edges are correct.</li>
+    <li>...</li>
+    <li>After <em>n</em> - 1 passes: all shortest paths (with at most <em>n</em> - 1 edges) are correct.</li>
+</ul>
+<p>Thus, by doing <em>n</em> - 1 passes, we are guaranteed to have found all shortest paths, as long as there are no negative cycles.</p>
+
+<h2><strong>Negative Cycle Detection:</strong></h2>
+<p>If we run the algorithm one more time (the nth time) and any distance still changes, this means there is a cycle that keeps reducing the distance. That is, there is a negative weight cycle.</p>
+
+<h2><strong>Negative Cycle Example:</strong></h2>
+<p>Consider a graph with vertices A, B, and C, with edges A->B (-2), B->C (-3), and C->A (-2). The sum of the weights is -7, indicating a negative cycle. The Bellman-Ford algorithm will detect this because the distances will continue to decrease after the (n-1)th iteration.</p>
+
+<h2><strong>How to Find the Shortest Path Itself</strong></h2>
+<p>We can keep track of the parent (or predecessor) of each node. Whenever we update dist[v], we also update parent[v] = u. To get the path from source to v:</p>
+<ul>
+    <li>Start at v, go to parent[v], then to parent[parent[v]], and so on.</li>
+    <li>Stop when you reach the source (or -1 if unreachable).</li>
+    <li>Reverse the path to get the correct order.</li>
+</ul>
+
+<h2><strong>Time and Space Complexity</strong></h2>
+<ul>
+    <li>Time: O(n * m), where n is the number of vertices, and m is the number of edges.</li>
+    <li>Space: O(n), for storing distances and parents.</li>
+</ul>
+
+<h2><strong>Comparison with Dijkstra's Algorithm</strong></h2>
+<table>
+    <tr><th>Feature</th><th>Bellman-Ford</th><th>Dijkstra's Algorithm</th></tr>
+    <tr><td>Negative Weights</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Negative Cycles</td><td>Detects</td><td>No</td></tr>
+    <tr><td>Time Complexity</td><td>O(n * m)</td><td>O((V + E) log V) using a priority queue</td></tr>
+    <tr><td>Use Cases</td><td>Graphs with negative weights, cycle detection</td><td>Graphs with non-negative weights, shortest paths</td></tr>
+    <tr><td>Implementation</td><td>Simpler</td><td>More complex</td></tr>
+</table>
+
+<h2><strong>Example</strong></h2>
+<p>Graph:<br>Vertices: 0, 1, 2<br>Edges:<br>0 → 1 (weight 4)<br>0 → 2 (weight 5)<br>1 → 2 (weight -2)</p>
+<p>Run Bellman-Ford from source 0.</p>
+<p>Start:<br>dist = 0<br>dist = INF<br>dist = INF</p>
+<p>First pass:<br>0→1: 0 + 4 = 4 → dist = 4<br>0→2: 0 + 5 = 5 → dist = 5<br>1→2: 4 + (-2) = 2 → dist = 2</p>
+<p>Second pass:<br>No further updates → done.</p>
+<p>Final distances:<br>dist = 0<br>dist = 4<br>dist = 2</p>
+
+<div>
+    <h1>Problem and Solution Explanation: Problem 423 - MPI Maelstrom</h1>
+    <h2>Problem Description:</h2>
+    <p>
+        The problem "MPI Maelstrom" (Problem 423) on Online Judge involves finding the shortest paths in a network represented as an adjacency matrix.
+        The network describes connections between nodes, with edge weights representing communication costs.
+        The goal is to determine the minimum cost for a message to be broadcast from a source node (node 1) to all other nodes in the network.
+        Note that the input graph will not have negative weight cycles.
+    </p>
+
+    <h2>Solution Explanation:</h2>
+    <p>
+        This problem is a classic application of the single-source shortest path problem.
+        Since the problem guarantees no negative weight cycles, Dijkstra's algorithm would typically be the go-to solution.
+        However, since the document is about the Bellman-Ford algorithm, we can use it here.
+    </p>
+    <p>Here's how Bellman-Ford can be applied to solve this problem:</p>
+    <h3>Input Processing:</h3>
+    <ul>
+        <li>Read the number of nodes, n, from the input.</li>
+        <li>
+            Create an adjacency matrix to represent the network. Initialize the matrix.
+            The diagonal elements (cost from a node to itself) are 0.
+            The input provides the upper triangle of the matrix.
+            For entries where no direct connection is given, we can assume a large value (representing infinity) to indicate no direct path.
+            We need to populate the lower triangle of the matrix by reflecting the values from the upper triangle since the graph is undirected.
+        </li>
+    </ul>
+    <h3>Initialization:</h3>
+    <ul>
+        <li>
+            Create a distance array, dist, of size n. Initialize all elements to infinity (a large value)
+            except dist[0] (distance from node 1 to itself), which is set to 0.
+        </li>
+    </ul>
+    <h3>Bellman-Ford Algorithm:</h3>
+    <ul>
+        <li>Iterate n - 1 times. In each iteration, iterate through all possible edges in the graph.</li>
+        <li>
+            For each edge (u, v) with weight w (cost from the adjacency matrix), relax the edge:
+            If dist[u] + w < dist[v], update dist[v] to dist[u] + w.
+        </li>
+    </ul>
+    <h3>Output:</h3>
+    <ul>
+        <li>
+            After the iterations, the dist array will contain the shortest distances from node 1 to all other nodes.
+            Find the maximum value in the dist array, as the problem asks for the minimum cost to reach all nodes.
+            Print this maximum value.
+        </li>
+    </ul>
+
+    <h2>Why Bellman-Ford Works Here:</h2>
+    <ul>
+        <li><strong>Single Source Shortest Path:</strong> We need to find the shortest path from a single source (node 1) to all other nodes.</li>
+        <li><strong>No Negative Weight Cycles:</strong> The problem statement guarantees no negative weight cycles, which is a requirement for Bellman-Ford to find the correct shortest paths.</li>
+        <li><strong>Correctness:</strong> After n - 1 iterations, Bellman-Ford guarantees finding the shortest paths in a graph without negative cycles.</li>
+    </ul>
+
+    <h2>Key Points:</h2>
+    <ul>
+        <li>The problem uses 1-based indexing, but the solution and code use 0-based indexing.</li>
+        <li>The algorithm efficiently handles the graph represented as an adjacency matrix.</li>
+        <li>The final answer is the maximum of all shortest paths from the source to all other nodes.</li>
+    </ul>
+
+    <h2>Code Solution (C++)</h2>
+    <pre><code>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+
+using namespace std;
+
+const int INF = 1e9;
+
+int main() {
+    int n;
+    cin &gt;&gt; n;
+
+    // Create adjacency matrix
+    vector&lt;vector&lt;int&gt;&gt; adj_matrix(n, vector&lt;int&gt;(n, INF)); 
+    for (int i = 0; i &lt; n; ++i) {
+       adj_matrix[i][i] = 0; // Distance from node to itself is 0
+  }
+
+    // Read upper triangle of the matrix
+    for (int i = 1; i &lt; n; ++i) {
+       for (int j = 0; j &lt; i; ++j) {
+          string cost_str;
+          cin &gt;&gt; cost_str;
+          if (cost_str != "x") {
+              int cost = stoi(cost_str);
+              adj_matrix[i][j] = cost;
+              adj_matrix[j][i] = cost; // Copy to lower triangle
+           }
+       }
+   }
+
+    // Initialize distances
+    vector&lt;int&gt; dist(n, INF);
+    dist[0] = 0; // Distance from node 1 (0-indexed) to itself is 0
+
+    // Bellman-Ford
+    for (int i = 0; i &lt; n - 1; ++i) {
+        for (int u = 0; u &lt; n; ++u) {
+            for (int v = 0; v &lt; n; ++v) {
+                if (adj_matrix[u][v] != INF && dist[u] != INF && dist[u] + adj_matrix[u][v] &lt; dist[v]) {
+                    dist[v] = dist[u] + adj_matrix[u][v];
+                }
             }
         }
     }
 
-    for (auto edge : edges) {
-        if (dist[edge.src] != INT_MAX && dist[edge.src] + edge.weight &lt; dist[edge.dest]) {
-            cout &lt;&lt; "Negative weight cycle detected." &lt;&lt; endl;
-            return;
-        }
+    // Find the maximum distance
+    int max_dist = 0;
+    for (int i = 0; i &lt; n; ++i) {
+        max_dist = max(max_dist, dist[i]);
     }
 
-    for (int i = 0; i &lt; V; ++i)
-        cout &lt;&lt; "Distance to vertex " &lt;&lt; i &lt;&lt; ": " &lt;&lt; dist[i] &lt;&lt; endl;
-}</code></pre>
+    cout &lt;&lt; max_dist &lt;&lt; endl;
 
-<h3>Problem 2: Detecting Negative Weight Cycle</h3>
-<pre><code>// Use the same Bellman-Ford function above
-// If negative weight cycle is detected in last check, we know it exists</code></pre>
+    return 0;
+}
+    </code></pre>
 
-<h2>3. Intermediate Problems</h2>
+    <h2>Explanation of the Code:</h2>
+    <ul>
+        <li><strong>Include Headers:</strong> Includes the necessary iostream, vector, and algorithm headers.</li>
+        <li><strong>Constants and Namespaces:</strong> Defines INF and uses the standard namespace.</li>
+        <li>
+            <strong>Main Function:</strong>
+            <ul>
+                <li>Reads the number of nodes, n.</li>
+                <li>Creates an adjacency matrix adj_matrix of size n x n and initializes it.</li>
+                <li>Reads the input for the upper triangle of the adjacency matrix and populates the lower triangle.</li>
+                <li>Initializes the distance vector dist.</li>
+                <li>Implements the Bellman-Ford algorithm.</li>
+                <li>Finds the maximum distance in the dist vector.</li>
+                <li>Prints the maximum distance.</li>
+            </ul>
+        </li>
+    </ul>
+</div>
 
-<h3>Problem 1: Currency Arbitrage (Negative cycle detection)</h3>
-<pre><code>// Model exchange rates as negative log of rates to detect arbitrage cycle
-// Use Bellman-Ford to detect a negative cycle</code></pre>
 
-<h3>Problem 2: Road System with Toll Rebates</h3>
-<pre><code>// Use Bellman-Ford to find cheapest paths considering toll rebates (negative weights)
-// Same base function applies</code></pre>
+<h2><strong>Real-World Applications</strong></h2>
+<ul>
+    <li><strong>Network Routing</strong>: Bellman-Ford is used in distance-vector routing protocols to find the best routes for data packets in a network. Routers use it to determine the shortest path to other networks.</li>
+    <li><strong>Currency Exchange</strong>: Bellman-Ford can be used to detect arbitrage opportunities in currency exchange markets. If a sequence of exchanges results in a profit, it indicates a negative weight cycle.</li>
+</ul>
 
-<h2>4. Hard Problem</h2>
 
-<h3>Problem: Time-Traveling Trader</h3>
-<p>You can make a profit if a negative cycle exists. Use Bellman-Ford to detect it.</p>
-<pre><code>// Input graph of cities with buy/sell costs; edges represent trades
-// Detect profit cycles as negative cycles in cost graph
-// Same logic as above with appropriate modeling</code></pre>
-
-<h2>Conclusion</h2>
-<p>Bellman-Ford is a versatile and robust algorithm for shortest path problems, particularly when dealing with negative weights or cycles. While it's slower than Dijkstra's in positive-weight graphs, its ability to detect negative cycles is unmatched.</p>
+<h2> <strong> Summary </strong></h2>
+<ul>
+    <li>Bellman-Ford is used to find shortest paths from a source.</li>
+    <li>It works with negative weights.</li>
+    <li>It detects negative weight cycles.</li>
+    <li>It runs in O(n * m) time.</li>
+    <li>It uses edge relaxation up to n - 1 times.</li>
+    <li>It is simpler but slower than Dijkstra's for graphs without negative weights.</li>
+</ul>
 
 </body>
 </html>
