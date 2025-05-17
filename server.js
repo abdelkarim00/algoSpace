@@ -141,7 +141,7 @@ const pageMap = {
 app.get('/sitemap.xml', async (req, res) => {
   res.header('Content-Type', 'application/xml');
 
-  const hostname = 'https://algospace.onrender.com'; // Replace with your actual domain
+  const hostname = 'https://antinloop.com'; // Replace with your actual domain
   const links = Object.keys(pageMap).map(url => ({
     url,
     changefreq: 'monthly',
