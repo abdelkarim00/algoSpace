@@ -37,6 +37,32 @@
         gtag('config', 'G-SLBE9Q0JJ7');
     </script>
 
+    <script>
+        // Define dataLayer and the gtag function.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        // Set default consent for countries requiring prior consent
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied',
+            'regions': [
+            'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IS','IE','IT',
+            'LV','LI','LT','LU','MT','NL','NO','PL','PT','RO','SK','SI','ES','SE','GB','CH'
+            ]
+        });
+
+        // Set default consent for all other regions
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied'
+        });
+    </script>
+
     <!-- Start cookieyes banner --> 
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/05ebc255f1c8e8168d10867c/script.js"></script>
     <!-- End cookieyes banner -->
