@@ -17,124 +17,125 @@ const pageMap = {
   '/': 'home.html',
 
   // Sorting Algorithms
-  '/bubble-sort': 'bubble-sort.html',
-  '/selection-sort': 'selection-sort.html',
-  '/insertion-sort': 'insertion-sort.html',
-  '/merge-sort': 'merge-sort.html',
-  '/quick-sort': 'quick-sort.html',
-  '/heap-sort': 'heap-sort.html',
-  '/counting-sort': 'counting-sort.html',
-  '/radix-sort': 'radix-sort.html',
-  '/bucket-sort': 'bucket-sort.html',
+  '/algo/en/bubble-sort': '/algo/en/bubble-sort.html',
+  '/algo/en/selection-sort': '/algo/en/selection-sort.html',
+  '/algo/en/insertion-sort': '/algo/en/insertion-sort.html',
+  '/algo/en/merge-sort': '/algo/en/merge-sort.html',
+  '/algo/en/quick-sort': '/algo/en/quick-sort.html',
+  '/algo/en/heap-sort': '/algo/en/heap-sort.html',
+  '/algo/en/counting-sort': '/algo/en/counting-sort.html',
+  '/algo/en/radix-sort': '/algo/en/radix-sort.html',
+  '/algo/en/bucket-sort': '/algo/en/bucket-sort.html',
 
   // Searching Algorithms
-  '/linear-search': 'linear-search.html',
-  '/binary-search': 'binary-search.html',
-  '/ternary-search': 'ternary-search.html',
+  '/algo/en/linear-search': '/algo/en/linear-search.html',
+  '/algo/en/binary-search': '/algo/en/binary-search.html',
+  '/algo/en/ternary-search': '/algo/en/ternary-search.html',
 
   // Mathematical Algorithms
-  '/gcd-lcm': 'gcd-lcm.html',
-  '/sieve': 'sieve.html',
-  '/modular-arithmetic': 'modular-arithmetic.html',
-  '/fermat': 'fermat.html',
-  '/euler': 'euler.html',
-  '/fast-exponentiation': 'fast-exponentiation.html',
+  '/algo/en/gcd-lcm': '/algo/en/gcd-lcm.html',
+  '/algo/en/sieve': '/algo/en/sieve.html',
+  '/algo/en/modular-arithmetic': '/algo/en/modular-arithmetic.html',
+  '/algo/en/fermat': '/algo/en/fermat.html',
+  '/algo/en/euler': '/algo/en/euler.html',
+  '/algo/en/fast-exponentiation': '/algo/en/fast-exponentiation.html',
 
   // Graph Algorithms
-  '/bfs': 'bfs.html',
-  '/dfs': 'dfs.html',
-  '/dijkstra': 'dijkstra.html',
-  '/bellman-ford': 'bellman-ford.html',
-  '/floyd-warshall': 'floyd-warshall.html',
-  '/topological-sort': 'topological-sort.html',
-  '/union-find': 'union-find.html',
-  '/kruskal': 'kruskal.html',
-  '/prim': 'prim.html',
-  '/tarjan': 'tarjan.html',
-  '/kosaraju': 'kosaraju.html',
-  '/a-star': 'a-star.html',
+  '/algo/en/bfs': '/algo/en/bfs.html',
+  '/algo/en/dfs': '/algo/en/dfs.html',
+  '/algo/en/dijkstra': '/algo/en/dijkstra.html',
+  '/algo/en/bellman-ford': '/algo/en/bellman-ford.html',
+  '/algo/en/floyd-warshall': '/algo/en/floyd-warshall.html',
+  '/algo/en/topological-sort': '/algo/en/topological-sort.html',
+  '/algo/en/union-find': '/algo/en/union-find.html',
+  '/algo/en/kruskal': '/algo/en/kruskal.html',
+  '/algo/en/prim': '/algo/en/prim.html',
+  '/algo/en/tarjan': '/algo/en/tarjan.html',
+  '/algo/en/kosaraju': '/algo/en/kosaraju.html',
+  '/algo/en/a-star': '/algo/en/a-star.html', // This one was duplicated, keeping the first
+  // '/algo/en/a-star': '/algo/en/a-star.html', // Removed duplicate
 
   // Dynamic Programming
-  '/knapsack': 'knapsack.html',
-  '/lcs': 'lcs.html',
-  '/lis': 'lis.html',
-  '/matrix-chain': 'matrix-chain.html',
-  '/dp-trees': 'dp-trees.html',
-  '/bitmask-dp': 'bitmask-dp.html',
-  '/knuth': 'knuth.html',
-  '/convex-hull-dp': 'convex-hull-dp.html',
-  '/digit-dp': 'digit-dp.html',
+  '/algo/en/knapsack': '/algo/en/knapsack.html',
+  '/algo/en/lcs': '/algo/en/lcs.html',
+  '/algo/en/lis': '/algo/en/lis.html',
+  '/algo/en/matrix-chain': '/algo/en/matrix-chain.html',
+  '/algo/en/dp-trees': '/algo/en/dp-trees.html',
+  '/algo/en/bitmask-dp': '/algo/en/bitmask-dp.html',
+  '/algo/en/knuth': '/algo/en/knuth.html',
+  '/algo/en/convex-hull-dp': '/algo/en/convex-hull-dp.html',
+  '/algo/en/digit-dp': '/algo/en/digit-dp.html',
 
   // String Algorithms
-  '/kmp': 'kmp.html',
-  '/z-algorithm': 'z-algorithm.html',
-  '/rabin-karp': 'rabin-karp.html',
-  '/suffix-array': 'suffix-array.html',
-  '/aho-corasick': 'aho-corasick.html',
-  '/rolling-hash': 'rolling-hash.html',
-  '/manacher': 'manacher.html',
-  '/edit-distance': 'edit-distance.html',
+  '/algo/en/kmp': '/algo/en/kmp.html',
+  '/algo/en/z-algorithm': '/algo/en/z-algorithm.html',
+  '/algo/en/rabin-karp': '/algo/en/rabin-karp.html',
+  '/algo/en/suffix-array': '/algo/en/suffix-array.html',
+  '/algo/en/aho-corasick': '/algo/en/aho-corasick.html',
+  '/algo/en/rolling-hash': '/algo/en/rolling-hash.html',
+  '/algo/en/manacher': '/algo/en/manacher.html',
+  '/algo/en/edit-distance': '/algo/en/edit-distance.html',
 
   // Data Structures
-  '/treap': 'treap.html',
+  '/algo/en/treap': '/algo/en/treap.html',
 
   // Backtracking
-  '/n-queens': 'n-queens.html',
-  '/sudoku': 'sudoku.html',
-  '/hamiltonian': 'hamiltonian.html',
-  '/subsets': 'subsets.html',
+  '/algo/en/n-queens': '/algo/en/n-queens.html',
+  '/algo/en/sudoku': '/algo/en/sudoku.html',
+  '/algo/en/hamiltonian': '/algo/en/hamiltonian.html',
+  '/algo/en/subsets': '/algo/en/subsets.html',
 
   // Greedy Algorithms
-  '/activity-selection': 'activity-selection.html',
-  '/huffman': 'huffman.html',
-  '/fractional-knapsack': 'fractional-knapsack.html',
-  '/interval': 'interval.html',
-  '/job-sequencing': 'job-sequencing.html',
+  '/algo/en/activity-selection': '/algo/en/activity-selection.html',
+  '/algo/en/huffman': '/algo/en/huffman.html',
+  '/algo/en/fractional-knapsack': '/algo/en/fractional-knapsack.html',
+  '/algo/en/interval': '/algo/en/interval.html',
+  '/algo/en/job-sequencing': '/algo/en/job-sequencing.html',
 
   // Bit Manipulation
-  '/bitwise-ops': 'bitwise-ops.html',
-  '/xor': 'xor.html',
-  '/bit-count': 'bit-count.html',
-  '/bitmasking': 'bitmasking.html',
+  '/algo/en/bitwise-ops': '/algo/en/bitwise-ops.html',
+  '/algo/en/xor': '/algo/en/xor.html',
+  '/algo/en/bit-count': '/algo/en/bit-count.html',
+  '/algo/en/bitmasking': '/algo/en/bitmasking.html',
 
   // Geometry
-  '/convex-hull': 'convex-hull.html',
-  '/line-intersection': 'line-intersection.html',
-  '/sweep-line': 'sweep-line.html',
-  '/point-in-polygon': 'point-in-polygon.html',
-  '/rotating-calipers': 'rotating-calipers.html',
+  '/algo/en/convex-hull': '/algo/en/convex-hull.html',
+  '/algo/en/line-intersection': '/algo/en/line-intersection.html',
+  '/algo/en/sweep-line': '/algo/en/sweep-line.html',
+  '/algo/en/point-in-polygon': '/algo/en/point-in-polygon.html',
+  '/algo/en/rotating-calipers': '/algo/en/rotating-calipers.html',
 
   // Advanced Techniques
-  '/mo': 'mo.html',
-  '/hld': 'hld.html',
-  '/centroid': 'centroid.html',
-  '/persistent': 'persistent.html',
-  '/sqrt-decomposition': 'sqrt-decomposition.html',
-  '/monotonic': 'monotonic.html',
-  '/sliding-window': 'sliding-window.html',
-  '/two-pointers': 'two-pointers.html',
-  '/two-heaps': 'two-heaps.html',
-  '/meet-in-middle': 'meet-in-middle.html',
+  '/algo/en/mo': '/algo/en/mo.html',
+  '/algo/en/hld': '/algo/en/hld.html',
+  '/algo/en/centroid': '/algo/en/centroid.html',
+  '/algo/en/persistent': '/algo/en/persistent.html',
+  '/algo/en/sqrt-decomposition': '/algo/en/sqrt-decomposition.html',
+  '/algo/en/monotonic': '/algo/en/monotonic.html',
+  '/algo/en/sliding-window': '/algo/en/sliding-window.html',
+  '/algo/en/two-pointers': '/algo/en/two-pointers.html',
+  '/algo/en/two-heaps': '/algo/en/two-heaps.html',
+  '/algo/en/meet-in-middle': '/algo/en/meet-in-middle.html',
 
   // Recurrence / Divide and Conquer
-  '/divide-conquer': 'divide-conquer.html',
-  '/karatsuba': 'karatsuba.html',
-  '/binary-search-answer': 'binary-search-answer.html',
-  '/master-theorem': 'master-theorem.html',
-  '/strassen': 'strassen.html',
+  '/algo/en/divide-conquer': '/algo/en/divide-conquer.html',
+  '/algo/en/karatsuba': '/algo/en/karatsuba.html',
+  '/algo/en/binary-search-answer': '/algo/en/binary-search-answer.html',
+  '/algo/en/master-theorem': '/algo/en/master-theorem.html',
+  '/algo/en/strassen': '/algo/en/strassen.html',
 
   // Cryptography
-  '/rsa': 'rsa.html',
-  '/diffie-hellman': 'diffie-hellman.html',
-  '/hash-functions': 'hash-functions.html',
+  '/algo/en/rsa': '/algo/en/rsa.html',
+  '/algo/en/diffie-hellman': '/algo/en/diffie-hellman.html',
+  '/algo/en/hash-functions': '/algo/en/hash-functions.html',
 
   // Core Skills
-  '/problem-decomposition': 'problem-decomposition.html',
-  '/complexity-analysis': 'complexity-analysis.html',
-  '/mathematical-proof': 'mathematical-proof.html',
-  '/state-representation': 'state-representation.html',
-  '/dp-vs-greedy': 'dp-vs-greedy.html',
-  '/modeling': 'modeling.html'
+  '/algo/en/problem-decomposition': '/algo/en/problem-decomposition.html',
+  '/algo/en/complexity-analysis': '/algo/en/complexity-analysis.html',
+  '/algo/en/mathematical-proof': '/algo/en/mathematical-proof.html',
+  '/algo/en/state-representation': '/algo/en/state-representation.html',
+  '/algo/en/dp-vs-greedy': '/algo/en/dp-vs-greedy.html',
+  '/algo/en/modeling': '/algo/en/modeling.html'
 };
 
 // Generate dynamic sitemap
@@ -155,6 +156,7 @@ app.get('/sitemap.xml', async (req, res) => {
 
 // Render pages
 async function renderPage(req, res) {
+  console.log(`Rendering page: ${req.path}`);
   try {
     const baseHTML = await readFile(path.join(__dirname, 'views/template.html'), 'utf8');
     const pageFile = pageMap[req.path];
