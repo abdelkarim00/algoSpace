@@ -203,7 +203,7 @@
             const runTraversalBtn = document.getElementById('runTraversal');
             const resetTraversalBtn = document.getElementById('resetTraversal');
             const textInputBtn = document.getElementById('textInputBtn');
-            const visualEditorBtn = document.getElementById('visualEditorBtn');
+            // const visualEditorBtn = document.getElementById('visualEditorBtn');
             const textInputArea = document.getElementById('textInputArea');
             const animationSpeedSlider = document.getElementById('animationSpeed');
 
@@ -548,15 +548,15 @@
 
             textInputBtn.addEventListener('click', () => {
                 textInputBtn.classList.add('active');
-                visualEditorBtn.classList.remove('active');
+                // visualEditorBtn.classList.remove('active');
                 initializeGraph(false);
             });
 
-            visualEditorBtn.addEventListener('click', () => {
-                visualEditorBtn.classList.add('active');
-                textInputBtn.classList.remove('active');
-                initializeGraph(true);
-            });
+            // visualEditorBtn.addEventListener('click', () => {
+            //     visualEditorBtn.classList.add('active');
+            //     textInputBtn.classList.remove('active');
+            //     initializeGraph(true);
+            // });
 
             function resetTraversalVisualization() {
                 nodes.getIds().forEach(id => {
