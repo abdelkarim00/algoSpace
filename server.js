@@ -145,6 +145,8 @@ const pageMap = {
   '/calc/date-difference': '/calc/date-difference.html',
   '/calc/bubble-sort': '/calc/bubble-sort.html',
   '/calc/merge-sort': '/calc/merge-sort.html',
+  '/calc/bfs': '/calc/bfs.html',
+  '/calc/graph-traversal': '/calc/graph-traversal.html',
 };
 
 // Generate dynamic sitemap

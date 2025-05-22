@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Traversal Visualizer 🕸️</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 95%;
+            max-width: 1200px;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            margin-right: 20px;
+            border-right: 1px solid #ddd;
+        }
+
+        .controls h2 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .input-method button {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .input-method button.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        #textInputArea {
+            margin-top: 15px;
+        }
+
+        textarea#graphInput {
+            width: calc(100% - 22px); /* Account for padding and border */
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button#resetTraversal, button#submitTextGraph {
+            background-color: #6c757d;
+        }
+        button#resetTraversal:hover, button#submitTextGraph:hover {
+            background-color: #545b62;
+        }
+
+        #traversalControls, #speedControl {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        #traversalControls label, #speedControl label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #traversalControls input[type="text"],
+        #traversalControls select {
+            width: calc(100% - 22px); /* Account for padding and border */
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #speedControl input[type="range"] {
+            width: 100%;
+        }
+
+        .visualizer-area {
+            flex: 2;
+            min-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #network {
+            width: 100%;
+            min-height: 400px;
+            height: 500px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .controls {
+                margin-right: 0;
+                margin-bottom: 20px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Graph Traversal Visualizer 🕸️</h1>
+
+    <div class="container">
+        <div class="controls">
+            <h2>Define Graph</h2>
+            <div class="input-method">
+                <button id="textInputBtn" class="active">Text Input</button>
+                <!-- <button id="visualEditorBtn">Visual Editor</button> -->
+            </div>
+
+            <div id="textInputArea">
+                <label for="graphInput">Enter Edges (e.g., "1 2" ):</label>
+                <textarea id="graphInput" rows="10" placeholder="1 2&#10;1 3 &#10;2 4"></textarea>
+                <button id="submitTextGraph">Create Graph from Text</button>
+            </div>
+
+            <div id="traversalControls">
+                <h2>Traversal</h2>
+                <label for="startNode">Start Node:</label>
+                <input type="text" id="startNode" placeholder="e.g., 1">
+                <select id="traversalAlgorithm">
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                    <option value="dfs">Depth-First Search (DFS)</option>
+                </select>
+                <button id="runTraversal">Run Traversal</button>
+                <button id="resetTraversal">Reset Visuals</button>
+            </div>
+             <div id="speedControl">
+                <label for="animationSpeed">Animation Speed:</label>
+                <input type="range" id="animationSpeed" min="100" max="2000" value="500" step="100">
+            </div>
+        </div>
+
+        <div class="visualizer-area">
+            <h2>Graph Visualization</h2>
+            <div id="network"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const graphInput = document.getElementById('graphInput');
+            const submitTextGraphBtn = document.getElementById('submitTextGraph');
+            const networkContainer = document.getElementById('network');
+            const startNodeInput = document.getElementById('startNode');
+            const traversalAlgorithmSelect = document.getElementById('traversalAlgorithm');
+            const runTraversalBtn = document.getElementById('runTraversal');
+            const resetTraversalBtn = document.getElementById('resetTraversal');
+            const textInputBtn = document.getElementById('textInputBtn');
+            const visualEditorBtn = document.getElementById('visualEditorBtn');
+            const textInputArea = document.getElementById('textInputArea');
+            const animationSpeedSlider = document.getElementById('animationSpeed');
+
+            let nodes = new vis.DataSet([]);
+            let edges = new vis.DataSet([]);
+            let network = null;
+            let rawGraphData = { nodes: new Set(), edges: [] };
+            let animationDelay = 500;
+
+            const defaultNodeColor = {
+                border: '#2B7CE9',
+                background: '#97C2FC',
+                highlight: {
+                    border: '#2B7CE9',
+                    background: '#D2E5FF'
+                },
+                hover: {
+                    border: '#2B7CE9',
+                    background: '#D2E5FF'
+                }
+            };
+
+            const defaultEdgeColor = '#848484';
+            const defaultEdgeWidth = 2;
+
+            const defaultOptions = {
+                physics: {
+                    enabled: true,
+                    solver: 'barnesHut',
+                    barnesHut: {
+                        gravitationalConstant: -4000,
+                        centralGravity: 0.15,
+                        springLength: 120,
+                        springConstant: 0.05,
+                        damping: 0.09,
+                        avoidOverlap: 0.15
+                    },
+                    stabilization: {
+                        iterations: 1500,
+                        fit: true
+                    }
+                },
+                interaction: {
+                    dragNodes: true,
+                    dragView: true,
+                    hover: true,
+                    tooltipDelay: 200,
+                    zoomView: true,
+                    navigationButtons: true,
+                    keyboard: true
+                },
+                manipulation: {
+                    enabled: false,
+                    addNode: function (data, callback) {
+                        data.label = prompt("Enter node ID/label:", "");
+                        if (data.label !== null && data.label.trim() !== "") {
+                            data.id = data.label.trim();
+                            if (rawGraphData.nodes.has(data.id)) {
+                                alert("Node ID already exists!");
+                                callback(null);
+                                return;
+                            }
+                            rawGraphData.nodes.add(data.id);
+                            data.color = defaultNodeColor;
+                            callback(data);
+                        } else {
+                            callback(null);
+                        }
+                    },
+                    addEdge: function (data, callback) {
+                        if (data.from === data.to) {
+                            alert("Cannot connect node to itself (self-loops disabled in this mode).");
+                            callback(null);
+                            return;
+                        }
+                        const weightInput = prompt("Enter edge weight (optional, number):", "");
+                        let weight = null;
+                        let label = "";
+                        if (weightInput !== null && weightInput.trim() !== "") {
+                            weight = parseInt(weightInput);
+                            if (isNaN(weight)) {
+                                alert("Weight must be a number.");
+                                callback(null);
+                                return;
+                            }
+                            label = String(weight);
+                        }
+                        data.label = label;
+                        data.arrows = 'to';
+                        rawGraphData.edges.push({ from: data.from, to: data.to, weight: weight });
+                        callback(data);
+                    },
+                    editNode: function (data, callback) {
+                        const newLabel = prompt("Edit node ID/label:", data.label);
+                        if (newLabel !== null && newLabel.trim() !== "" && newLabel.trim() !== data.id) {
+                            const newId = newLabel.trim();
+                            if (rawGraphData.nodes.has(newId)) {
+                                alert("Node ID already exists!");
+                                callback(null);
+                                return;
+                            }
+                            rawGraphData.nodes.delete(data.id);
+                            rawGraphData.nodes.add(newId);
+                            rawGraphData.edges.forEach(edge => {
+                                if (edge.from === data.id) edge.from = newId;
+                                if (edge.to === data.id) edge.to = newId;
+                            });
+                            data.id = newId;
+                            data.label = newId;
+                        }
+                        callback(data);
+                    },
+                    deleteNode: function (data, callback) {
+                        data.nodes.forEach(nodeId => {
+                            nodes.remove(nodeId);
+                            rawGraphData.nodes.delete(nodeId);
+                        });
+                        rawGraphData.edges = rawGraphData.edges.filter(edge =>
+                            !data.nodes.includes(edge.from) && !data.nodes.includes(edge.to)
+                        );
+                        callback(data);
+                    },
+                    deleteEdge: function (data, callback) {
+                        data.edges.forEach(edgeId => {
+                            const deletedVisEdge = edges.get(edgeId);
+                            if(deletedVisEdge) {
+                                rawGraphData.edges = rawGraphData.edges.filter(rawEdge =>
+                                    !(rawEdge.from === deletedVisEdge.from && rawEdge.to === deletedVisEdge.to && 
+                                      (rawEdge.weight === (parseInt(deletedVisEdge.label) || null) || 
+                                      (!rawEdge.weight && !deletedVisEdge.label)))
+                                );
+                                edges.remove(edgeId);
+                            }
+                        });
+                        callback(data);
+                    }
+                },
+                nodes: {
+                    shape: 'ellipse',
+                    size: 22,
+                    font: {
+                        size: 14,
+                        color: '#333333'
+                    },
+                    borderWidth: 2,
+                    color: defaultNodeColor
+                },
+                edges: {
+                    width: defaultEdgeWidth,
+                    color: {
+                        color: defaultEdgeColor,
+                        highlight: '#007bff',
+                        hover: '#0056b3'
+                    },
+                    arrows: {
+                        to: { enabled: true, scaleFactor: 0.7, type: 'arrow' }
+                    },
+                    font: {
+                        align: 'middle',
+                        size: 12,
+                        color: '#444',
+                        strokeWidth: 3,
+                        strokeColor: '#ffffff'
+                    },
+                    smooth: {
+                        enabled: true,
+                        type: "dynamic",
+                        roundness: 0.5
+                    }
+                }
+            };
+
+            function initializeGraph(enableManipulation = false) {
+                if (network) {
+                    network.destroy();
+                }
+                const data = { nodes: nodes, edges: edges };
+                const options = JSON.parse(JSON.stringify(defaultOptions));
+                options.manipulation.enabled = enableManipulation;
+
+                network = new vis.Network(networkContainer, data, options);
+
+                network.on("stabilizationIterationsDone", function () {
+                    network.fit();
+                });
+
+                if (enableManipulation) {
+                    document.getElementById('textInputArea').style.display = 'none';
+                    
+                    // Populate from rawGraphData if it exists
+                    if (rawGraphData.nodes.size > 0 && nodes.length === 0) {
+                        rawGraphData.nodes.forEach(nodeId => {
+                            if (!nodes.get(nodeId)) {
+                                nodes.add({ id: nodeId, label: nodeId, color: defaultNodeColor });
+                            }
+                        });
+                        rawGraphData.edges.forEach(edge => {
+                            const edgeExists = edges.get({
+                                filter: e => e.from === edge.from && e.to === edge.to && 
+                                            (parseInt(e.label) || null) === edge.weight
+                            });
+                            if (edgeExists.length === 0) {
+                                edges.add({
+                                    from: edge.from,
+                                    to: edge.to,
+                                    label: edge.weight !== null ? String(edge.weight) : '',
+                                    arrows: 'to',
+                                    color: defaultEdgeColor,
+                                    width: defaultEdgeWidth
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    document.getElementById('textInputArea').style.display = 'block';
+                }
+            }
+
+            function resetAllGraphData() {
+                nodes.clear();
+                edges.clear();
+                rawGraphData = { nodes: new Set(), edges: [] };
+                graphInput.value = '';
+                startNodeInput.value = '';
+                if (network) {
+                    network.setData({ nodes: nodes, edges: edges });
+                }
+            }
+
+            submitTextGraphBtn.addEventListener('click', () => {
+                try {
+                    // Clear existing data
+                    nodes.clear();
+                    edges.clear();
+                    rawGraphData = { nodes: new Set(), edges: [] };
+                    
+                    const inputText = graphInput.value.trim();
+                    if (!inputText) {
+                        alert("Please enter graph data in the text area.");
+                        return;
+                    }
+
+                    const lines = inputText.split('\n');
+                    const nodeMap = new Map(); // To track all nodes and their properties
+                    const edgeList = []; // To track all edges
+
+                    lines.forEach((line, lineNumber) => {
+                        line = line.trim();
+                        if (!line) return; // Skip empty lines
+
+                        const parts = line.split(/\s+/).filter(part => part !== '');
+                        
+                        // Validate line format
+                        if (parts.length < 2 || parts.length > 3) {
+                            throw new Error(`Line ${lineNumber + 1}: Each line must have 2 or 3 parts (node1 node2 [weight]). Found ${parts.length} parts.`);
+                        }
+
+                        const from = parts[0];
+                        const to = parts[1];
+                        let weight = null;
+
+                        // Validate nodes
+                        if (!from || !to) {
+                            throw new Error(`Line ${lineNumber + 1}: Node IDs cannot be empty.`);
+                        }
+
+                        // Validate weight if present
+                        if (parts.length === 3) {
+                            weight = parseFloat(parts[2]);
+                            if (isNaN(weight)) {
+                                throw new Error(`Line ${lineNumber + 1}: Weight must be a number. Found '${parts[2]}'`);
+                            }
+                        }
+
+                        // Add nodes to our tracking
+                        if (!nodeMap.has(from)) {
+                            nodeMap.set(from, { id: from, label: from });
+                        }
+                        if (!nodeMap.has(to)) {
+                            nodeMap.set(to, { id: to, label: to });
+                        }
+
+                        // Add edge to our tracking
+                        edgeList.push({
+                            from: from,
+                            to: to,
+                            weight: weight,
+                            label: weight !== null ? String(weight) : '',
+                            arrows: 'to'
+                        });
+                    });
+
+                    // Update rawGraphData
+                    nodeMap.forEach((node, id) => {
+                        rawGraphData.nodes.add(id);
+                    });
+                    edgeList.forEach(edge => {
+                        rawGraphData.edges.push({
+                            from: edge.from,
+                            to: edge.to,
+                            weight: edge.weight
+                        });
+                    });
+
+                    // Convert to vis.js format
+                    const visNodes = Array.from(nodeMap.values()).map(node => ({
+                        ...node,
+                        color: defaultNodeColor
+                    }));
+
+                    const visEdges = edgeList.map(edge => ({
+                        ...edge,
+                        color: defaultEdgeColor,
+                        width: defaultEdgeWidth
+                    }));
+
+                    // Update the datasets
+                    nodes.update(visNodes);
+                    edges.update(visEdges);
+
+                    // Reinitialize the network
+                    initializeGraph(false);
+                    
+                    // Fit the network to view
+                    if (network) {
+                        network.once('stabilizationIterationsDone', () => {
+                            network.fit({
+                                animation: {
+                                    duration: 1000,
+                                    easingFunction: 'easeInOutQuad'
+                                }
+                            });
+                        });
+                    }
+
+                } catch (error) {
+                    alert(error.message);
+                    console.error(error);
+                    resetAllGraphData();
+                }
+            });
+
+            textInputBtn.addEventListener('click', () => {
+                textInputBtn.classList.add('active');
+                visualEditorBtn.classList.remove('active');
+                initializeGraph(false);
+            });
+
+            visualEditorBtn.addEventListener('click', () => {
+                visualEditorBtn.classList.add('active');
+                textInputBtn.classList.remove('active');
+                initializeGraph(true);
+            });
+
+            function resetTraversalVisualization() {
+                nodes.getIds().forEach(id => {
+                    nodes.update({ id: id, color: defaultNodeColor });
+                });
+                edges.getIds().forEach(edgeId => {
+                    edges.update({
+                        id: edgeId,
+                        color: defaultEdgeColor,
+                        width: defaultEdgeWidth
+                    });
+                });
+                if (network) {
+                    network.unselectAll();
+                }
+            }
+
+            resetTraversalBtn.addEventListener('click', resetTraversalVisualization);
+
+            animationSpeedSlider.addEventListener('input', (event) => {
+                animationDelay = parseInt(event.target.value);
+            });
+
+            runTraversalBtn.addEventListener('click', async () => {
+                const startNodeId = startNodeInput.value.trim();
+                const algorithm = traversalAlgorithmSelect.value;
+
+                if (!startNodeId) {
+                    alert("Please enter a start node.");
+                    return;
+                }
+                if (!rawGraphData.nodes.has(startNodeId)) {
+                    alert("Start node not found in the graph.");
+                    return;
+                }
+                if (rawGraphData.nodes.size === 0) {
+                    alert("Graph is empty. Please define a graph first.");
+                    return;
+                }
+
+                resetTraversalVisualization();
+
+                // Build adjacency list
+                const adj = {};
+                rawGraphData.nodes.forEach(node => adj[node] = []);
+                rawGraphData.edges.forEach(edge => {
+                    adj[edge.from].push({node: edge.to, weight: edge.weight});
+                    // For undirected traversal, uncomment:
+                    // adj[edge.to].push({node: edge.from, weight: edge.weight});
+                });
+
+                if (algorithm === 'bfs') {
+                    await bfs(startNodeId, adj);
+                } else if (algorithm === 'dfs') {
+                    await dfs(startNodeId, adj);
+                }
+            });
+
+            async function highlightNode(nodeId, style = { background: 'lime', border: 'green' }) {
+                nodes.update({ id: nodeId, color: style });
+                await new Promise(resolve => setTimeout(resolve, animationDelay));
+            }
+
+            async function highlightEdge(fromNode, toNode, style = { color: 'lime', width: 4 }) {
+                // Find all edges between these nodes
+                const edgesBetween = edges.get({
+                    filter: edge => edge.from === fromNode && edge.to === toNode
+                });
+
+                // Highlight all matching edges (in case of multiple edges)
+                for (const edge of edgesBetween) {
+                    edges.update({ 
+                        id: edge.id, 
+                        color: style.color, 
+                        width: style.width 
+                    });
+                }
+                await new Promise(resolve => setTimeout(resolve, animationDelay));
+            }
+
+            async function bfs(startNode, adj) {
+                const visited = new Set();
+                const queue = [startNode];
+                visited.add(startNode);
+
+                await highlightNode(startNode, { background: 'orange', border: 'darkorange' });
+
+                let count = 0;
+                const maxIterations = rawGraphData.nodes.size * 2;
+
+                while (queue.length > 0 && count < maxIterations) {
+                    count++;
+                    const u = queue.shift();
+                    await highlightNode(u, { background: '#34c131', border: 'green' });
+
+                    if(adj[u]) {
+                        for (const edgeInfo of adj[u]) {
+                            const v = edgeInfo.node;
+                            if (!visited.has(v)) {
+                                visited.add(v);
+                                await highlightEdge(u, v, {color: '#34c131', width: 4});
+                                await highlightNode(v, { background: '#a0e89f', border: 'darkgreen' });
+                                queue.push(v);
+                            }
+                        }
+                    }
+                }
+                if (count >= maxIterations) console.warn("BFS safety break triggered.");
+            }
+
+            async function dfsUtil(u, adj, visited) {
+                visited.add(u);
+                await highlightNode(u, { background: '#34c131', border: 'green' });
+
+                if (adj[u]) {
+                    for (const edgeInfo of adj[u]) {
+                        const v = edgeInfo.node;
+                        if (!visited.has(v)) {
+                            await highlightEdge(u, v, {color: '#34c131', width: 4});
+                            await dfsUtil(v, adj, visited);
+                        }
+                    }
+                }
+            }
+
+            async function dfs(startNode, adj) {
+                const visited = new Set();
+                await highlightNode(startNode, { background: 'orange', border: 'darkorange' });
+                await dfsUtil(startNode, adj, visited);
+            }
+
+            // Initialize with text input mode by default
+            initializeGraph(false);
+        });
+    </script>
+</body>
+</html>
