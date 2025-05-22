@@ -158,6 +158,13 @@
             width: 100%;
             box-sizing: border-box;
         }
+
+        .negative-cycle {
+            background-color: #ffdddd;
+            border-left: 4px solid #ff0000;
+            padding: 10px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +194,7 @@
                     <option value="bfs">Breadth-First Search (BFS)</option>
                     <option value="dfs">Depth-First Search (DFS)</option>
                     <option value="dijkstra">Dijkstra's Algorithm</option>
+                    <option value="bellmanford">Bellman-Ford Algorithm</option>
                 </select>
                 <button id="runTraversal">Run Traversal</button>
                 <button id="resetTraversal">Reset Visuals</button>
@@ -251,6 +259,7 @@
             const visitedNodeColor = { background: '#34c131', border: 'green' };
             const visitingNodeColor = { background: 'orange', border: 'darkorange' };
             const discoveredNodeColor = { background: '#a0e89f', border: 'darkgreen' };
+            const negativeCycleColor = { background: '#ff6b6b', border: '#ff0000' };
             const pathEdgeColor = { color: '#ff5722', width: 4 };
             const visitedEdgeColor = { color: '#34c131', width: 4 };
 
@@ -596,7 +605,7 @@
                 animationDelay = parseInt(event.target.value);
             });
 
-            runTraversalBtn.addEventListener('click', async () => {
+           runTraversalBtn.addEventListener('click', async () => {
                 const startNodeId = startNodeInput.value.trim();
                 const endNodeId = endNodeInput.value.trim();
                 const algorithm = traversalAlgorithmSelect.value;
@@ -613,11 +622,11 @@
                     alert("Graph is empty. Please define a graph first.");
                     return;
                 }
-                if (algorithm === 'dijkstra' && !endNodeId) {
-                    alert("Please enter an end node for Dijkstra's algorithm.");
+                if ((algorithm === 'dijkstra' || algorithm === 'bellmanford') && !endNodeId) {
+                    alert(`Please enter an end node for ${algorithm === 'dijkstra' ? "Dijkstra's" : "Bellman-Ford"} algorithm.`);
                     return;
                 }
-                if (algorithm === 'dijkstra' && !rawGraphData.nodes.has(endNodeId)) {
+                if ((algorithm === 'dijkstra' || algorithm === 'bellmanford') && !rawGraphData.nodes.has(endNodeId)) {
                     alert("End node not found in the graph.");
                     return;
                 }
@@ -638,8 +647,104 @@
                     await dfs(startNodeId, adj);
                 } else if (algorithm === 'dijkstra') {
                     await dijkstra(startNodeId, endNodeId, adj);
+                } else if (algorithm === 'bellmanford') {
+                    await bellmanFord(startNodeId, endNodeId, adj);
                 }
             });
+
+            // [Previous algorithms remain the same, add this new function]
+
+            async function bellmanFord(startNode, endNode, adj) {
+                // Initialize distances and predecessors
+                const distances = {};
+                const predecessors = {};
+                rawGraphData.nodes.forEach(node => {
+                    distances[node] = Infinity;
+                    predecessors[node] = null;
+                });
+                distances[startNode] = 0;
+
+                // Highlight start node
+                await highlightNode(startNode, visitingNodeColor);
+
+                // Relax all edges |V| - 1 times
+                const nodes = Array.from(rawGraphData.nodes);
+                const edges = rawGraphData.edges.map(edge => ({
+                    from: edge.from,
+                    to: edge.to,
+                    weight: edge.weight !== null ? edge.weight : 1
+                }));
+
+                let hasNegativeCycle = false;
+
+                // Main Bellman-Ford algorithm
+                for (let i = 0; i < nodes.length - 1; i++) {
+                    let updated = false;
+
+                    for (const edge of edges) {
+                        if (distances[edge.from] + edge.weight < distances[edge.to]) {
+                            distances[edge.to] = distances[edge.from] + edge.weight;
+                            predecessors[edge.to] = edge.from;
+                            updated = true;
+
+                            // Visualize the relaxation
+                            await highlightEdge(edge.from, edge.to, pathEdgeColor);
+                            await highlightNode(edge.to, discoveredNodeColor);
+                            await new Promise(resolve => setTimeout(resolve, animationDelay / 2));
+                        }
+                    }
+
+                    if (!updated) break;
+                }
+
+                // Check for negative cycles
+                for (const edge of edges) {
+                    if (distances[edge.from] + edge.weight < distances[edge.to]) {
+                        hasNegativeCycle = true;
+                        // Highlight the negative cycle edge
+                        await highlightEdge(edge.from, edge.to, { color: '#ff0000', width: 4 });
+                        await highlightNode(edge.from, negativeCycleColor);
+                        await highlightNode(edge.to, negativeCycleColor);
+                        break;
+                    }
+                }
+
+                // Display results
+                if (hasNegativeCycle) {
+                    pathDetails.innerHTML = "<strong>Negative cycle detected!</strong> Graph contains a negative-weight cycle.";
+                    pathLength.textContent = "";
+                    pathInfo.style.display = 'block';
+                    pathInfo.classList.add('negative-cycle');
+                    return;
+                }
+
+                // Reconstruct path if no negative cycle
+                const path = [];
+                let current = endNode;
+                while (current !== null) {
+                    path.unshift(current);
+                    current = predecessors[current];
+                }
+
+                if (path.length > 1) {
+                    pathDetails.textContent = `Path: ${path.join(' → ')}`;
+                    pathLength.textContent = `Total distance: ${distances[endNode]}`;
+                    pathInfo.style.display = 'block';
+                    pathInfo.classList.remove('negative-cycle');
+                    
+                    // Highlight the path
+                    for (let i = 0; i < path.length - 1; i++) {
+                        await highlightEdge(path[i], path[i+1], pathEdgeColor);
+                        await highlightNode(path[i], visitingNodeColor);
+                    }
+                    await highlightNode(path[path.length-1], visitingNodeColor);
+                } else {
+                    pathDetails.textContent = "No path found";
+                    pathLength.textContent = "";
+                    pathInfo.style.display = 'block';
+                    pathInfo.classList.remove('negative-cycle');
+                }
+            }
 
             async function highlightNode(nodeId, style = visitedNodeColor) {
                 nodes.update({ id: nodeId, color: style });
