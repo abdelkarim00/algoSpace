@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph Traversal Visualizer 🕸️</title>
+    <title>Graph Traversal Visualizer</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.css" rel="stylesheet" type="text/css" />
     <style>
         body {
@@ -67,7 +67,7 @@
         }
 
         textarea#graphInput {
-            width: calc(100% - 22px); /* Account for padding and border */
+            width: calc(100% - 22px);
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -110,7 +110,7 @@
 
         #traversalControls input[type="text"],
         #traversalControls select {
-            width: calc(100% - 22px); /* Account for padding and border */
+            width: calc(100% - 22px);
             padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -138,7 +138,6 @@
             border-radius: 4px;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -150,6 +149,15 @@
                 border-bottom: 1px solid #ddd;
             }
         }
+
+        .path-info {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -160,12 +168,12 @@
             <h2>Define Graph</h2>
             <div class="input-method">
                 <button id="textInputBtn" class="active">Text Input</button>
-                <!-- <button id="visualEditorBtn">Visual Editor</button> -->
+                <button id="visualEditorBtn">Visual Editor</button>
             </div>
 
             <div id="textInputArea">
-                <label for="graphInput">Enter Edges (e.g., "1 2" ):</label>
-                <textarea id="graphInput" rows="10" placeholder="1 2&#10;1 3 &#10;2 4"></textarea>
+                <label for="graphInput">Enter Edges (e.g., "1 2" or "1 2 6" per line):</label>
+                <textarea id="graphInput" rows="10" placeholder="1 2&#10;1 3 5&#10;2 4"></textarea>
                 <button id="submitTextGraph">Create Graph from Text</button>
             </div>
 
@@ -173,9 +181,12 @@
                 <h2>Traversal</h2>
                 <label for="startNode">Start Node:</label>
                 <input type="text" id="startNode" placeholder="e.g., 1">
+                <label for="endNode">End Node (for Dijkstra):</label>
+                <input type="text" id="endNode" placeholder="e.g., 4">
                 <select id="traversalAlgorithm">
                     <option value="bfs">Breadth-First Search (BFS)</option>
                     <option value="dfs">Depth-First Search (DFS)</option>
+                    <option value="dijkstra">Dijkstra's Algorithm</option>
                 </select>
                 <button id="runTraversal">Run Traversal</button>
                 <button id="resetTraversal">Reset Visuals</button>
@@ -189,6 +200,11 @@
         <div class="visualizer-area">
             <h2>Graph Visualization</h2>
             <div id="network"></div>
+            <div id="pathInfo" class="path-info" style="display: none;">
+                <h3>Path Information</h3>
+                <p id="pathDetails"></p>
+                <p id="pathLength"></p>
+            </div>
         </div>
     </div>
 
@@ -199,13 +215,17 @@
             const submitTextGraphBtn = document.getElementById('submitTextGraph');
             const networkContainer = document.getElementById('network');
             const startNodeInput = document.getElementById('startNode');
+            const endNodeInput = document.getElementById('endNode');
             const traversalAlgorithmSelect = document.getElementById('traversalAlgorithm');
             const runTraversalBtn = document.getElementById('runTraversal');
             const resetTraversalBtn = document.getElementById('resetTraversal');
             const textInputBtn = document.getElementById('textInputBtn');
-            // const visualEditorBtn = document.getElementById('visualEditorBtn');
+            const visualEditorBtn = document.getElementById('visualEditorBtn');
             const textInputArea = document.getElementById('textInputArea');
             const animationSpeedSlider = document.getElementById('animationSpeed');
+            const pathInfo = document.getElementById('pathInfo');
+            const pathDetails = document.getElementById('pathDetails');
+            const pathLength = document.getElementById('pathLength');
 
             let nodes = new vis.DataSet([]);
             let edges = new vis.DataSet([]);
@@ -228,6 +248,11 @@
 
             const defaultEdgeColor = '#848484';
             const defaultEdgeWidth = 2;
+            const visitedNodeColor = { background: '#34c131', border: 'green' };
+            const visitingNodeColor = { background: 'orange', border: 'darkorange' };
+            const discoveredNodeColor = { background: '#a0e89f', border: 'darkgreen' };
+            const pathEdgeColor = { color: '#ff5722', width: 4 };
+            const visitedEdgeColor = { color: '#34c131', width: 4 };
 
             const defaultOptions = {
                 physics: {
@@ -393,7 +418,6 @@
                 if (enableManipulation) {
                     document.getElementById('textInputArea').style.display = 'none';
                     
-                    // Populate from rawGraphData if it exists
                     if (rawGraphData.nodes.size > 0 && nodes.length === 0) {
                         rawGraphData.nodes.forEach(nodeId => {
                             if (!nodes.get(nodeId)) {
@@ -428,6 +452,8 @@
                 rawGraphData = { nodes: new Set(), edges: [] };
                 graphInput.value = '';
                 startNodeInput.value = '';
+                endNodeInput.value = '';
+                pathInfo.style.display = 'none';
                 if (network) {
                     network.setData({ nodes: nodes, edges: edges });
                 }
@@ -435,7 +461,6 @@
 
             submitTextGraphBtn.addEventListener('click', () => {
                 try {
-                    // Clear existing data
                     nodes.clear();
                     edges.clear();
                     rawGraphData = { nodes: new Set(), edges: [] };
@@ -447,16 +472,15 @@
                     }
 
                     const lines = inputText.split('\n');
-                    const nodeMap = new Map(); // To track all nodes and their properties
-                    const edgeList = []; // To track all edges
+                    const nodeMap = new Map();
+                    const edgeList = [];
 
                     lines.forEach((line, lineNumber) => {
                         line = line.trim();
-                        if (!line) return; // Skip empty lines
+                        if (!line) return;
 
                         const parts = line.split(/\s+/).filter(part => part !== '');
                         
-                        // Validate line format
                         if (parts.length < 2 || parts.length > 3) {
                             throw new Error(`Line ${lineNumber + 1}: Each line must have 2 or 3 parts (node1 node2 [weight]). Found ${parts.length} parts.`);
                         }
@@ -465,12 +489,10 @@
                         const to = parts[1];
                         let weight = null;
 
-                        // Validate nodes
                         if (!from || !to) {
                             throw new Error(`Line ${lineNumber + 1}: Node IDs cannot be empty.`);
                         }
 
-                        // Validate weight if present
                         if (parts.length === 3) {
                             weight = parseFloat(parts[2]);
                             if (isNaN(weight)) {
@@ -478,7 +500,6 @@
                             }
                         }
 
-                        // Add nodes to our tracking
                         if (!nodeMap.has(from)) {
                             nodeMap.set(from, { id: from, label: from });
                         }
@@ -486,7 +507,6 @@
                             nodeMap.set(to, { id: to, label: to });
                         }
 
-                        // Add edge to our tracking
                         edgeList.push({
                             from: from,
                             to: to,
@@ -496,7 +516,6 @@
                         });
                     });
 
-                    // Update rawGraphData
                     nodeMap.forEach((node, id) => {
                         rawGraphData.nodes.add(id);
                     });
@@ -508,7 +527,6 @@
                         });
                     });
 
-                    // Convert to vis.js format
                     const visNodes = Array.from(nodeMap.values()).map(node => ({
                         ...node,
                         color: defaultNodeColor
@@ -520,14 +538,11 @@
                         width: defaultEdgeWidth
                     }));
 
-                    // Update the datasets
                     nodes.update(visNodes);
                     edges.update(visEdges);
 
-                    // Reinitialize the network
                     initializeGraph(false);
                     
-                    // Fit the network to view
                     if (network) {
                         network.once('stabilizationIterationsDone', () => {
                             network.fit({
@@ -548,15 +563,15 @@
 
             textInputBtn.addEventListener('click', () => {
                 textInputBtn.classList.add('active');
-                // visualEditorBtn.classList.remove('active');
+                visualEditorBtn.classList.remove('active');
                 initializeGraph(false);
             });
 
-            // visualEditorBtn.addEventListener('click', () => {
-            //     visualEditorBtn.classList.add('active');
-            //     textInputBtn.classList.remove('active');
-            //     initializeGraph(true);
-            // });
+            visualEditorBtn.addEventListener('click', () => {
+                visualEditorBtn.classList.add('active');
+                textInputBtn.classList.remove('active');
+                initializeGraph(true);
+            });
 
             function resetTraversalVisualization() {
                 nodes.getIds().forEach(id => {
@@ -569,6 +584,7 @@
                         width: defaultEdgeWidth
                     });
                 });
+                pathInfo.style.display = 'none';
                 if (network) {
                     network.unselectAll();
                 }
@@ -582,6 +598,7 @@
 
             runTraversalBtn.addEventListener('click', async () => {
                 const startNodeId = startNodeInput.value.trim();
+                const endNodeId = endNodeInput.value.trim();
                 const algorithm = traversalAlgorithmSelect.value;
 
                 if (!startNodeId) {
@@ -596,6 +613,14 @@
                     alert("Graph is empty. Please define a graph first.");
                     return;
                 }
+                if (algorithm === 'dijkstra' && !endNodeId) {
+                    alert("Please enter an end node for Dijkstra's algorithm.");
+                    return;
+                }
+                if (algorithm === 'dijkstra' && !rawGraphData.nodes.has(endNodeId)) {
+                    alert("End node not found in the graph.");
+                    return;
+                }
 
                 resetTraversalVisualization();
 
@@ -603,30 +628,29 @@
                 const adj = {};
                 rawGraphData.nodes.forEach(node => adj[node] = []);
                 rawGraphData.edges.forEach(edge => {
-                    adj[edge.from].push({node: edge.to, weight: edge.weight});
-                    // For undirected traversal, uncomment:
-                    // adj[edge.to].push({node: edge.from, weight: edge.weight});
+                    const weight = edge.weight !== null ? edge.weight : 1;
+                    adj[edge.from].push({node: edge.to, weight: weight});
                 });
 
                 if (algorithm === 'bfs') {
                     await bfs(startNodeId, adj);
                 } else if (algorithm === 'dfs') {
                     await dfs(startNodeId, adj);
+                } else if (algorithm === 'dijkstra') {
+                    await dijkstra(startNodeId, endNodeId, adj);
                 }
             });
 
-            async function highlightNode(nodeId, style = { background: 'lime', border: 'green' }) {
+            async function highlightNode(nodeId, style = visitedNodeColor) {
                 nodes.update({ id: nodeId, color: style });
                 await new Promise(resolve => setTimeout(resolve, animationDelay));
             }
 
-            async function highlightEdge(fromNode, toNode, style = { color: 'lime', width: 4 }) {
-                // Find all edges between these nodes
+            async function highlightEdge(fromNode, toNode, style = visitedEdgeColor) {
                 const edgesBetween = edges.get({
                     filter: edge => edge.from === fromNode && edge.to === toNode
                 });
 
-                // Highlight all matching edges (in case of multiple edges)
                 for (const edge of edgesBetween) {
                     edges.update({ 
                         id: edge.id, 
@@ -642,7 +666,7 @@
                 const queue = [startNode];
                 visited.add(startNode);
 
-                await highlightNode(startNode, { background: 'orange', border: 'darkorange' });
+                await highlightNode(startNode, visitingNodeColor);
 
                 let count = 0;
                 const maxIterations = rawGraphData.nodes.size * 2;
@@ -650,15 +674,15 @@
                 while (queue.length > 0 && count < maxIterations) {
                     count++;
                     const u = queue.shift();
-                    await highlightNode(u, { background: '#34c131', border: 'green' });
+                    await highlightNode(u, visitedNodeColor);
 
                     if(adj[u]) {
                         for (const edgeInfo of adj[u]) {
                             const v = edgeInfo.node;
                             if (!visited.has(v)) {
                                 visited.add(v);
-                                await highlightEdge(u, v, {color: '#34c131', width: 4});
-                                await highlightNode(v, { background: '#a0e89f', border: 'darkgreen' });
+                                await highlightEdge(u, v);
+                                await highlightNode(v, discoveredNodeColor);
                                 queue.push(v);
                             }
                         }
@@ -669,13 +693,13 @@
 
             async function dfsUtil(u, adj, visited) {
                 visited.add(u);
-                await highlightNode(u, { background: '#34c131', border: 'green' });
+                await highlightNode(u, visitedNodeColor);
 
                 if (adj[u]) {
                     for (const edgeInfo of adj[u]) {
                         const v = edgeInfo.node;
                         if (!visited.has(v)) {
-                            await highlightEdge(u, v, {color: '#34c131', width: 4});
+                            await highlightEdge(u, v);
                             await dfsUtil(v, adj, visited);
                         }
                     }
@@ -684,8 +708,89 @@
 
             async function dfs(startNode, adj) {
                 const visited = new Set();
-                await highlightNode(startNode, { background: 'orange', border: 'darkorange' });
+                await highlightNode(startNode, visitingNodeColor);
                 await dfsUtil(startNode, adj, visited);
+            }
+
+            async function dijkstra(startNode, endNode, adj) {
+                // Initialize distances and previous nodes
+                const distances = {};
+                const previous = {};
+                const visited = new Set();
+                const unvisited = new Set(rawGraphData.nodes);
+                
+                rawGraphData.nodes.forEach(node => {
+                    distances[node] = Infinity;
+                    previous[node] = null;
+                });
+                distances[startNode] = 0;
+                
+                // Highlight start node
+                await highlightNode(startNode, visitingNodeColor);
+                
+                while (unvisited.size > 0) {
+                    // Find node with smallest distance
+                    let current = null;
+                    let smallestDistance = Infinity;
+                    
+                    for (const node of unvisited) {
+                        if (distances[node] < smallestDistance) {
+                            smallestDistance = distances[node];
+                            current = node;
+                        }
+                    }
+                    
+                    if (current === null || current === endNode) break;
+                    
+                    // Mark as visited
+                    unvisited.delete(current);
+                    visited.add(current);
+                    await highlightNode(current, visitedNodeColor);
+                    
+                    // Update neighbors
+                    if (adj[current]) {
+                        for (const edge of adj[current]) {
+                            const neighbor = edge.node;
+                            if (visited.has(neighbor)) continue;
+                            
+                            const alt = distances[current] + edge.weight;
+                            if (alt < distances[neighbor]) {
+                                distances[neighbor] = alt;
+                                previous[neighbor] = current;
+                                
+                                // Highlight the edge and node
+                                await highlightEdge(current, neighbor);
+                                await highlightNode(neighbor, discoveredNodeColor);
+                            }
+                        }
+                    }
+                }
+                
+                // Reconstruct path
+                const path = [];
+                let current = endNode;
+                while (current !== null) {
+                    path.unshift(current);
+                    current = previous[current];
+                }
+                
+                // Display path information
+                if (path.length > 1) {
+                    pathDetails.textContent = `Path: ${path.join(' → ')}`;
+                    pathLength.textContent = `Total distance: ${distances[endNode]}`;
+                    pathInfo.style.display = 'block';
+                    
+                    // Highlight the path
+                    for (let i = 0; i < path.length - 1; i++) {
+                        await highlightEdge(path[i], path[i+1], pathEdgeColor);
+                        await highlightNode(path[i], visitingNodeColor);
+                    }
+                    await highlightNode(path[path.length-1], visitingNodeColor);
+                } else {
+                    pathDetails.textContent = "No path found";
+                    pathLength.textContent = "";
+                    pathInfo.style.display = 'block';
+                }
             }
 
             // Initialize with text input mode by default
