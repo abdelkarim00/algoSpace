@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Route-to-file mapping
 const pageMap = {
-  '/': 'home.html',
+  '/': '/algo/home.html',
 
   // Sorting Algorithms
   '/algo/en/bubble-sort': '/algo/en/bubble-sort.html',
@@ -136,7 +136,15 @@ const pageMap = {
   '/algo/en/mathematical-proof': '/algo/en/mathematical-proof.html',
   '/algo/en/state-representation': '/algo/en/state-representation.html',
   '/algo/en/dp-vs-greedy': '/algo/en/dp-vs-greedy.html',
-  '/algo/en/modeling': '/algo/en/modeling.html'
+  '/algo/en/modeling': '/algo/en/modeling.html',
+
+  // calculator
+  '/calc': '/calc/home.html',
+  '/calc/unit-converter': '/calc/unit-converter.html',
+  '/calc/countdown-timer':'/calc/countdown-timer.html',
+  '/calc/date-difference': '/calc/date-difference.html',
+  '/calc/bubble-sort': '/calc/bubble-sort.html',
+  '/calc/merge-sort': '/calc/merge-sort.html',
 };
 
 // Generate dynamic sitemap
@@ -156,15 +164,15 @@ app.get('/sitemap.xml', async (req, res) => {
 });
 
 // Render pages
-async function renderPage(req, res) {
+async function renderAlgo(req, res) {
   console.log(`Rendering page: ${req.path}`);
   try {
-    const baseHTML = await readFile(path.join(__dirname, 'views/template.html'), 'utf8');
+    const baseHTML = await readFile(path.join(__dirname, templatePath(req.path)), 'utf8');
     const pageFile = pageMap[req.path];
 
     let content = '<h1>404</h1><p>Page not found.</p>';
     if (pageFile) {
-      content = await readFile(path.join(__dirname, 'views/pages', pageFile), 'utf8');
+      content = await readFile(path.join(__dirname, 'views', pageFile), 'utf8');
     }
 
     const finalHTML = baseHTML.replace('<!-- SSR_CONTENT -->', content);
@@ -175,7 +183,20 @@ async function renderPage(req, res) {
   }
 }
 
-app.get('*', renderPage);
+function templatePath(path) {
+  if (path === '/') {
+    return 'views/algo/template.html';
+  }
+  if (path.startsWith('/algo/')) {
+    return 'views/algo/template.html';
+  }
+  if (path.startsWith('/calc')) {
+    return 'views/calc/template.html';
+  }
+  return 'views/algo/template.html';
+}
+
+app.get('*', renderAlgo);
 
 app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects - Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <a href="/" class="logo">MyProjects</a>
+            <nav>
+                <ul>
+                    <li><a href="#calculators">Calculators</a></li>
+                    <li><a href="#visualizers">Visualizers</a></li>
+                </ul>
+            </nav>
+            <button id="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="container">
+                <h1>Welcome to My Interactive Projects</h1>
+                <p>Explore a collection of simple yet powerful web tools for calculations and visualizations.</p>
+                <a href="#projects" class="btn primary-btn">Discover Projects</a>
+            </div>
+        </section>
+
+        <section id="projects" class="projects-grid-section">
+            <div class="container">
+                <h2>Our Toolbox</h2>
+
+                <h3 id="calculators">Calculation Tools</h3>
+                <div class="grid">
+                    <a href="calc/unit-converter" class="project-card">
+                        <i class="fas fa-exchange-alt card-icon"></i>
+                        <h3>Unit Converter</h3>
+                        <p>Convert various units of measurement quickly and accurately.</p>
+                    </a>
+                    <a href="projects/bmi-calculator.html" class="project-card">
+                        <i class="fas fa-calculator card-icon"></i>
+                        <h3>BMI Calculator</h3>
+                        <p>Calculate your Body Mass Index and understand your health status.</p>
+                    </a>
+                    <a href="projects/tip-calculator.html" class="project-card">
+                        <i class="fas fa-hand-holding-usd card-icon"></i>
+                        <h3>Tip Calculator</h3>
+                        <p>Easily calculate tips and split bills among friends.</p>
+                    </a>
+                    <a href="calc/date-difference" class="project-card">
+                        <i class="fas fa-calendar-alt card-icon"></i>
+                        <h3>Date Difference</h3>
+                        <p>Find the exact duration between any two dates.</p>
+                    </a>
+                    <a href="projects/compound-interest.html" class="project-card">
+                        <i class="fas fa-chart-line card-icon"></i>
+                        <h3>Compound Interest</h3>
+                        <p>Visualize the power of compound interest for your investments.</p>
+                    </a>
+                </div>
+
+                <h3 id="visualizers">Visualization Tools</h3>
+                <div class="grid">
+                    <a href="projects/color-palette.html" class="project-card">
+                        <i class="fas fa-palette card-icon"></i>
+                        <h3>Color Palette Generator</h3>
+                        <p>Generate harmonious color schemes for your designs.</p>
+                    </a>
+                    <a href="projects/graph-plotter.html" class="project-card">
+                        <i class="fas fa-chart-area card-icon"></i>
+                        <h3>Simple Graph Plotter</h3>
+                        <p>Plot basic line and bar charts from your data.</p>
+                    </a>
+                    <a href="projects/password-strength.html" class="project-card">
+                        <i class="fas fa-lock card-icon"></i>
+                        <h3>Password Strength</h3>
+                        <p>Check the strength of your passwords in real-time.</p>
+                    </a>
+                    <a href="calc/bubble-sort" class="project-card">
+                        <i class="fas fa-sort-numeric-down card-icon"></i>
+                        <h3>Sorting Visualizer</h3>
+                        <p>See how simple sorting algorithms work step-by-step.</p>
+                    </a>
+                    <a href="calc/countdown-timer" class="project-card">
+                        <i class="fas fa-stopwatch card-icon"></i>
+                        <h3>Countdown Timer</h3>
+                        <p>Set a countdown or use it as a simple stopwatch.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 MyProjects. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#top">Back to Top</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                body.classList.add(savedTheme);
+                if (savedTheme === 'dark-theme') {
+                    themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+                }
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // Default to dark theme if user's system prefers it and no saved preference
+                body.classList.add('dark-theme');
+                themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            }
+
+
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('dark-theme');
+                let theme = 'light-theme'; // Default to light
+
+                if (body.classList.contains('dark-theme')) {
+                    theme = 'dark-theme';
+                    themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+                }
+                localStorage.setItem('theme', theme); // Save preference
+            });
+        });
+    </script>
+</body>
+</html>

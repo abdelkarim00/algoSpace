@@ -1,0 +1,324 @@
+<section class="project-detail-section">
+    <div class="container project-content">
+        <h1>Date Difference Calculator</h1>
+        <p class="description">Quickly find the exact duration between any two dates. Perfect for planning, tracking anniversaries, or just satisfying your curiosity.</p>
+
+        <div class="date-diff-card">
+            <div class="input-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate">
+            </div>
+
+            <div class="input-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate">
+            </div>
+
+            <button id="calculateBtn" class="btn primary-btn"><i class="fas fa-calendar-check"></i> Calculate Difference</button>
+
+            <div class="result-area">
+                <p>Difference:</p>
+                <div class="difference-display" id="differenceDisplay">
+                    <span class="diff-value">0</span> Days
+                </div>
+            </div>
+        </div>
+        
+        <div class="date-diff-info">
+            <h3>How it Works</h3>
+            <p>Simply select a "Start Date" and an "End Date" from the date pickers. Click the "Calculate Difference" button, and the exact number of days between the two dates will be displayed.</p>
+            <p>This tool helps you to quickly determine durations for events, projects, or personal milestones without manual counting.</p>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Specific styles for the date difference page */
+    .project-detail-section {
+        padding: 40px 0 80px;
+        background-color: var(--background-light);
+        color: var(--text-light);
+    }
+
+    body.dark-theme .project-detail-section {
+        background-color: var(--background-dark);
+        color: var(--text-dark);
+    }
+
+    .project-content {
+        max-width: 800px;
+        text-align: center;
+    }
+
+    .project-content h1 {
+        font-size: 2.8rem;
+        margin-bottom: 20px;
+        color: var(--primary-color);
+    }
+
+    .project-content .description {
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        line-height: 1.8;
+        color: var(--text-light);
+    }
+
+    body.dark-theme .project-content .description {
+        color: var(--text-dark);
+    }
+
+    .date-diff-card {
+        background-color: var(--card-background-light);
+        padding: 40px;
+        border-radius: var(--border-radius-base);
+        box-shadow: 0 5px 20px var(--shadow-color-light);
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+        align-items: center;
+        margin-bottom: 40px;
+        border: 1px solid var(--border-color-light);
+        transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    body.dark-theme .date-diff-card {
+        background-color: var(--card-background-dark);
+        border-color: var(--border-color-dark);
+        box-shadow: 0 5px 20px var(--shadow-color-dark);
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .input-group label {
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-light);
+    }
+    body.dark-theme .input-group label {
+        color: var(--text-dark);
+    }
+
+    .input-group input[type="date"] {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color-light);
+        border-radius: var(--border-radius-base);
+        font-size: 1rem;
+        background-color: #fff;
+        color: var(--text-light);
+        transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+        /* Ensure consistent height/appearance across browsers */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    body.dark-theme .input-group input[type="date"] {
+        background-color: var(--background-dark);
+        border-color: var(--border-color-dark);
+        color: var(--text-dark);
+    }
+
+    .input-group input[type="date"]:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+    
+    /* Style for date picker icon - might vary by browser */
+    .input-group input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(var(--text-filter-invert, 0)); /* Adjust color for dark mode */
+        cursor: pointer;
+    }
+    body.dark-theme .input-group input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(var(--text-filter-invert, 1));
+    }
+
+
+    .date-diff-card .btn {
+        width: 100%;
+        max-width: 300px;
+        padding: 14px 25px;
+        font-size: 1.1rem;
+        margin-top: 15px;
+    }
+
+    .result-area {
+        margin-top: 25px;
+        padding: 20px 0;
+        border-top: 1px solid var(--border-color-light);
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+        transition: border-color var(--transition-speed);
+    }
+    body.dark-theme .result-area {
+        border-color: var(--border-color-dark);
+    }
+
+    .result-area p {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-light);
+    }
+    body.dark-theme .result-area p {
+        color: var(--text-dark);
+    }
+
+    .difference-display {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        word-wrap: break-word;
+    }
+
+    .difference-display .diff-value {
+        font-size: 2.8rem;
+    }
+
+    .date-diff-info {
+        margin-top: 60px;
+        padding: 30px;
+        background-color: var(--card-background-light);
+        border-radius: var(--border-radius-base);
+        box-shadow: 0 2px 10px var(--shadow-color-light);
+        text-align: left;
+        border: 1px solid var(--border-color-light);
+        transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    body.dark-theme .date-diff-info {
+        background-color: var(--card-background-dark);
+        border-color: var(--border-color-dark);
+        box-shadow: 0 2px 10px var(--shadow-color-dark);
+    }
+
+    .date-diff-info h3 {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color-light);
+        padding-bottom: 10px;
+        transition: border-color var(--transition-speed);
+    }
+    body.dark-theme .date-diff-info h3 {
+        border-color: var(--border-color-dark);
+    }
+
+    .date-diff-info p {
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 15px;
+        color: var(--text-light);
+    }
+    body.dark-theme .date-diff-info p {
+        color: var(--text-dark);
+    }
+
+    /* Media queries for responsiveness */
+    @media (max-width: 600px) {
+        .date-diff-card {
+            padding: 25px;
+        }
+
+        .project-content h1 {
+            font-size: 2.2rem;
+        }
+
+        .project-content .description {
+            font-size: 1rem;
+        }
+
+        .difference-display {
+            font-size: 1.6rem;
+        }
+        .difference-display .diff-value {
+            font-size: 2.2rem;
+        }
+
+        .date-diff-info {
+            padding: 20px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const differenceDisplay = document.getElementById('differenceDisplay');
+
+        // Set default dates for convenience (e.g., today and one month from now)
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+
+        // Format dates to YYYY-MM-DD for input value
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        startDateInput.value = formatDate(today);
+        endDateInput.value = formatDate(tomorrow);
+
+        function calculateDateDifference() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            // Validate dates
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                differenceDisplay.innerHTML = '<span class="diff-value">Invalid Dates</span>';
+                return;
+            }
+
+            // Calculate difference in milliseconds
+            const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+            
+            // Convert to days
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Use ceil to include partial days
+
+            // Calculate years, months, weeks for display
+            // This is an approximation for months/years due to varying month lengths.
+            // For precise calendar differences, a dedicated library would be better,
+            // but for simplicity, we'll do an average calculation here.
+            const diffYears = diffDays / 365.25; // Account for leap years
+            const diffMonths = diffDays / 30.44; // Average days per month
+            const diffWeeks = diffDays / 7;
+
+            let resultHtml = `<span class="diff-value">${diffDays}</span> Days<br>`;
+
+            if (diffWeeks >= 1) {
+                resultHtml += `<span class="diff-value">${Math.floor(diffWeeks)}</span> Weeks<br>`;
+            }
+            if (diffMonths >= 1) {
+                resultHtml += `<span class="diff-value">${Math.floor(diffMonths)}</span> Months<br>`;
+            }
+            if (diffYears >= 1) {
+                resultHtml += `<span class="diff-value">${Math.floor(diffYears)}</span> Years`;
+            }
+
+            differenceDisplay.innerHTML = resultHtml;
+        }
+
+        // Add event listeners for immediate calculation
+        calculateBtn.addEventListener('click', calculateDateDifference);
+        startDateInput.addEventListener('change', calculateDateDifference);
+        endDateInput.addEventListener('change', calculateDateDifference);
+
+        // Perform initial calculation on load
+        calculateDateDifference();
+    });
+</script>
