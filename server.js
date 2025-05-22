@@ -35,6 +35,7 @@ const pageMap = {
   // Mathematical Algorithms
   '/algo/en/gcd-lcm': '/algo/en/gcd-lcm.html',
   '/algo/en/sieve': '/algo/en/sieve.html',
+  '/algo/ar/sieve': '/algo/ar/sieve.html',
   '/algo/en/modular-arithmetic': '/algo/en/modular-arithmetic.html',
   '/algo/en/fermat': '/algo/en/fermat.html',
   '/algo/en/euler': '/algo/en/euler.html',
