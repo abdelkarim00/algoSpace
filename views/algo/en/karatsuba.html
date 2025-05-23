@@ -1,354 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightning-Fast Multiplication: A Beginner's Guide to the Karatsuba Algorithm</title>
+    <style>
+        .formula {
+            display: block;
+            text-align: center;
+            margin: 15px 0;
+            font-style: italic;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
 
-<div>
+    <h1>Lightning-Fast Multiplication: A Beginner's Guide to the Karatsuba Algorithm</h1>
 
-<h1>Divide &amp; Conquer Algorithm Explained</h1>
+    <p>We all learned how to multiply numbers in school. For small numbers, the traditional "long multiplication" method works just fine. But what happens when you need to multiply two <em>really</em> large numbers, say, numbers with thousands or even millions of digits? Suddenly, that familiar method becomes incredibly slow and computationally expensive.</p>
 
-<p>Divide &amp; Conquer is a powerful algorithmic paradigm that solves a problem by recursively breaking it down into smaller subproblems of the same or related type, until these subproblems become simple enough to be solved directly. The solutions to the subproblems are then combined to produce the solution to the original problem.</p>
+    <p>Enter the Karatsuba algorithm, a clever technique developed by Anatoly Karatsuba in 1960. It was a groundbreaking discovery because it was the first algorithm to show that multiplying two n-digit numbers could be done significantly faster than the <code>O(n<sup>2</sup>)</code> operations required by the classical method. This tutorial will walk you through how it works, why it's faster, and where it's used.</p>
 
-<h2>Algorithm</h2>
+    <h2>The Problem with "Schoolbook" Multiplication</h2>
 
-<p>The Divide &amp; Conquer paradigm generally involves the following three steps:</p>
+    <p>Let's say we want to multiply two n-digit numbers, <code>X</code> and <code>Y</code>. The standard algorithm involves multiplying every digit of <code>X</code> by every digit of <code>Y</code>. If each number has <code>n</code> digits, this results in roughly <code>n<sup>2</sup></code> single-digit multiplications. For example, multiplying two 2-digit numbers involves <code>2<sup>2</sup>=4</code> single-digit multiplications. For two 1000-digit numbers, that's a million multiplications! As <code>n</code> grows, <code>n<sup>2</sup></code> grows much faster, making the process very inefficient.</p>
 
-<ol>
-  <li><strong>Divide:</strong> The original problem is divided into smaller subproblems that are similar to the original problem but smaller in size.</li>
-  <li><strong>Conquer:</strong> The subproblems are solved recursively. If the subproblem is small enough, it is solved directly (base case).</li>
-  <li><strong>Combine:</strong> The solutions to the subproblems are combined to obtain the solution to the original problem.</li>
-</ol>
+    <h2>The Karatsuba Insight: Divide and Conquer (and a Clever Trick)</h2>
 
-<h2>Mathematics</h2>
+    <p>The Karatsuba algorithm uses a "divide and conquer" strategy, similar to algorithms like Merge Sort. Here's the core idea:</p>
 
-<p>The mathematical analysis of Divide &amp; Conquer algorithms often involves recurrence relations. A recurrence relation is an equation that defines a function in terms of its values on smaller inputs. For example, the time complexity of a Divide &amp; Conquer algorithm that divides a problem of size $n$ into $a$ subproblems of size $n/b$ and takes $O(n^k)$ time to combine the solutions can be expressed by the following recurrence relation:</p>
+    <ol>
+        <li>
+            <p><strong>Split the Numbers:</strong> Take two large n-digit numbers, <code>X</code> and <code>Y</code>. We can split them into two halves. For simplicity, let's assume <code>n</code> is a power of 2 (if not, we can pad with leading zeros).</p>
+            <span class="formula">Let X = a &middot; 10<sup>n/2</sup> + b</span>
+            <span class="formula">Let Y = c &middot; 10<sup>n/2</sup> + d</span>
+            <p>Here, <code>a, b, c,</code> and <code>d</code> are numbers with approximately <code>n/2</code> digits.</p>
+            <ul>
+                <li><code>a</code>: First half of <code>X</code></li>
+                <li><code>b</code>: Second half of <code>X</code></li>
+                <li><code>c</code>: First half of <code>Y</code></li>
+                <li><code>d</code>: Second half of <code>Y</code></li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>The Standard Expansion (and its problem):</strong><br>
+            If we were to multiply <code>X</code> and <code>Y</code> directly using these parts, we'd get:</p>
+            <span class="formula">X &middot; Y = (a &middot; 10<sup>n/2</sup> + b) &middot; (c &middot; 10<sup>n/2</sup> + d)</span>
+            <span class="formula">X &middot; Y = (a &middot; c) &middot; 10<sup>n</sup> + (a &middot; d + b &middot; c) &middot; 10<sup>n/2</sup> + (b &middot; d)</span>
+            <p>Notice that this expansion still requires <strong>four</strong> multiplications of <code>n/2</code>-digit numbers:</p>
+            <ul>
+                <li><code>P<sub>1</sub> = a &middot; c</code></li>
+                <li><code>P<sub>2</sub> = a &middot; d</code></li>
+                <li><code>P<sub>3</sub> = b &middot; c</code></li>
+                <li><code>P<sub>4</sub> = b &middot; d</code></li>
+            </ul>
+            <p>Then the result is <code>P<sub>1</sub> &middot; 10<sup>n</sup> + (P<sub>2</sub> + P<sub>3</sub>) &middot; 10<sup>n/2</sup> + P<sub>4</sub></code>.<br>
+            If we recursively apply this, we end up back at <code>O(n<sup>2</sup>)</code> complexity because we are doing four multiplications at each step. This doesn't save us anything.</p>
+        </li>
+        <li>
+            <p><strong>Karatsuba's Clever Trick (The "Aha!" Moment):</strong><br>
+            Karatsuba found a way to compute the middle term <code>(a &middot; d + b &middot; c)</code> using only <strong>one</strong> additional multiplication, by cleverly combining terms. This reduces the total number of multiplications of <code>n/2</code>-digit numbers from four to three.</p>
+            <p>Here's how:<br>
+            Calculate three products instead of four:</p>
+            <ul>
+                <li><code>P<sub>1</sub> = a &cdot; c</code> (same as before)</li>
+                <li><code>P<sub>2</sub> = b &cdot; d</code> (same as before)</li>
+                <li><code>P<sub>3</sub> = (a+b) &cdot; (c+d)</code></li>
+            </ul>
+            <p>Now, the magic. The middle term we needed, <code>(a &middot; d + b &middot; c)</code>, can be calculated as:</p>
+            <span class="formula">a &middot; d + b &middot; c = P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub></span>
+            <p>Let's verify:</p>
+            <span class="formula">P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub> = (a+b)(c+d) - ac - bd</span>
+            <span class="formula">= (ac + ad + bc + bd) - ac - bd</span>
+            <span class="formula">= ad + bc</span>
+            <p>It works! We've calculated all the necessary components for our original multiplication <code>X &middot; Y</code> using only <strong>three</strong> smaller multiplications (<code>P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub></code>).</p>
+        </li>
+        <li>
+            <p><strong>Putting It All Together:</strong><br>
+            The final product <code>X &middot; Y</code> is then:</p>
+            <span class="formula">X &middot; Y = P<sub>1</sub> &middot; 10<sup>n</sup> + (P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub>) &middot; 10<sup>n/2</sup> + P<sub>2</sub></span>
+            <p>The multiplications by <code>10<sup>n</sup></code> and <code>10<sup>n/2</sup></code> are just shifts (adding zeros), which are computationally cheap. The additions and subtractions are also relatively inexpensive compared to multiplications.</p>
+        </li>
+        <li>
+            <p><strong>Recursion:</strong><br>
+            The beauty of this is that the three multiplications (<code>a &middot; c</code>, <code>b &middot; d</code>, and <code>(a+b) &middot; (c+d)</code>) are themselves multiplications of smaller numbers (roughly <code>n/2</code> digits). We can apply the Karatsuba algorithm recursively to these smaller multiplications until the numbers become small enough to be multiplied directly using the standard method (e.g., single digits or numbers that fit within a processor's native multiplication capabilities).</p>
+        </li>
+    </ol>
 
-<p>$$T(n) = aT(n/b) + O(n^k)$$</p>
+    <h2>Let's Walk Through an Example:</h2>
+    <p>Suppose we want to multiply <code>X = 5678</code> and <code>Y = 1234</code>.<br>
+    Here, <code>n=4</code>. So, <code>n/2 = 2</code>.</p>
+    <ol>
+        <li>
+            <p><strong>Split:</strong></p>
+            <span class="formula">a = 56</span>
+            <span class="formula">b = 78</span>
+            <span class="formula">c = 12</span>
+            <span class="formula">d = 34</span>
+        </li>
+        <li>
+            <p><strong>Calculate P<sub>1</sub>, P<sub>2</sub>, P<sub>3</sub>:</strong></p>
+            <ul>
+                <li><code>P<sub>1</sub> = a &middot; c = 56 &middot; 12</code><br>
+                (We can do this directly or recursively. For simplicity, let's do it directly for now: <code>56 &middot; 12 = 672</code>)</li>
+                <li><code>P<sub>2</sub> = b &middot; d = 78 &middot; 34</code><br>
+                (Directly: <code>78 &middot; 34 = 2652</code>)</li>
+                <li><code>P<sub>3</sub> = (a+b) &middot; (c+d)</code><br>
+                <code>a+b = 56 + 78 = 134</code><br>
+                <code>c+d = 12 + 34 = 46</code><br>
+                <code>P<sub>3</sub> = 134 &middot; 46</code><br>
+                (Directly: <code>134 &middot; 46 = 6164</code>)</li>
+            </ul>
+        </li>
+        <li>
+            <p><strong>Calculate the Middle Term:</strong></p>
+            <span class="formula">P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub> = 6164 - 672 - 2652 = 2840</span>
+        </li>
+        <li>
+            <p><strong>Combine:</strong></p>
+            <span class="formula">X &middot; Y = P<sub>1</sub> &middot; 10<sup>n</sup> + (P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub>) &middot; 10<sup>n/2</sup> + P<sub>2</sub></span>
+            <span class="formula">X &middot; Y = P<sub>1</sub> &middot; 10<sup>4</sup> + (P<sub>3</sub> - P<sub>1</sub> - P<sub>2</sub>) &middot; 10<sup>2</sup> + P<sub>2</sub></span>
+            <span class="formula">X &middot; Y = 672 &middot; 10000 + 2840 &middot; 100 + 2652</span>
+            <span class="formula">X &middot; Y = 6720000 + 284000 + 2652</span>
+            <span class="formula">X &middot; Y = 7006652</span>
+            <p>You can verify this with a calculator: <code>5678 &middot; 1234 = 7006652</code>. It matches!</p>
+        </li>
+    </ol>
 
-<p>The solution to this recurrence relation can be found using the Master Theorem, which provides a way to determine the asymptotic behavior of many recurrence relations that arise in the analysis of Divide &amp; Conquer algorithms.</p>
-
-<p><strong>Master Theorem:</strong></p>
-<p>Given a recurrence relation of the form:</p>
-<p>$$T(n) = aT(n/b) + f(n)$$</p>
-<p>where $a \geq 1$, $b > 1$, and $f(n)$ is an asymptotically positive function, we can determine the asymptotic behavior of $T(n)$ as follows:</p>
-<ol>
-    <li>If $f(n) = O(n^{\log_b a - \epsilon})$ for some constant $\epsilon > 0$, then $T(n) = \Theta(n^{\log_b a})$.</li>
-    <li>If $f(n) = \Theta(n^{\log_b a})$, then $T(n) = \Theta(n^{\log_b a} \log n)$.</li>
-    <li>If $f(n) = \Omega(n^{\log_b a + \epsilon})$ for some constant $\epsilon > 0$, and if $af(n/b) \leq cf(n)$ for some constant $c < 1$ and all sufficiently large $n$, then $T(n) = \Theta(f(n))$.</li>
-</ol>
-
-<h2>Time and Memory Complexity</h2>
-
-<ul>
-  <li><strong>Time Complexity:</strong> The time complexity of a Divide &amp; Conquer algorithm depends on how the problem is divided and how the subproblem solutions are combined. As mentioned above, recurrence relations and the Master Theorem are used to analyze this. Common examples include:
+    <h2>Why is Karatsuba Faster? The Complexity Analysis</h2>
+    <p>The standard multiplication takes <code>O(n<sup>2</sup>)</code> time.<br>
+    The Karatsuba algorithm performs three multiplications of <code>n/2</code>-digit numbers and a few additions/subtractions (which take <code>O(n)</code> time). The recurrence relation for the time complexity <code>T(n)</code> is:</p>
+    <span class="formula">T(n) = 3 &middot; T(n/2) + O(n)</span>
+    <p>Using the Master Theorem for solving recurrence relations, this gives us a time complexity of:</p>
+    <span class="formula">T(n) = O(n<sup>log<sub>2</sub>3</sup>)</span>
+    <p>Since <code>log<sub>2</sub>3 &approx; 1.585</code>, the Karatsuba algorithm has a complexity of roughly <code>O(n<sup>1.585</sup>)</code>.</p>
+    <p>Compare this to <code>O(n<sup>2</sup>)</code>. For large values of <code>n</code>, <code>n<sup>1.585</sup></code> grows significantly slower than <code>n<sup>2</sup></code>. This means Karatsuba is substantially faster.</p>
     <ul>
-      <li>   Merge Sort: O(n log n)</li>
-      <li>   Quick Sort: Average case O(n log n), Worst case O(n^2)</li>
-      <li>   Binary Search: O(log n)</li>
+        <li>For <code>n=1000</code>:
+            <ul>
+                <li><code>n<sup>2</sup> = 1,000,000</code></li>
+                <li><code>n<sup>log<sub>2</sub>3</sup> &approx; 1000<sup>1.585</sup> &approx; 177,827</code> (significantly fewer operations)</li>
+            </ul>
+        </li>
     </ul>
-  </li>
-  <li><strong>Memory Complexity:</strong> The memory complexity also depends on the specific algorithm. Divide &amp; Conquer algorithms often involve recursion, which uses stack space.
-      <ul>
-        <li>Merge Sort: O(n) (due to the auxiliary array)</li>
-        <li>Quick Sort: Average case O(log n), Worst case O(n) (due to recursion stack)</li>
-        <li>Binary Search: O(1) (for iterative version), O(log n) for recursive</li>
-      </ul>
-  </li>
-</ul>
 
-<h2>Easy Problems</h2>
+    <h2>When to Use Karatsuba (and When Not To)</h2>
+    <ul>
+        <li><strong>Advantageous for Large Numbers:</strong> Karatsuba's benefit becomes apparent when multiplying very large numbers. The overhead of the recursive calls and extra additions makes it slightly slower for very small numbers compared to the straightforward schoolbook method.</li>
+        <li><strong>Threshold:</strong> There's a "threshold" value of <code>n</code> below which the traditional algorithm is faster. The exact threshold depends on the specific implementation and hardware. Practical implementations often switch to the standard algorithm for numbers smaller than this threshold.</li>
+        <li><strong>Applications:</strong>
+            <ul>
+                <li><strong>Computer Algebra Systems:</strong> Software like Mathematica, Maple, and SymPy use Karatsuba (or similar algorithms like Toom-Cook) for multiplying large polynomials and integers.</li>
+                <li><strong>Cryptography:</strong> Some cryptographic algorithms involve operations on very large numbers, and efficient multiplication is crucial.</li>
+                <li><strong>Arbitrary-Precision Arithmetic Libraries:</strong> Libraries that handle numbers larger than standard data types (e.g., Python's built-in support for large integers, GMP - GNU Multiple Precision Arithmetic Library) often employ Karatsuba.</li>
+            </ul>
+        </li>
+    </ul>
 
-<h3>Problem 1: Binary Search (Codeforces - Hypothetical)</h3>
-<p><strong>Problem Statement (Hypothetical):</strong> Given a sorted array of integers `arr` and a target value `target`, find the index of the `target` in `arr`. If the `target` is not found, return -1.</p>
+    <h2>Implementation Considerations:</h2>
+    <ul>
+        <li><strong>Base Case:</strong> In a recursive implementation, you need a base case: when the numbers are small enough, switch to standard multiplication.</li>
+        <li><strong>Number Representation:</strong> Handling numbers as strings or lists of digits is common when they exceed standard integer types.</li>
+        <li><strong>Padding:</strong> Ensure numbers are of roughly equal length (often by padding with leading zeros) to simplify splitting.</li>
+        <li><strong>Handling <code>a+b</code> or <code>c+d</code> resulting in carry:</strong> The sums <code>(a+b)</code> and <code>(c+d)</code> might result in numbers with <code>n/2 + 1</code> digits. This needs to be handled correctly during the recursive call <code>P<sub>3</sub> = (a+b) &middot; (c+d)</code>. However, the core logic still holds.</li>
+    </ul>
 
-<p><strong>Input Example:</strong></p>
-<pre><code>
-arr = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]
-target = 23
-</code></pre>
+    <h2>Conclusion</h2>
+    <p>The Karatsuba algorithm is a beautiful example of how a clever mathematical insight can lead to significant improvements in computational efficiency. By reducing the number of sub-multiplications from four to three at each step of recursion, it transforms an <code>O(n<sup>2</sup>)</code> problem into an <code>O(n<sup>log<sub>2</sub>3</sup>)</code> problem, making the multiplication of enormous numbers feasible. While it might seem complex at first glance, its divide-and-conquer approach and elegant reduction are fundamental concepts in algorithm design. So, the next time you wonder how computers perform calculations with huge numbers so quickly, remember the ingenuity of Anatoly Karatsuba!</p>
 
-<p><strong>Output Example:</strong></p>
-<pre><code>
-5
-</code></pre>
-
-<p><strong>C++ Code:</strong></p>
-<pre><code>
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-
-int binarySearch(const std::vector&lt;int&gt;& arr, int target) {
-    int left = 0;
-    int right = arr.size() - 1;
-
-    while (left &lt;= right) {
-        int mid = left + (right - left) / 2; // Avoid overflow
-        if (arr[mid] == target) {
-            return mid;
-        } else if (arr[mid] &lt; target) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-    return -1;
-}
-
-int main() {
-    std::vector&lt;int&gt; arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};
-    int target = 23;
-    int index = binarySearch(arr, target);
-    std::cout &lt;&lt; index &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-<h3>Problem 2: Find Minimum in Rotated Sorted Array (Codeforces - Variation)</h3>
-<p><a href="https://codeforces.com/problemset/problem/1907/B">Codeforces Problem 1907B (Unrelated, but similar difficulty might exist. This is a conceptual adaptation.)</a></p>
-<p><strong>Problem Statement (Variation):</strong> Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Given the rotated array `nums`, find the minimum element of this array.</p>
-
-<p><strong>Input Example:</strong></p>
-<pre><code>
-nums = [4, 5, 6, 7, 0, 1, 2]
-</code></pre>
-
-<p><strong>Output Example:</strong></p>
-<pre><code>
-0
-</code></pre>
-
-<p><strong>C++ Code:</strong></p>
-<pre><code>
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-
-int findMinRotatedSortedArray(const std::vector&lt;int&gt;& nums) {
-    int left = 0;
-    int right = nums.size() - 1;
-
-    while (left &lt; right) {
-        int mid = left + (right - left) / 2;
-        if (nums[mid] &gt; nums[right]) {
-            left = mid + 1;
-        } else {
-            right = mid;
-        }
-    }
-    return nums[left];
-}
-
-int main() {
-    std::vector&lt;int&gt; nums = {4, 5, 6, 7, 0, 1, 2};
-    int minVal = findMinRotatedSortedArray(nums);
-    std::cout &lt;&lt; minVal &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-<h2>Intermediate Problems</h2>
-
-<h3>Problem 3: Merge Sort (Codeforces - Conceptual Adaptation)</h3>
-<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given an unsorted array of integers, sort the array using the Merge Sort algorithm.</p>
-
-<p><strong>Input Example:</strong></p>
-<pre><code>
-arr = [12, 11, 13, 5, 6, 7]
-</code></pre>
-
-<p><strong>Output Example:</strong></p>
-<pre><code>
-[5, 6, 7, 11, 12, 13]
-</code></pre>
-
-<p><strong>C++ Code:</strong></p>
-<pre><code>
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-
-void merge(std::vector&lt;int&gt;& arr, int left, int mid, int right) {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
-
-    std::vector&lt;int&gt; L(n1);
-    std::vector&lt;int&gt; R(n2);
-
-    for (int i = 0; i &lt; n1; i++)
-        L[i] = arr[left + i];
-    for (int j = 0; j &lt; n2; j++)
-        R[j] = arr[mid + 1 + j];
-
-    int i = 0, j = 0, k = left;
-    while (i &lt; n1 &amp;&amp; j &lt; n2) {
-        if (L[i] &lt;= R[j]) {
-            arr[k] = L[i];
-            i++;
-        } else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
-    }
-
-    while (i &lt; n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j &lt; n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
-}
-
-void mergeSort(std::vector&lt;int&gt;& arr, int left, int right) {
-    if (left &lt; right) {
-        int mid = left + (right - left) / 2;
-        mergeSort(arr, left, mid);
-        mergeSort(arr, mid + 1, right);
-        merge(arr, left, mid, right);
-    }
-}
-
-int main() {
-    std::vector&lt;int&gt; arr = {12, 11, 13, 5, 6, 7};
-    mergeSort(arr, 0, arr.size() - 1);
-    for (int num : arr)
-        std::cout &lt;&lt; num &lt;&lt; " ";
-    std::cout &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-<h3>Problem 4: Quick Sort (Codeforces - Conceptual Adaptation)</h3>
-<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given an unsorted array of integers, sort the array using the Quick Sort algorithm.</p>
-
-<p><strong>Input Example:</strong></p>
-<pre><code>
-arr = [10, 7, 8, 9, 1, 5]
-</code></pre>
-
-<p><strong>Output Example:</strong></p>
-<pre><code>
-[1, 5, 7, 8, 9, 10]
-</code></pre>
-
-<p><strong>C++ Code:</strong></p>
-<pre><code>
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-
-int partition(std::vector&lt;int&gt;& arr, int low, int high) {
-    int pivot = arr[high];
-    int i = (low - 1);
-
-    for (int j = low; j &lt; high; j++) {
-        if (arr[j] &lt; pivot) {
-            i++;
-            std::swap(arr[i], arr[j]);
-        }
-    }
-    std::swap(arr[i + 1], arr[high]);
-    return (i + 1);
-}
-
-void quickSort(std::vector&lt;int&gt;& arr, int low, int high) {
-    if (low &lt; high) {
-        int pi = partition(arr, low, high);
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
-    }
-}
-
-int main() {
-    std::vector&lt;int&gt; arr = {10, 7, 8, 9, 1, 5};
-    quickSort(arr, 0, arr.size() - 1);
-    for (int num : arr)
-        std::cout &lt;&lt; num &lt;&lt; " ";
-    std::cout &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-<h2>Hard Problem</h2>
-
-<h3>Problem 5: Closest Pair of Points (Codeforces - Conceptual Adaptation)</h3>
-<p><strong>Problem Statement (Conceptual Adaptation):</strong> Given a set of points in a 2D plane, find the distance between the closest pair of points.</p>
-
-<p><strong>Input Example:</strong></p>
-<pre><code>
-points = [(2, 3), (12, 30), (40, 50), (5, 1), (12, 10), (30, 41)]
-</code></pre>
-
-<p><strong>Output Example:</strong></p>
-<pre><code>
-3.60555 (Distance between (2, 3) and (5, 1))
-</code></pre>
-
-<p><strong>C++ Code:</strong></p>
-<pre><code>
-#include &lt;iostream&gt;
-#include &lt;vector&gt;
-#include &lt;algorithm&gt;
-#include &lt;cmath&gt;
-#include &lt;float.h&gt;
-
-struct Point {
-    int x, y;
-};
-
-double dist(Point p1, Point p2) {
-    return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
-}
-
-double bruteForce(const std::vector&lt;Point&gt;& points, int left, int right) {
-    double min_dist = DBL_MAX;
-    for (int i = left; i &lt; right; ++i) {
-        for (int j = i + 1; j &lt;= right; ++j) {
-            min_dist = std::min(min_dist, dist(points[i], points[j]));
-        }
-    }
-    return min_dist;
-}
-
-double closestPair(std::vector&lt;Point&gt;& points, int left, int right) {
-    if (right - left &lt;= 3) {
-        return bruteForce(points, left, right);
-    }
-
-    int mid = left + (right - left) / 2;
-    double dl = closestPair(points, left, mid);
-    double dr = closestPair(points, mid + 1, right);
-    double d = std::min(dl, dr);
-
-    std::vector&lt;Point&gt; strip;
-    for (int i = left; i &lt;= right; ++i) {
-        if (std::abs(points[i].x - points[mid].x) &lt; d) {
-            strip.push_back(points[i]);
-        }
-    }
-    std::sort(strip.begin(), strip.end(), [](const Point& a, const Point& b) {
-        return a.y &lt; b.y;
-    });
-
-    for (int i = 0; i &lt; strip.size(); ++i) {
-        for (int j = i + 1; j &lt; strip.size() &amp;&amp; (strip[j].y - strip[i].y) &lt; d; ++j) {
-            d = std::min(d, dist(strip[i], strip[j]));
-        }
-    }
-
-    return d;
-}
-
-int main() {
-    std::vector&lt;Point&gt; points = {{2, 3}, {12, 30}, {40, 50}, {5, 1}, {12, 10}, {30, 41}};
-    std::sort(points.begin(), points.end(), [](const Point& a, const Point& b) {
-        return a.x &lt; b.x;
-    });
-    double minDistance = closestPair(points, 0, points.size() - 1);
-    std::cout.precision(5);
-    std::cout &lt;&lt; std::fixed &lt;&lt; minDistance &lt;&lt; std::endl;
-    return 0;
-}
-</code></pre>
-
-</div>
+</body>
+</html>
