@@ -272,7 +272,6 @@
             <h2>Define Graph</h2>
             <div class="input-method">
                 <button id="textInputBtn" class="active">Text Input</button>
-                <button id="visualEditorBtn">Visual Editor</button>
             </div>
 
             <div id="textInputArea">
@@ -339,7 +338,6 @@
             const continueTraversalBtn = document.getElementById('continueTraversal');
             const resetTraversalBtn = document.getElementById('resetTraversal');
             const textInputBtn = document.getElementById('textInputBtn');
-            const visualEditorBtn = document.getElementById('visualEditorBtn');
             const textInputArea = document.getElementById('textInputArea');
             const animationSpeedSlider = document.getElementById('animationSpeed');
             const pathInfo = document.getElementById('pathInfo');
@@ -766,14 +764,7 @@
 
             textInputBtn.addEventListener('click', () => {
                 textInputBtn.classList.add('active');
-                visualEditorBtn.classList.remove('active');
                 initializeGraph(false);
-            });
-
-            visualEditorBtn.addEventListener('click', () => {
-                visualEditorBtn.classList.add('active');
-                textInputBtn.classList.remove('active');
-                initializeGraph(true);
             });
 
             function resetTraversalVisualization() {
