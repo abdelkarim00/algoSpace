@@ -196,13 +196,34 @@
             border-left: 4px solid #007bff;
         }
 
+        .reasoning-panel {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 60px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border-left: 4px solid #007bff;
+            position: relative;
+        }
+
+        .reasoning-content {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
         .reasoning-line {
             margin-bottom: 5px;
             padding: 3px;
             border-radius: 3px;
+            display: none; /* Initially hidden */
         }
 
-        .reasoning-line.highlight {
+        .reasoning-line.active {
+            display: block;
             background-color: #fffde7;
             font-weight: bold;
         }
@@ -213,7 +234,6 @@
 
         .reasoning-line.selected {
             color: #2e7d32;
-            font-weight: bold;
         }
 
         .reasoning-line.error {
@@ -222,6 +242,24 @@
 
         .reasoning-line.info {
             color: #1565c0;
+        }
+
+        .reasoning-nav {
+            display: none;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .reasoning-nav button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .reasoning-position {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
         }
     </style>
     </style>
@@ -277,7 +315,12 @@
                 <p id="pathLength"></p>
             </div>
             <div id="reasoningPanel" class="reasoning-panel" style="display: none;">
-                <div id="reasoningContent"></div>
+                <div class="reasoning-content" id="reasoningContent"></div>
+                <div class="reasoning-nav" id="reasoningNav">
+                    <button id="reasoningPrev">◀ Previous</button>
+                    <span class="reasoning-position" id="reasoningPos">1/1</span>
+                    <button id="reasoningNext">Next ▶</button>
+                </div>
             </div>
         </div>
     </div>
@@ -302,8 +345,17 @@
             const pathInfo = document.getElementById('pathInfo');
             const pathDetails = document.getElementById('pathDetails');
             const pathLength = document.getElementById('pathLength');
+
             const reasoningPanel = document.getElementById('reasoningPanel');
             const reasoningContent = document.getElementById('reasoningContent');
+            const reasoningNav = document.getElementById('reasoningNav');
+            const reasoningPrev = document.getElementById('reasoningPrev');
+            const reasoningNext = document.getElementById('reasoningNext');
+            const reasoningPos = document.getElementById('reasoningPos');
+
+            // Track reasoning steps and current position
+            let reasoningSteps = [];
+            let currentStepIndex = -1;
 
             let nodes = new vis.DataSet([]);
             let edges = new vis.DataSet([]);
@@ -484,15 +536,59 @@
                 }
             };
 
-                        // Helper function to add reasoning text
             function addReasoning(text, type = '') {
                 const line = document.createElement('div');
                 line.className = `reasoning-line ${type}`;
                 line.textContent = text;
                 reasoningContent.appendChild(line);
-                reasoningPanel.scrollTop = reasoningPanel.scrollHeight;
+                reasoningSteps.push(line);
+                
+                // If not paused, show only the latest
+                if (!isPaused) {
+                    if (currentStepIndex >= 0) {
+                        reasoningSteps[currentStepIndex].classList.remove('active');
+                    }
+                    currentStepIndex = reasoningSteps.length - 1;
+                    line.classList.add('active');
+                    reasoningContent.scrollTop = reasoningContent.scrollHeight;
+                }
+                
+                updatePosition();
                 return line;
             }
+
+            // Update navigation position display
+            function updatePosition() {
+                reasoningPos.textContent = `${currentStepIndex + 1}/${reasoningSteps.length}`;
+                reasoningPrev.disabled = currentStepIndex <= 0;
+                reasoningNext.disabled = currentStepIndex >= reasoningSteps.length - 1;
+            }
+
+            // Show specific reasoning step
+            function showReasoningStep(index) {
+                if (index < 0 || index >= reasoningSteps.length) return;
+                
+                // Hide current active
+                if (currentStepIndex >= 0) {
+                    reasoningSteps[currentStepIndex].classList.remove('active');
+                }
+                
+                // Show new one
+                currentStepIndex = index;
+                reasoningSteps[currentStepIndex].classList.add('active');
+                reasoningContent.scrollTop = reasoningSteps[currentStepIndex].offsetTop - reasoningContent.offsetTop;
+                updatePosition();
+            }
+
+            // Navigation handlers
+            reasoningPrev.addEventListener('click', () => {
+                showReasoningStep(currentStepIndex - 1);
+            });
+
+            reasoningNext.addEventListener('click', () => {
+                showReasoningStep(currentStepIndex + 1);
+            });
+
 
             // Helper function to highlight reasoning line
             function highlightReasoningLine(line) {
@@ -697,6 +793,9 @@
                 }
                 reasoningContent.innerHTML = '';
                 reasoningPanel.style.display = 'none';
+
+                reasoningSteps = [];
+                currentStepIndex = -1;
             }
 
             resetTraversalBtn.addEventListener('click', resetTraversalVisualization);
@@ -709,12 +808,26 @@
                 isPaused = true;
                 pauseTraversalBtn.style.display = 'none';
                 continueTraversalBtn.style.display = 'inline-block';
+                reasoningNav.style.display = 'flex';
+                
+                // When pausing, show navigation controls
+                if (reasoningSteps.length > 0) {
+                    showReasoningStep(currentStepIndex);
+                }
             });
 
             continueTraversalBtn.addEventListener('click', () => {
                 isPaused = false;
                 pauseTraversalBtn.style.display = 'inline-block';
                 continueTraversalBtn.style.display = 'none';
+                reasoningNav.style.display = 'none';
+                
+                // When continuing, jump to latest
+                if (reasoningSteps.length > 0) {
+                    currentStepIndex = reasoningSteps.length - 1;
+                    showReasoningStep(currentStepIndex);
+                }
+                
                 if (resolveResume) {
                     resolveResume();
                     resolveResume = null;
@@ -951,9 +1064,12 @@
                 await new Promise(resolve => setTimeout(resolve, animationDelay));
                 await checkPause();
             }
-              // Modified BFS to include reasoning
+            // Modified BFS to include reasoning (similar modifications for other algorithms)
             async function bfs(startNode, adj) {
                 reasoningPanel.style.display = 'block';
+                reasoningSteps = [];
+                currentStepIndex = -1;
+                
                 const reasoningHeader = addReasoning(`BFS starting from node ${startNode}:`, 'info');
                 
                 const visited = new Set();
@@ -971,8 +1087,7 @@
                     await checkPause();
                     count++;
                     const u = queue.shift();
-                    const currentLine = addReasoning(`\nProcessing node ${u}:`, 'info');
-                    highlightReasoningLine(currentLine);
+                    const currentLine = addReasoning(`Processing node ${u}:`, 'info');
                     
                     await highlightNode(u, visitedNodeColor);
                     await checkPause();
@@ -981,19 +1096,18 @@
                         for (const edgeInfo of adj[u]) {
                             await checkPause();
                             const v = edgeInfo.node;
-                            const edgeLine = addReasoning(`- Examining edge ${u} → ${v}...`);
-                            highlightReasoningLine(edgeLine);
+                            const edgeLine = addReasoning(`Examining edge ${u} → ${v}...`);
 
                             if (!visited.has(v)) {
                                 visited.add(v);
-                                addReasoning(`  - Node ${v} not visited yet, adding to queue`, 'selected');
+                                addReasoning(`  Node ${v} not visited yet, adding to queue`, 'selected');
                                 await highlightEdge(u, v);
                                 await checkPause();
                                 await highlightNode(v, discoveredNodeColor);
                                 await checkPause();
                                 queue.push(v);
                             } else {
-                                addReasoning(`  - Node ${v} already visited, skipping`, 'ignored');
+                                addReasoning(`  Node ${v} already visited, skipping`, 'ignored');
                             }
                         }
                     }
@@ -1003,7 +1117,7 @@
                     addReasoning("Warning: BFS terminated early due to iteration limit", 'error');
                     console.warn("BFS safety break triggered.");
                 }
-                addReasoning("\nBFS complete", 'info');
+                addReasoning("BFS complete", 'info');
             }
 
 
