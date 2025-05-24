@@ -804,6 +804,8 @@
                 animationDelay = parseInt(event.target.value);
             });
 
+            
+
             pauseTraversalBtn.addEventListener('click', () => {
                 isPaused = true;
                 pauseTraversalBtn.style.display = 'none';
@@ -909,9 +911,17 @@
                 }
             });
 
-// Modified Bellman-Ford to include reasoning
+            function showNavigationButtons() {
+                reasoningNav.style.display = 'flex';
+                reasoningPrev.style.display = 'inline-block';
+                reasoningNext.style.display = 'inline-block';
+            }
+
+            // Modified Bellman-Ford to include reasoning
             async function bellmanFord(startNode, endNode, adj) {
                 reasoningPanel.style.display = 'block';
+                reasoningSteps = [];
+                currentStepIndex = -1;
                 addReasoning(`Bellman-Ford algorithm from ${startNode} to ${endNode}:`, 'info');
                 
                 // Initialize distances and predecessors
@@ -1040,6 +1050,7 @@
                     addReasoning("\nNo path found to target node", 'error');
                 }
                 addReasoning("\nAlgorithm complete", 'info');
+                showNavigationButtons();
             }
 
 
@@ -1118,6 +1129,7 @@
                     console.warn("BFS safety break triggered.");
                 }
                 addReasoning("BFS complete", 'info');
+                showNavigationButtons();
             }
 
 
@@ -1155,15 +1167,20 @@
 
             async function dfs(startNode, adj) {
                 reasoningPanel.style.display = 'block';
+                reasoningSteps = [];
+                currentStepIndex = -1;
                 addReasoning(`DFS starting from node ${startNode}:`, 'info');
                 const visited = new Set();
                 await highlightNode(startNode, visitingNodeColor);
                 await checkPause();
                 await dfsUtil(startNode, adj, visited);
                 addReasoning("\nDFS complete", 'info');
+                showNavigationButtons();
             }
 
             async function dijkstra(startNode, endNode, adj) {
+                reasoningSteps = [];
+                currentStepIndex = -1;
                 reasoningPanel.style.display = 'block';
                 addReasoning(`Dijkstra's algorithm from ${startNode} to ${endNode}:`, 'info');
                 
@@ -1279,6 +1296,7 @@
                     addReasoning("\nNo path found to target node", 'error');
                 }
                 addReasoning("\nAlgorithm complete", 'info');
+                showNavigationButtons();
             }
 
 
