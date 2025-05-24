@@ -2,21 +2,304 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ant in Loop</title>
-  <link rel="icon" href="https://antinloop.com/logo.ico" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Algorithm Topics - Ant In Loop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0c0c1c;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+    }
+
+    .logo-text {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ff4c4c;
+    }
+
+    .intro-text {
+      font-style: italic;
+      color: #bdc3c7;
+      margin-top: 0.3rem;
+    }
+
+    #search-input {
+      width: 100%;
+      padding: 10px;
+      margin: 15px 0 35px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+      background: #1f2a3c;
+      color: #fff;
+    }
+
+    .card-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .algo-card {
+      background: linear-gradient(to right, #1f2a3c, #172136);
+      border: 1px solid #ff4c4c;
+      border-left: 5px solid #3498db;
+      border-radius: 12px;
+      padding: 1rem;
+      width: calc(33.33% - 2rem);
+      box-sizing: border-box;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .algo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .algo-card h3,
+    .algo-card h2 {
+      margin: 0 0 10px;
+      color: #ff4c4c;
+    }
+
+    .algo-card ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .algo-card li {
+      margin: 6px 0;
+    }
+
+    .algo-card a {
+      text-decoration: none;
+      color: #cce6ff;
+    }
+
+    .algo-card a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .algo-card {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to Ant in Loop</h1>
-    <p class="subtitle">Master algorithms through tutorials.</p>
-  </header>
-  <iframe
-    width="100%"
-    height="900"
-    src="https://www.jdoodle.com/online-compiler-c++17"
-    frameborder="0"
-    allowfullscreen
-  ></iframe>
+  <div class="logo-container">
+    <img src="https://antinloop.com/logo.ico" alt="Ant in Loop Logo" class="logo" />
+    <span class="logo-text">Ant In Loop</span>
+  </div>
+  <input type="text" id="search-input" placeholder="Search topics..." />
+
+  <div class="card-section" id="cards">
+    <div class="algo-card">
+      <h3>Sorting Algorithms</h3>
+      <ul>
+        <li><a href="/algo/en/bubble-sort">Bubble Sort</a></li>
+        <li><a href="/algo/en/selection-sort">Selection Sort</a></li>
+        <li><a href="/algo/en/insertion-sort">Insertion Sort</a></li>
+        <li><a href="/algo/en/merge-sort">Merge Sort</a></li>
+        <li><a href="/algo/en/quick-sort">Quick Sort</a></li>
+        <li><a href="/algo/en/heap-sort">Heap Sort</a></li>
+        <li><a href="/algo/en/counting-sort">Counting Sort</a></li>
+        <li><a href="/algo/en/radix-sort">Radix Sort</a></li>
+        <li><a href="/algo/en/bucket-sort">Bucket Sort</a></li>
+      </ul>
+    </div>
+
+    <div class="algo-card">
+      <h3>Searching Algorithms</h3>
+      <ul>
+        <li><a href="/algo/en/linear-search">Linear Search</a></li>
+        <li><a href="/algo/en/binary-search">Binary Search</a></li>
+        <li><a href="/algo/en/ternary-search">Ternary Search</a></li>
+      </ul>
+    </div>
+
+    <div class="algo-card">
+        <h2>Mathematical Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/gcd-lcm">GCD / LCM</a></li>
+            <li><a href="/algo/en/sieve">Sieve of Eratosthenes</a></li>
+            <li><a href="/algo/en/modular-arithmetic">Modular Arithmetic</a></li>
+            <li><a href="/algo/en/fermat">Fermat’s Theorem</a></li>
+            <li><a href="/algo/en/euler">Euler’s Totient Function</a></li>
+            <li><a href="/algo/en/fast-exponentiation">Fast Exponentiation</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Graph Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/bfs">Breadth-First Search (BFS)</a></li>
+            <li><a href="/algo/en/dfs">Depth-First Search (DFS)</a></li>
+            <li><a href="/algo/en/dijkstra">Dijkstra’s Algorithm</a></li>
+            <li><a href="/algo/en/bellman-ford">Bellman-Ford Algorithm</a></li>
+            <li><a href="/algo/en/floyd-warshall">Floyd-Warshall Algorithm</a></li>
+            <li><a href="/algo/en/topological-sort">Topological Sort</a></li>
+            <li><a href="/algo/en/union-find">Union-Find (DSU)</a></li>
+            <li><a href="/algo/en/kruskal">Kruskal’s Algorithm</a></li>
+            <li><a href="/algo/en/prim">Prim’s Algorithm</a></li>
+            <li><a href="/algo/en/tarjan">Tarjan’s Algorithm</a></li>
+            <li><a href="/algo/en/kosaraju">Kosaraju’s Algorithm</a></li>
+            <li><a href="/algo/en/a-star">A* Search</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Dynamic Programming</h2>
+        <ul>
+            <li><a href="/algo/en/knapsack">0/1 Knapsack</a></li>
+            <li><a href="/algo/en/lcs">Longest Common Subsequence (LCS)</a></li>
+            <li><a href="/algo/en/lis">Longest Increasing Subsequence (LIS)</a></li>
+            <li><a href="/algo/en/matrix-chain">Matrix Chain Multiplication</a></li>
+            <li><a href="/algo/en/dp-trees">DP on Trees</a></li>
+            <li><a href="/algo/en/bitmask-dp">Bitmask DP</a></li>
+            <li><a href="/algo/en/knuth">Knuth Optimization</a></li>
+            <li><a href="/algo/en/convex-hull-dp">Convex Hull Trick</a></li>
+            <li><a href="/algo/en/digit-dp">Digit DP</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>String Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/kmp">KMP Algorithm</a></li>
+            <li><a href="/algo/en/z-algorithm">Z-Algorithm</a></li>
+            <li><a href="/algo/en/rabin-karp">Rabin-Karp</a></li>
+            <li><a href="/algo/en/suffix-array">Suffix Arrays</a></li>
+            <li><a href="/algo/en/aho-corasick">Aho-Corasick</a></li>
+            <li><a href="/algo/en/rolling-hash">Rolling Hashes</a></li>
+            <li><a href="/algo/en/manacher">Manacher’s Algorithm</a></li>
+            <li><a href="/algo/en/edit-distance">Edit Distance</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Data Structure</h2>
+        <ul>
+            <li><a href="/algo/en/treap">Treap</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Backtracking</h2>
+        <ul>
+            <li><a href="/algo/en/n-queens">N-Queens Problem</a></li>
+            <li><a href="/algo/en/sudoku">Sudoku Solver</a></li>
+            <li><a href="/algo/en/hamiltonian">Hamiltonian Path</a></li>
+            <li><a href="/algo/en/subsets">Subsets/Permutations</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Greedy Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/activity-selection">Activity Selection</a></li>
+            <li><a href="/algo/en/fractional-knapsack">Fractional Knapsack</a></li>
+            <li><a href="/algo/en/huffman-coding">Huffman Coding</a></li>
+        </ul>
+    </div>
+    <div class="algo-card">
+          <h2>Bit Manipulation</h2>
+          <ul>
+              <li><a href="/algo/en/bitwise-ops">Bit Operations</a></li>
+              <li><a href="/algo/en/xor">XOR Tricks</a></li>
+              <li><a href="/algo/en/bit-count">Count Set Bits</a></li>
+              <li><a href="/algo/en/bitmasking">Bitmask Subsets</a></li>
+          </ul>
+    </div>
+    <div class="algo-card">
+        <h2>Geometry Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/convex-hull">Convex Hull</a></li>
+            <li><a href="/algo/en/line-intersection">Line Intersection</a></li>
+            <li><a href="/algo/en/polygon-area">Polygon Area</a></li>
+        </ul>
+    </div>
+     <div class="algo-card">
+        <h2>Advanced Techniques</h2>
+        <ul>
+            <li><a href="/algo/en/mo">Mo’s Algorithm</a></li>
+            <li><a href="/algo/en/hld">Heavy-Light Decomposition</a></li>
+            <li><a href="/algo/en/centroid">Centroid Decomposition</a></li>
+            <li><a href="/algo/en/persistent">Persistent Data Structures</a></li>
+            <li><a href="/algo/en/sqrt-decomposition">Sqrt Decomposition</a></li>
+            <li><a href="/algo/en/monotonic">Monotonic Stack / Queue</a></li>
+            <li><a href="/algo/en/sliding-window">Sliding Window</a></li>
+            <li><a href="/algo/en/two-pointers">Two Pointers</a></li>
+            <li><a href="/algo/en/two-heaps">Two Heaps</a></li>
+            <li><a href="/algo/en/meet-in-middle">Meet in the Middle</a></li>
+        </ul>
+      </div>
+    
+      <div class="algo-card">
+        <h2>Recurrence & Divide and Conquer</h2>
+        <ul>
+            <li><a href="/algo/en/divide-conquer">Divide & Conquer</a></li>
+            <li><a href="/algo/en/karatsuba">Karatsuba Multiplication</a></li>
+            <li><a href="/algo/en/binary-search-answer">Binary Search on Answer</a></li>
+            <li><a href="/algo/en/master-theorem">Master Theorem</a></li>
+            <li><a href="/algo/en/strassen">Strassen’s Matrix Multiplication</a></li>
+        </ul>
+     </div>
+
+    <div class="algo-card">
+        <h2>Cryptographic Algorithms</h2>
+        <ul>
+            <li><a href="/algo/en/rsa">RSA</a></li>
+            <li><a href="/algo/en/diffie-hellman">Diffie-Hellman</a></li>
+            <li><a href="/algo/en/hash-functions">Hash Functions (MD5, SHA)</a></li>
+        </ul>
+    </div>
+
+    <div class="algo-card">
+        <h2>Core Problem Solving Skills</h2>
+        <ul>
+            <li><a href="/algo/en/problem-decomposition">Problem Decomposition</a></li>
+            <li><a href="/algo/en/complexity-analysis">Time/Space Complexity</a></li>
+            <li><a href="/algo/en/mathematical-proof">Mathematical Proof Techniques</a></li>
+            <li><a href="/algo/en/state-representation">State Representation</a></li>
+            <li><a href="/algo/en/dp-vs-greedy">DP vs Greedy Decisions</a></li>
+            <li><a href="/algo/en/modeling">Modeling with Graphs & Trees</a></li>
+        </ul>
+    </div>
+    <!-- <div class="algo-card">
+        <h2>Number Theory</h2>
+        <ul>
+            <li><a href="/algo/en/prime-check">Prime Checking</a></li>
+            <li><a href="/algo/en/mod-inverse">Modular Inverse</a></li>
+            <li><a href="/algo/en/chinese-remainder">Chinese Remainder Theorem</a></li>
+        </ul>
+    </div> -->
+
+  </div>
+
+  <script>
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.algo-card');
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.toLowerCase();
+
+      cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? 'block' : 'none';
+      });
+    });
+  </script>
 </body>
 </html>

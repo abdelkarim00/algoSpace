@@ -188,11 +188,17 @@ function templatePath(path) {
   if (path === '/') {
     return 'views/template.html';
   }
-  if (path.startsWith('/algo/')) {
-    return 'views/algo/template.html';
+  if (path.startsWith('/algo/en')) {
+    return 'views/algo/en/template.html';
   }
-  if (path.startsWith('/calc')) {
+  if (path.startsWith('/algo/ar')) {
+    return 'views/algo/ar/template.html';
+  }
+  if (path.startsWith('/calc/')) {
     return 'views/calc/template.html';
+  }
+  if (path.startsWith('/algo')) {
+    return 'views/algo/template.html';
   }
   return 'views/algo/template.html';
 }

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://antinloop.com/logo.ico" type="image/x-icon">
+    <title>AntInLoop – Algorithms & Problem Solving Playground</title>
+    <meta name="title" content="AntInLoop – Algorithms & Problem Solving Playground">
+    <meta name="description" content="Explore and master competitive programming with AntInLoop. Learn algorithms, data structures, and problem-solving skills with clear explanations and examples.">
+
+    <!-- Responsive Design -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="theme-color" content="#0d6efd">
+
+    <!-- SEO Keywords -->
+    <meta name="keywords" content="algorithms, data structures, competitive programming, coding, problem solving, dsa, graph theory, dp, sorting, searching, cpp, python">
+    <meta name="author" content="AntInLoop Team">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    </noscript>
+    <meta name="google-site-verification" content="ZghNxT2v9fCqil19kjKuLWF7zEk2QGylPvUUE376SgA" />
+
+    <link rel="stylesheet" href="/styles.css">
+    <meta name="google-site-verification" content="IpmYaX7RaWa0-DfnSmAx0e5kJjPx6mf2fidXfkM4OcA" />
+    <meta name="google-adsense-account" content="ca-pub-7868360963110023">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7868360963110023" crossorigin="anonymous"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SLBE9Q0JJ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-SLBE9Q0JJ7');
+    </script>
+
+    <script>
+        // Define dataLayer and the gtag function.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+
+        // Set default consent for countries requiring prior consent
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied',
+            'regions': [
+            'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IS','IE','IT',
+            'LV','LI','LT','LU','MT','NL','NO','PL','PT','RO','SK','SI','ES','SE','GB','CH'
+            ]
+        });
+
+        // Set default consent for all other regions
+        gtag('consent', 'default', {
+            'ad_storage': 'denied',
+            'ad_user_data': 'denied',
+            'ad_personalization': 'denied',
+            'analytics_storage': 'denied'
+        });
+    </script>
+
+    <!-- Start cookieyes banner --> 
+    <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/05ebc255f1c8e8168d10867c/script.js"></script>
+    <!-- End cookieyes banner -->
+</head>
+<body>
+
+    <button class="mobile-nav-toggle">☰ Menu</button>
+    <button class="sidebar-toggle" id="sidebarToggle">☰ Topics</button>
+    <div id="sidebar">
+        <h1 > 
+            <a href="/" class="logo-link">
+            <div class="logo-container">
+                <img src="https://antinloop.com/logo.ico" alt="Ant in Loop Logo" class="logo" />
+                <span class="logo-text">Ant In Loop</span>
+            </div>
+            </a>
+        </h1>
+        <p style="font-style: italic; color: #bdc3c7;">Core Topics for Competitive Programming</p>
+        <input
+        type="text"
+        id="sidebar-search"
+        placeholder=""
+        style="width: 100%; padding: 8px; margin: 10px 0 20px; border-radius: 6px; border: none; font-size: 1em;"
+        />
+
+    
+        <div class="book-section">
+            <h2> Sorting Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/bubble-sort">Bubble Sort</a></li>
+                <li><a href="/algo/en/selection-sort">Selection Sort</a></li>
+                <li><a href="/algo/en/insertion-sort">Insertion Sort</a></li>
+                <li><a href="/algo/en/merge-sort">Merge Sort</a></li>
+                <li><a href="/algo/en/quick-sort">Quick Sort</a></li>
+                <li><a href="/algo/en/heap-sort">Heap Sort</a></li>
+                <li><a href="/algo/en/counting-sort">Counting Sort</a></li>
+                <li><a href="/algo/en/radix-sort">Radix Sort</a></li>
+                <li><a href="/algo/en/bucket-sort">Bucket Sort</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Searching Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/linear-search">Linear Search</a></li>
+                <li><a href="/algo/en/binary-search">Binary Search</a></li>
+                <li><a href="/algo/en/ternary-search">Ternary Search</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Mathematical Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/gcd-lcm">GCD / LCM</a></li>
+                <li><a href="/algo/en/sieve">Sieve of Eratosthenes</a></li>
+                <li><a href="/algo/en/modular-arithmetic">Modular Arithmetic</a></li>
+                <li><a href="/algo/en/fermat">Fermat’s Theorem</a></li>
+                <li><a href="/algo/en/euler">Euler’s Totient Function</a></li>
+                <li><a href="/algo/en/fast-exponentiation">Fast Exponentiation</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Graph Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/bfs">Breadth-First Search (BFS)</a></li>
+                <li><a href="/algo/en/dfs">Depth-First Search (DFS)</a></li>
+                <li><a href="/algo/en/dijkstra">Dijkstra’s Algorithm</a></li>
+                <li><a href="/algo/en/bellman-ford">Bellman-Ford Algorithm</a></li>
+                <li><a href="/algo/en/floyd-warshall">Floyd-Warshall Algorithm</a></li>
+                <li><a href="/algo/en/topological-sort">Topological Sort</a></li>
+                <li><a href="/algo/en/union-find">Union-Find (DSU)</a></li>
+                <li><a href="/algo/en/kruskal">Kruskal’s Algorithm</a></li>
+                <li><a href="/algo/en/prim">Prim’s Algorithm</a></li>
+                <li><a href="/algo/en/tarjan">Tarjan’s Algorithm</a></li>
+                <li><a href="/algo/en/kosaraju">Kosaraju’s Algorithm</a></li>
+                <li><a href="/algo/en/algo/en/a-star">A* Search</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Dynamic Programming</h2>
+            <ul>
+                <li><a href="/algo/en/knapsack">0/1 Knapsack</a></li>
+                <li><a href="/algo/en/lcs">Longest Common Subsequence (LCS)</a></li>
+                <li><a href="/algo/en/lis">Longest Increasing Subsequence (LIS)</a></li>
+                <li><a href="/algo/en/matrix-chain">Matrix Chain Multiplication</a></li>
+                <li><a href="/algo/en/dp-trees">DP on Trees</a></li>
+                <li><a href="/algo/en/bitmask-dp">Bitmask DP</a></li>
+                <li><a href="/algo/en/knuth">Knuth Optimization</a></li>
+                <li><a href="/algo/en/convex-hull-dp">Convex Hull Trick</a></li>
+                <li><a href="/algo/en/digit-dp">Digit DP</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>String Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/kmp">KMP Algorithm</a></li>
+                <li><a href="/algo/en/z-algorithm">Z-Algorithm</a></li>
+                <li><a href="/algo/en/rabin-karp">Rabin-Karp</a></li>
+                <li><a href="/algo/en/suffix-array">Suffix Arrays</a></li>
+                <li><a href="/algo/en/aho-corasick">Aho-Corasick</a></li>
+                <li><a href="/algo/en/rolling-hash">Rolling Hashes</a></li>
+                <li><a href="/algo/en/manacher">Manacher’s Algorithm</a></li>
+                <li><a href="/algo/en/edit-distance">Edit Distance</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Data Structure</h2>
+            <ul>
+                <li><a href="/algo/en/treap">Treap</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Backtracking</h2>
+            <ul>
+                <li><a href="/algo/en/n-queens">N-Queens Problem</a></li>
+                <li><a href="/algo/en/sudoku">Sudoku Solver</a></li>
+                <li><a href="/algo/en/hamiltonian">Hamiltonian Path</a></li>
+                <li><a href="/algo/en/subsets">Subsets/Permutations</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Greedy Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/activity-selection">Activity Selection</a></li>
+                <li><a href="/algo/en/huffman">Huffman Coding</a></li>
+                <li><a href="/algo/en/fractional-knapsack">Fractional Knapsack</a></li>
+                <li><a href="/algo/en/interval">Interval Scheduling</a></li>
+                <li><a href="/algo/en/job-sequencing">Job Sequencing</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Bit Manipulation</h2>
+            <ul>
+                <li><a href="/algo/en/bitwise-ops">Bit Operations</a></li>
+                <li><a href="/algo/en/xor">XOR Tricks</a></li>
+                <li><a href="/algo/en/bit-count">Count Set Bits</a></li>
+                <li><a href="/algo/en/bitmasking">Bitmask Subsets</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Geometry Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/convex-hull">Convex Hull</a></li>
+                <li><a href="/algo/en/line-intersection">Line Intersection</a></li>
+                <li><a href="/algo/en/sweep-line">Sweep Line</a></li>
+                <li><a href="/algo/en/point-in-polygon">Point in Polygon</a></li>
+                <li><a href="/algo/en/rotating-calipers">Rotating Calipers</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Advanced Techniques</h2>
+            <ul>
+                <li><a href="/algo/en/mo">Mo’s Algorithm</a></li>
+                <li><a href="/algo/en/hld">Heavy-Light Decomposition</a></li>
+                <li><a href="/algo/en/centroid">Centroid Decomposition</a></li>
+                <li><a href="/algo/en/persistent">Persistent Data Structures</a></li>
+                <li><a href="/algo/en/sqrt-decomposition">Sqrt Decomposition</a></li>
+                <li><a href="/algo/en/monotonic">Monotonic Stack / Queue</a></li>
+                <li><a href="/algo/en/sliding-window">Sliding Window</a></li>
+                <li><a href="/algo/en/two-pointers">Two Pointers</a></li>
+                <li><a href="/algo/en/two-heaps">Two Heaps</a></li>
+                <li><a href="/algo/en/meet-in-middle">Meet in the Middle</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Recurrence & Divide and Conquer</h2>
+            <ul>
+                <li><a href="/algo/en/divide-conquer">Divide & Conquer</a></li>
+                <li><a href="/algo/en/karatsuba">Karatsuba Multiplication</a></li>
+                <li><a href="/algo/en/binary-search-answer">Binary Search on Answer</a></li>
+                <li><a href="/algo/en/master-theorem">Master Theorem</a></li>
+                <li><a href="/algo/en/strassen">Strassen’s Matrix Multiplication</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Cryptographic Algorithms</h2>
+            <ul>
+                <li><a href="/algo/en/rsa">RSA</a></li>
+                <li><a href="/algo/en/diffie-hellman">Diffie-Hellman</a></li>
+                <li><a href="/algo/en/hash-functions">Hash Functions (MD5, SHA)</a></li>
+            </ul>
+        </div>
+    
+        <div class="book-section">
+            <h2>Core Problem Solving Skills</h2>
+            <ul>
+                <li><a href="/algo/en/problem-decomposition">Problem Decomposition</a></li>
+                <li><a href="/algo/en/complexity-analysis">Time/Space Complexity</a></li>
+                <li><a href="/algo/en/mathematical-proof">Mathematical Proof Techniques</a></li>
+                <li><a href="/algo/en/state-representation">State Representation</a></li>
+                <li><a href="/algo/en/dp-vs-greedy">DP vs Greedy Decisions</a></li>
+                <li><a href="/algo/en/modeling">Modeling with Graphs & Trees</a></li>
+            </ul>
+        </div>
+    </div>
+    
+
+    <main>
+        <div id="main-content">
+            <div id="page">
+                 <!-- SSR_CONTENT -->
+            </div>
+            <!-- algospacsefooter -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-7868360963110023"
+                data-ad-slot="7213960780"
+                data-ad-format="auto"
+                data-full-width-responsive="true">
+            </ins>
+        </div>
+    </main>
+
+
+    <!-- Highlight.js core script -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          hljs.highlightAll();
+        });
+    </script>
+
+    <script>
+        const toggleButton = document.querySelector('.mobile-nav-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content'); // Get the main content element
+        toggleButton.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            toggleButton.classList.toggle('open');
+        });
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            // Adjust main content margin based on sidebar state
+            if (sidebar.classList.contains('collapsed')) {
+                mainContent.style.marginLeft = '80px'; // Width of collapsed sidebar
+            } else {
+                mainContent.style.marginLeft = '320px'; // Width of expanded sidebar
+            }
+        });
+  </script>
+
+  <script>
+        document.querySelectorAll('.book-section h2').forEach(header => {
+        header.addEventListener('click', () => {
+            const section = header.parentElement;
+            section.classList.toggle('open');
+        });
+        const section = header.parentElement;
+        section.classList.toggle('open');
+        });
+  </script>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+<script>
+  document.getElementById('sidebar-search').addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    document.querySelectorAll('#sidebar .book-section').forEach(section => {
+      let matches = 0;
+      section.querySelectorAll('li').forEach(li => {
+        const text = li.textContent.toLowerCase();
+        const isMatch = text.includes(query);
+        li.style.display = isMatch ? '' : 'none';
+        if (isMatch) matches++;
+      });
+      section.style.display = matches ? '' : 'none';
+    });
+  });
+</script>
+</body>
+</html>
