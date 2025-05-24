@@ -90,13 +90,6 @@
             background-color: #0056b3;
         }
 
-        button#resetTraversal, button#submitTextGraph {
-            background-color: #6c757d;
-        }
-        button#resetTraversal:hover, button#submitTextGraph:hover {
-            background-color: #545b62;
-        }
-
         #traversalControls, #speedControl {
             margin-top: 20px;
             padding-top: 20px;
@@ -277,7 +270,6 @@
             <div id="textInputArea">
                 <label for="graphInput">Enter Edges (e.g., "1 2" or "1 2 6" per line):</label>
                 <textarea id="graphInput" rows="10" placeholder="1 2&#10;1 3 5&#10;2 4"></textarea>
-                <button id="submitTextGraph">Create Graph from Text</button>
             </div>
 
             <div id="traversalControls">
@@ -328,7 +320,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const graphInput = document.getElementById('graphInput');
-            const submitTextGraphBtn = document.getElementById('submitTextGraph');
             const networkContainer = document.getElementById('network');
             const startNodeInput = document.getElementById('startNode');
             const endNodeInput = document.getElementById('endNode');
@@ -660,7 +651,7 @@
                 }
             }
 
-            submitTextGraphBtn.addEventListener('click', () => {
+            function parseGraphInput() {
                 try {
                     nodes.clear();
                     edges.clear();
@@ -760,7 +751,7 @@
                     console.error(error);
                     resetAllGraphData();
                 }
-            });
+            }
 
             textInputBtn.addEventListener('click', () => {
                 textInputBtn.classList.add('active');
@@ -842,6 +833,8 @@
                     return;
                 }
 
+                parseGraphInput();
+
                 const startNodeId = startNodeInput.value.trim();
                 const endNodeId = endNodeInput.value.trim();
                 const algorithm = traversalAlgorithmSelect.value;
@@ -854,6 +847,7 @@
                     alert("Start node not found in the graph.");
                     return;
                 }
+
                 if (rawGraphData.nodes.size === 0) {
                     alert("Graph is empty. Please define a graph first.");
                     return;
