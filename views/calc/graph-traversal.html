@@ -165,6 +165,65 @@
             padding: 10px;
             margin-top: 10px;
         }
+
+        .traversal-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .traversal-controls button {
+            flex: 1;
+        }
+
+        #pauseTraversal {
+            background-color: #ffc107;
+        }
+
+        #pauseTraversal:hover {
+            background-color: #e0a800;
+        }
+                .reasoning-panel {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 60px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border-left: 4px solid #007bff;
+        }
+
+        .reasoning-line {
+            margin-bottom: 5px;
+            padding: 3px;
+            border-radius: 3px;
+        }
+
+        .reasoning-line.highlight {
+            background-color: #fffde7;
+            font-weight: bold;
+        }
+
+        .reasoning-line.ignored {
+            color: #888;
+        }
+
+        .reasoning-line.selected {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .reasoning-line.error {
+            color: #c62828;
+        }
+
+        .reasoning-line.info {
+            color: #1565c0;
+        }
+    </style>
     </style>
 </head>
 <body>
@@ -196,8 +255,12 @@
                     <option value="dijkstra">Dijkstra's Algorithm</option>
                     <option value="bellmanford">Bellman-Ford Algorithm</option>
                 </select>
-                <button id="runTraversal">Run Traversal</button>
-                <button id="resetTraversal">Reset Visuals</button>
+                <div class="traversal-controls">
+                    <button id="runTraversal">Run Traversal</button>
+                    <button id="pauseTraversal" style="display: none;">Pause</button>
+                    <button id="continueTraversal" style="display: none;">Continue</button>
+                    <button id="resetTraversal">Reset Visuals</button>
+                </div>
             </div>
              <div id="speedControl">
                 <label for="animationSpeed">Animation Speed:</label>
@@ -213,6 +276,9 @@
                 <p id="pathDetails"></p>
                 <p id="pathLength"></p>
             </div>
+            <div id="reasoningPanel" class="reasoning-panel" style="display: none;">
+                <div id="reasoningContent"></div>
+            </div>
         </div>
     </div>
 
@@ -226,6 +292,8 @@
             const endNodeInput = document.getElementById('endNode');
             const traversalAlgorithmSelect = document.getElementById('traversalAlgorithm');
             const runTraversalBtn = document.getElementById('runTraversal');
+            const pauseTraversalBtn = document.getElementById('pauseTraversal');
+            const continueTraversalBtn = document.getElementById('continueTraversal');
             const resetTraversalBtn = document.getElementById('resetTraversal');
             const textInputBtn = document.getElementById('textInputBtn');
             const visualEditorBtn = document.getElementById('visualEditorBtn');
@@ -234,12 +302,18 @@
             const pathInfo = document.getElementById('pathInfo');
             const pathDetails = document.getElementById('pathDetails');
             const pathLength = document.getElementById('pathLength');
+            const reasoningPanel = document.getElementById('reasoningPanel');
+            const reasoningContent = document.getElementById('reasoningContent');
 
             let nodes = new vis.DataSet([]);
             let edges = new vis.DataSet([]);
             let network = null;
             let rawGraphData = { nodes: new Set(), edges: [] };
             let animationDelay = 500;
+            let isPaused = false;
+            let isRunning = false;
+            let resumePromise = null;
+            let resolveResume = null;
 
             const defaultNodeColor = {
                 border: '#2B7CE9',
@@ -409,6 +483,30 @@
                     }
                 }
             };
+
+                        // Helper function to add reasoning text
+            function addReasoning(text, type = '') {
+                const line = document.createElement('div');
+                line.className = `reasoning-line ${type}`;
+                line.textContent = text;
+                reasoningContent.appendChild(line);
+                reasoningPanel.scrollTop = reasoningPanel.scrollHeight;
+                return line;
+            }
+
+            // Helper function to highlight reasoning line
+            function highlightReasoningLine(line) {
+                const lines = document.querySelectorAll('.reasoning-line');
+                lines.forEach(l => l.classList.remove('highlight'));
+                if (line) line.classList.add('highlight');
+            }
+
+            // Clear reasoning when resetting
+            function resetTraversalVisualization() {
+                // Previous reset code remains the same
+                reasoningContent.innerHTML = '';
+                reasoningPanel.style.display = 'none';
+            }
 
             function initializeGraph(enableManipulation = false) {
                 if (network) {
@@ -597,6 +695,8 @@
                 if (network) {
                     network.unselectAll();
                 }
+                reasoningContent.innerHTML = '';
+                reasoningPanel.style.display = 'none';
             }
 
             resetTraversalBtn.addEventListener('click', resetTraversalVisualization);
@@ -605,7 +705,37 @@
                 animationDelay = parseInt(event.target.value);
             });
 
-           runTraversalBtn.addEventListener('click', async () => {
+            pauseTraversalBtn.addEventListener('click', () => {
+                isPaused = true;
+                pauseTraversalBtn.style.display = 'none';
+                continueTraversalBtn.style.display = 'inline-block';
+            });
+
+            continueTraversalBtn.addEventListener('click', () => {
+                isPaused = false;
+                pauseTraversalBtn.style.display = 'inline-block';
+                continueTraversalBtn.style.display = 'none';
+                if (resolveResume) {
+                    resolveResume();
+                    resolveResume = null;
+                }
+            });
+
+            async function checkPause() {
+                if (isPaused) {
+                    return new Promise(resolve => {
+                        resolveResume = resolve;
+                    });
+                }
+                return Promise.resolve();
+            }
+
+            runTraversalBtn.addEventListener('click', async () => {
+                if (isRunning) {
+                    alert("A traversal is already running. Please wait or reset first.");
+                    return;
+                }
+
                 const startNodeId = startNodeInput.value.trim();
                 const endNodeId = endNodeInput.value.trim();
                 const algorithm = traversalAlgorithmSelect.value;
@@ -632,29 +762,45 @@
                 }
 
                 resetTraversalVisualization();
+                isRunning = true;
+                isPaused = false;
+                runTraversalBtn.disabled = true;
+                pauseTraversalBtn.style.display = 'inline-block';
+                continueTraversalBtn.style.display = 'none';
 
-                // Build adjacency list
-                const adj = {};
-                rawGraphData.nodes.forEach(node => adj[node] = []);
-                rawGraphData.edges.forEach(edge => {
-                    const weight = edge.weight !== null ? edge.weight : 1;
-                    adj[edge.from].push({node: edge.to, weight: weight});
-                });
+                try {
+                    // Build adjacency list
+                    const adj = {};
+                    rawGraphData.nodes.forEach(node => adj[node] = []);
+                    rawGraphData.edges.forEach(edge => {
+                        const weight = edge.weight !== null ? edge.weight : 1;
+                        adj[edge.from].push({node: edge.to, weight: weight});
+                    });
 
-                if (algorithm === 'bfs') {
-                    await bfs(startNodeId, adj);
-                } else if (algorithm === 'dfs') {
-                    await dfs(startNodeId, adj);
-                } else if (algorithm === 'dijkstra') {
-                    await dijkstra(startNodeId, endNodeId, adj);
-                } else if (algorithm === 'bellmanford') {
-                    await bellmanFord(startNodeId, endNodeId, adj);
+                    if (algorithm === 'bfs') {
+                        await bfs(startNodeId, adj);
+                    } else if (algorithm === 'dfs') {
+                        await dfs(startNodeId, adj);
+                    } else if (algorithm === 'dijkstra') {
+                        await dijkstra(startNodeId, endNodeId, adj);
+                    } else if (algorithm === 'bellmanford') {
+                        await bellmanFord(startNodeId, endNodeId, adj);
+                    }
+                } catch (error) {
+                    console.error("Traversal error:", error);
+                } finally {
+                    isRunning = false;
+                    runTraversalBtn.disabled = false;
+                    pauseTraversalBtn.style.display = 'none';
+                    continueTraversalBtn.style.display = 'none';
                 }
             });
 
-            // [Previous algorithms remain the same, add this new function]
-
+// Modified Bellman-Ford to include reasoning
             async function bellmanFord(startNode, endNode, adj) {
+                reasoningPanel.style.display = 'block';
+                addReasoning(`Bellman-Ford algorithm from ${startNode} to ${endNode}:`, 'info');
+                
                 // Initialize distances and predecessors
                 const distances = {};
                 const predecessors = {};
@@ -666,6 +812,8 @@
 
                 // Highlight start node
                 await highlightNode(startNode, visitingNodeColor);
+                addReasoning(`- Initialized distances, starting with node ${startNode} (distance = 0)`, 'selected');
+                await checkPause();
 
                 // Relax all edges |V| - 1 times
                 const nodes = Array.from(rawGraphData.nodes);
@@ -677,35 +825,60 @@
 
                 let hasNegativeCycle = false;
 
+                addReasoning(`\nStarting relaxation phase (${nodes.length - 1} iterations):`, 'info');
+                
                 // Main Bellman-Ford algorithm
                 for (let i = 0; i < nodes.length - 1; i++) {
+                    await checkPause();
                     let updated = false;
+                    addReasoning(`\nIteration ${i + 1}:`, 'info');
 
                     for (const edge of edges) {
+                        await checkPause();
+                        const edgeLine = addReasoning(`- Checking edge ${edge.from} → ${edge.to} (weight ${edge.weight})`);
+                        highlightReasoningLine(edgeLine);
+                        
                         if (distances[edge.from] + edge.weight < distances[edge.to]) {
                             distances[edge.to] = distances[edge.from] + edge.weight;
                             predecessors[edge.to] = edge.from;
                             updated = true;
 
+                            addReasoning(`  - Relaxing edge: new distance to ${edge.to} = ${distances[edge.to]}`, 'selected');
+                            
                             // Visualize the relaxation
                             await highlightEdge(edge.from, edge.to, pathEdgeColor);
+                            await checkPause();
                             await highlightNode(edge.to, discoveredNodeColor);
-                            await new Promise(resolve => setTimeout(resolve, animationDelay / 2));
+                            await checkPause();
+                        } else {
+                            addReasoning(`  - No relaxation needed (current distance ${distances[edge.to]} <= ${distances[edge.from]} + ${edge.weight})`, 'ignored');
                         }
                     }
 
-                    if (!updated) break;
+                    if (!updated) {
+                        addReasoning("- No updates in this iteration, terminating early", 'info');
+                        break;
+                    }
                 }
 
                 // Check for negative cycles
+                addReasoning(`\nChecking for negative cycles:`, 'info');
                 for (const edge of edges) {
+                    await checkPause();
+                    const edgeLine = addReasoning(`- Checking edge ${edge.from} → ${edge.to} (weight ${edge.weight})`);
+                    highlightReasoningLine(edgeLine);
+                    
                     if (distances[edge.from] + edge.weight < distances[edge.to]) {
                         hasNegativeCycle = true;
+                        addReasoning(`  - Negative cycle detected! ${edge.from} → ${edge.to} can be relaxed further`, 'error');
+                        
                         // Highlight the negative cycle edge
                         await highlightEdge(edge.from, edge.to, { color: '#ff0000', width: 4 });
                         await highlightNode(edge.from, negativeCycleColor);
                         await highlightNode(edge.to, negativeCycleColor);
                         break;
+                    } else {
+                        addReasoning(`  - No negative cycle (distance ${distances[edge.to]} <= ${distances[edge.from]} + ${edge.weight})`, 'ignored');
                     }
                 }
 
@@ -733,9 +906,17 @@
                     pathInfo.classList.remove('negative-cycle');
                     
                     // Highlight the path
+                    addReasoning(`\nFinal path found:`, 'info');
                     for (let i = 0; i < path.length - 1; i++) {
-                        await highlightEdge(path[i], path[i+1], pathEdgeColor);
-                        await highlightNode(path[i], visitingNodeColor);
+                        await checkPause();
+                        const from = path[i];
+                        const to = path[i+1];
+                        const weight = edges.find(e => e.from === from && e.to === to).weight;
+                        addReasoning(`- ${from} → ${to} (weight ${weight})`, 'selected');
+                        await highlightEdge(from, to, pathEdgeColor);
+                        await checkPause();
+                        await highlightNode(from, visitingNodeColor);
+                        await checkPause();
                     }
                     await highlightNode(path[path.length-1], visitingNodeColor);
                 } else {
@@ -743,12 +924,16 @@
                     pathLength.textContent = "";
                     pathInfo.style.display = 'block';
                     pathInfo.classList.remove('negative-cycle');
+                    addReasoning("\nNo path found to target node", 'error');
                 }
+                addReasoning("\nAlgorithm complete", 'info');
             }
+
 
             async function highlightNode(nodeId, style = visitedNodeColor) {
                 nodes.update({ id: nodeId, color: style });
                 await new Promise(resolve => setTimeout(resolve, animationDelay));
+                await checkPause();
             }
 
             async function highlightEdge(fromNode, toNode, style = visitedEdgeColor) {
@@ -764,60 +949,110 @@
                     });
                 }
                 await new Promise(resolve => setTimeout(resolve, animationDelay));
+                await checkPause();
             }
-
+              // Modified BFS to include reasoning
             async function bfs(startNode, adj) {
+                reasoningPanel.style.display = 'block';
+                const reasoningHeader = addReasoning(`BFS starting from node ${startNode}:`, 'info');
+                
                 const visited = new Set();
                 const queue = [startNode];
                 visited.add(startNode);
 
                 await highlightNode(startNode, visitingNodeColor);
+                addReasoning(`- Visited start node ${startNode}`, 'selected');
+                await checkPause();
 
                 let count = 0;
                 const maxIterations = rawGraphData.nodes.size * 2;
 
                 while (queue.length > 0 && count < maxIterations) {
+                    await checkPause();
                     count++;
                     const u = queue.shift();
+                    const currentLine = addReasoning(`\nProcessing node ${u}:`, 'info');
+                    highlightReasoningLine(currentLine);
+                    
                     await highlightNode(u, visitedNodeColor);
+                    await checkPause();
 
                     if(adj[u]) {
                         for (const edgeInfo of adj[u]) {
+                            await checkPause();
                             const v = edgeInfo.node;
+                            const edgeLine = addReasoning(`- Examining edge ${u} → ${v}...`);
+                            highlightReasoningLine(edgeLine);
+
                             if (!visited.has(v)) {
                                 visited.add(v);
+                                addReasoning(`  - Node ${v} not visited yet, adding to queue`, 'selected');
                                 await highlightEdge(u, v);
+                                await checkPause();
                                 await highlightNode(v, discoveredNodeColor);
+                                await checkPause();
                                 queue.push(v);
+                            } else {
+                                addReasoning(`  - Node ${v} already visited, skipping`, 'ignored');
                             }
                         }
                     }
+                    addReasoning(`Finished processing node ${u}`, 'info');
                 }
-                if (count >= maxIterations) console.warn("BFS safety break triggered.");
+                if (count >= maxIterations) {
+                    addReasoning("Warning: BFS terminated early due to iteration limit", 'error');
+                    console.warn("BFS safety break triggered.");
+                }
+                addReasoning("\nBFS complete", 'info');
             }
 
-            async function dfsUtil(u, adj, visited) {
+
+
+            // Modified DFS to include reasoning
+            async function dfsUtil(u, adj, visited, depth = 0) {
+                await checkPause();
+                const indent = '  '.repeat(depth);
+                const currentLine = addReasoning(`${indent}Visiting node ${u} (depth ${depth})`, 'info');
+                highlightReasoningLine(currentLine);
+                
                 visited.add(u);
                 await highlightNode(u, visitedNodeColor);
+                await checkPause();
 
                 if (adj[u]) {
                     for (const edgeInfo of adj[u]) {
+                        await checkPause();
                         const v = edgeInfo.node;
+                        const edgeLine = addReasoning(`${indent}- Examining edge ${u} → ${v}...`);
+                        highlightReasoningLine(edgeLine);
+
                         if (!visited.has(v)) {
+                            addReasoning(`${indent}  - Node ${v} not visited yet, recursing`, 'selected');
                             await highlightEdge(u, v);
-                            await dfsUtil(v, adj, visited);
+                            await checkPause();
+                            await dfsUtil(v, adj, visited, depth + 1);
+                        } else {
+                            addReasoning(`${indent}  - Node ${v} already visited, backtracking`, 'ignored');
                         }
                     }
                 }
+                addReasoning(`${indent}Backtracking from node ${u}`, 'info');
             }
 
             async function dfs(startNode, adj) {
+                reasoningPanel.style.display = 'block';
+                addReasoning(`DFS starting from node ${startNode}:`, 'info');
                 const visited = new Set();
                 await highlightNode(startNode, visitingNodeColor);
+                await checkPause();
                 await dfsUtil(startNode, adj, visited);
+                addReasoning("\nDFS complete", 'info');
             }
 
             async function dijkstra(startNode, endNode, adj) {
+                reasoningPanel.style.display = 'block';
+                addReasoning(`Dijkstra's algorithm from ${startNode} to ${endNode}:`, 'info');
+                
                 // Initialize distances and previous nodes
                 const distances = {};
                 const previous = {};
@@ -832,8 +1067,11 @@
                 
                 // Highlight start node
                 await highlightNode(startNode, visitingNodeColor);
+                addReasoning(`- Initialized distances, starting with node ${startNode} (distance = 0)`, 'selected');
+                await checkPause();
                 
                 while (unvisited.size > 0) {
+                    await checkPause();
                     // Find node with smallest distance
                     let current = null;
                     let smallestDistance = Infinity;
@@ -845,27 +1083,48 @@
                         }
                     }
                     
-                    if (current === null || current === endNode) break;
+                    const currentLine = addReasoning(`\nCurrent node: ${current} (distance = ${distances[current]})`, 'info');
+                    highlightReasoningLine(currentLine);
+                    
+                    if (current === null || current === endNode) {
+                        if (current === null) addReasoning("- No reachable nodes left", 'info');
+                        else addReasoning(`- Reached target node ${endNode}`, 'selected');
+                        break;
+                    }
                     
                     // Mark as visited
                     unvisited.delete(current);
                     visited.add(current);
                     await highlightNode(current, visitedNodeColor);
+                    addReasoning(`- Marked node ${current} as visited`, 'info');
+                    await checkPause();
                     
                     // Update neighbors
                     if (adj[current]) {
                         for (const edge of adj[current]) {
+                            await checkPause();
                             const neighbor = edge.node;
-                            if (visited.has(neighbor)) continue;
+                            if (visited.has(neighbor)) {
+                                addReasoning(`- Neighbor ${neighbor} already visited, skipping`, 'ignored');
+                                continue;
+                            }
                             
                             const alt = distances[current] + edge.weight;
+                            const edgeLine = addReasoning(`- Checking edge ${current} → ${neighbor} (weight ${edge.weight})`);
+                            highlightReasoningLine(edgeLine);
+                            
                             if (alt < distances[neighbor]) {
                                 distances[neighbor] = alt;
                                 previous[neighbor] = current;
+                                addReasoning(`  - Found shorter path to ${neighbor}: new distance = ${alt}`, 'selected');
                                 
                                 // Highlight the edge and node
                                 await highlightEdge(current, neighbor);
+                                await checkPause();
                                 await highlightNode(neighbor, discoveredNodeColor);
+                                await checkPause();
+                            } else {
+                                addReasoning(`  - Current path to ${neighbor} (distance = ${distances[neighbor]}) is shorter`, 'ignored');
                             }
                         }
                     }
@@ -886,17 +1145,28 @@
                     pathInfo.style.display = 'block';
                     
                     // Highlight the path
+                    addReasoning(`\nFinal path found:`, 'info');
                     for (let i = 0; i < path.length - 1; i++) {
-                        await highlightEdge(path[i], path[i+1], pathEdgeColor);
-                        await highlightNode(path[i], visitingNodeColor);
+                        await checkPause();
+                        const from = path[i];
+                        const to = path[i+1];
+                        const weight = adj[from].find(e => e.node === to).weight;
+                        addReasoning(`- ${from} → ${to} (weight ${weight})`, 'selected');
+                        await highlightEdge(from, to, pathEdgeColor);
+                        await checkPause();
+                        await highlightNode(from, visitingNodeColor);
+                        await checkPause();
                     }
                     await highlightNode(path[path.length-1], visitingNodeColor);
                 } else {
                     pathDetails.textContent = "No path found";
                     pathLength.textContent = "";
                     pathInfo.style.display = 'block';
+                    addReasoning("\nNo path found to target node", 'error');
                 }
+                addReasoning("\nAlgorithm complete", 'info');
             }
+
 
             // Initialize with text input mode by default
             initializeGraph(false);
