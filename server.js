@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Route-to-file mapping
 const pageMap = {
-  '/': '/algo/home.html',
+  '/algo': '/algo/home.html',
 
   // Sorting Algorithms
   '/algo/en/bubble-sort': '/algo/en/bubble-sort.html',
@@ -139,12 +139,11 @@ const pageMap = {
   '/algo/en/modeling': '/algo/en/modeling.html',
 
   // calculator
-  '/calc': '/calc/home.html',
+  '/': '/home.html',
   '/calc/unit-converter': '/calc/unit-converter.html',
   '/calc/countdown-timer':'/calc/countdown-timer.html',
   '/calc/date-difference': '/calc/date-difference.html',
-  '/calc/bubble-sort': '/calc/bubble-sort.html',
-  '/calc/merge-sort': '/calc/merge-sort.html',
+  '/calc/sorting': '/calc/sorting.html',
   '/calc/bfs': '/calc/bfs.html',
   '/calc/graph-traversal': '/calc/graph-traversal.html',
 };
@@ -187,7 +186,7 @@ async function renderAlgo(req, res) {
 
 function templatePath(path) {
   if (path === '/') {
-    return 'views/algo/template.html';
+    return 'views/template.html';
   }
   if (path.startsWith('/algo/')) {
     return 'views/algo/template.html';
