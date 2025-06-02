@@ -168,8 +168,14 @@ app.get('/sitemap.xml', async (req, res) => {
 async function renderAlgo(req, res) {
   console.log(`Rendering page: ${req.path}`);
   try {
-    const baseHTML = await readFile(path.join(__dirname, templatePath(req.path)), 'utf8');
-    const pageFile = pageMap[req.path];
+    var baseHTML = await readFile(path.join(__dirname, templatePath(req.path)), 'utf8');
+    var pageFile = pageMap[req.path];
+    if (!pageFile) {
+      pageFile = pageMap[`/algo/en${req.path}`]; // Default to 404 if no mapping found
+      if (pageFile) {
+         baseHTML = await readFile(path.join(__dirname, templatePath(`/algo/en${req.path}`)), 'utf8');
+      }
+    }
 
     let content = '<h1>404</h1><p>Page not found.</p>';
     if (pageFile) {
