@@ -209,7 +209,17 @@ function templatePath(path) {
   return 'views/algo/template.html';
 }
 
-app.get('*', renderAlgo);
+
+app.get('*', (req, res) => {
+  const pageFile = pageMap[req.path];
+  if (pageFile) {
+    renderAlgo(req, res);
+  } else {
+    res.status(404).send('404 - Page Not Found');
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`✅ SSR app running at http://localhost:${port}`);
