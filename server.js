@@ -146,6 +146,7 @@ const pageMap = {
   '/calc/sorting': '/calc/sorting.html',
   '/calc/bfs': '/calc/bfs.html',
   '/calc/graph-traversal': '/calc/graph-traversal.html',
+  '/calc/rotating_calipers': '/calc/rotating_calipers.html',
 };
 
 // Generate dynamic sitemap

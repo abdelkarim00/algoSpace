@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rotating Calipers - Diameter Simulation</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+      /* Dark mode colors */
+      background-color: #1a1a1a; /* Very dark grey */
+      color: #e0e0e0; /* Light grey for text */
+    }
+    canvas {
+      border: 1px solid #555; /* Slightly lighter border for contrast */
+      background: #333; /* Darker background for canvas */
+      display: block;
+      margin: 20px auto;
+      color: #e0e0e0;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+      /* Dark mode colors for textarea */
+      background-color: #444;
+      color: #e0e0e0;
+      border: 1px solid #666;
+    }
+    button, input[type="range"] {
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 16px;
+      /* Dark mode colors for buttons and range input */
+      background-color: #007bff; /* A nice blue for interactive elements */
+      color: white;
+      border: 1px solid #007bff;
+    }
+    button:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+      border-color: #0056b3;
+    }
+    #explanation {
+      margin-top: 20px;
+      border: 1px solid #666; /* Darker border */
+      padding: 10px;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+      background: #2a2a2a; /* Slightly lighter dark background for explanation box */
+      font-family: monospace;
+      text-align: left;
+      color: #c0c0c0; /* Slightly dimmer text for explanation */
+    }
+  </style>
+</head>
+<body>
+<h2>Rotating Calipers: Diameter Simulation</h2>
+
+<textarea id="pointsInput" placeholder="Format: x,y\nExample:\n100,300\n200,100\n..."></textarea><br>
+<button onclick="generateConvexPolygon()">Generate Random Convex Polygon</button>
+<label for="speedRange">Speed:</label>
+<input type="range" id="speedRange" min="100" max="2000" value="500">
+<span id="speedLabel">500ms</span>
+
+<canvas id="canvas" width="600" height="600"></canvas>
+<div id="explanation">Explanation will appear here...</div>
+<button onclick="prevStep()">Previous</button>
+<button onclick="nextStep()">Next</button>
+<button onclick="continueSimulation()">Continue</button>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let polygon = [], hull = [], maxDist = 0, maxPair = [];
+let steps = [], currentStep = 0, animating = false;
+
+function drawPoint(p, color = "black", r = 4, label = "") {
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+  ctx.fillStyle = color;
+  ctx.fill();
+  if (label) {
+    ctx.fillStyle = "white";
+    ctx.font = "12px sans-serif";
+    ctx.fillText(`(${p.x},${p.y})`, p.x + 10, p.y - 10);
+  }
+}
+
+function drawLine(p1, p2, color = "red") {
+  ctx.beginPath();
+  ctx.moveTo(p1.x, p1.y);
+  ctx.lineTo(p2.x, p2.y);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function drawPolygon(poly) {
+  ctx.beginPath();
+  ctx.moveTo(poly[0].x, poly[0].y);
+  for (let k = 1; k < poly.length; k++)
+    ctx.lineTo(poly[k].x, poly[k].y);
+  ctx.closePath();
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  poly.forEach((p, index) => drawPoint(p, "blue", 4, `H[${index}]`));
+}
+
+function area2(a, b, c) {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+function dist2(a, b) {
+  return (a.x - b.x) ** 2 + (a.y - b.y) ** 2;
+}
+
+function updateExplanation(step) {
+  const { i, j, d2, maxD2 } = step;
+  document.getElementById("explanation").innerText =
+    `Step ${currentStep + 1} of ${steps.length}\n` +
+    `Comparing H[${i}] and H[${j}]\n` +
+    `Distance squared: ${d2.toFixed(2)}\n` +
+    `Current Max: ${maxD2.toFixed(2)}\n` +
+    `Max Pair: (${maxPair[0]?.x}, ${maxPair[0]?.y}) - (${maxPair[1]?.x}, ${maxPair[1]?.y})`;
+}
+
+function renderStep(step) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawPolygon(hull);
+  drawLine(hull[step.i], hull[step.j], "red");
+  drawPoint(hull[step.i], "green", 6, `H[${step.i}]`);
+  drawPoint(hull[step.j], "orange", 6, `H[${step.j}]`);
+  updateExplanation(step);
+}
+
+function computeConvexHull(pts) {
+  pts.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const lower = [], upper = [];
+  for (let p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0)
+      lower.pop();
+    lower.push(p);
+  }
+  for (let i = pts.length - 1; i >= 0; i--) {
+    let p = pts[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0)
+      upper.pop();
+    upper.push(p);
+  }
+  upper.pop(); lower.pop();
+  return lower.concat(upper);
+}
+
+function startSimulation() {
+  const input = document.getElementById("pointsInput").value.trim();
+  const points = input.split("\n").map(l => {
+    const [x, y] = l.split(",").map(Number);
+    return { x, y };
+  });
+  if (points.length < 3) return alert("Enter at least 3 points");
+  hull = computeConvexHull(points);
+  polygon = hull;
+  maxDist = 0; maxPair = [];
+  steps = [];
+  computeDiameterSteps();
+  currentStep = 0;
+  renderStep(steps[currentStep]);
+}
+
+function computeDiameterSteps() {
+  let i = 0, j = 1;
+  for (i = 0; i < hull.length; i++) {
+    let nextJ = (j + 1) % hull.length;
+    while (area2(hull[i], hull[(i + 1) % hull.length], hull[nextJ]) > area2(hull[i], hull[(i + 1) % hull.length], hull[j])) {
+      j = nextJ;
+      nextJ = (j + 1) % hull.length;
+    }
+    let d2 = dist2(hull[i], hull[j]);
+    if (d2 > maxDist) {
+      maxDist = d2;
+      maxPair = [hull[i], hull[j]];
+    }
+    steps.push({ i, j, d2, maxD2: maxDist });
+  }
+}
+
+function nextStep() {
+  if (currentStep < steps.length - 1) {
+    currentStep++;
+    renderStep(steps[currentStep]);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep(steps[currentStep]);
+  }
+}
+
+function continueSimulation() {
+  if (animating) return;
+  animating = true;
+  const speed = parseInt(document.getElementById("speedRange").value);
+  function animate() {
+    if (currentStep < steps.length - 1) {
+      currentStep++;
+      renderStep(steps[currentStep]);
+      setTimeout(animate, speed);
+    } else {
+      animating = false;
+    }
+  }
+  animate();
+}
+
+document.getElementById("speedRange").addEventListener("input", e => {
+  document.getElementById("speedLabel").innerText = `${e.target.value}ms`;
+});
+
+function generateConvexPolygon() {
+  const N = 20, points = [];
+  for (let i = 0; i < N; i++) {
+    points.push({
+      x: Math.floor(100 + Math.random() * 400),
+      y: Math.floor(100 + Math.random() * 400)
+    });
+  }
+  const hull = computeConvexHull(points);
+  document.getElementById("pointsInput").value = hull.map(p => `${p.x},${p.y}`).join("\n");
+  startSimulation();
+}
+</script>
+</body>
+</html>
+
