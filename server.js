@@ -147,6 +147,16 @@ const pageMap = {
   '/calc/bfs': '/calc/bfs.html',
   '/calc/graph-traversal': '/calc/graph-traversal.html',
   '/calc/rotating_calipers': '/calc/rotating_calipers.html',
+  
+  // news 
+  '/news': '/news/en/home.html',
+  '/news/en': '/news/en/home.html',
+  '/news/en/iran-israel-12-june': '/news/en/iran-israel-12-june.html',
+  '/news/en/iran-israel-13-june': '/news/en/iran-israel-13-june.html',
+  '/news/en/iran-israel-14-june': '/news/en/iran-israel-14-june.html',
+  '/news/en/iran-israel-15-june': '/news/en/iran-israel-15-june.html',
+  '/news/en/iran-israel-16-june': '/news/en/iran-israel-16-june.html',
+  '/news/ar': '/news/ar/home.html',
 };
 
 // Generate dynamic sitemap
@@ -206,6 +216,9 @@ function templatePath(path) {
   }
   if (path.startsWith('/algo')) {
     return 'views/algo/template.html';
+  }
+  if (path.startsWith('/news/en')) {
+    return 'views/news/en/template.html';
   }
   return 'views/algo/template.html';
 }

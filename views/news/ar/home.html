@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Conflict Monitor - Archive Search</title>
+    <style>
+        /* --- General Body and Typography --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            font-family: "Georgia", "Times New Roman", serif;
+            color: #2c3e50;
+        }
+
+        /* --- Layout Containers --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        header .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            margin-bottom: 40px;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #search-bar:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 10px rgba(41, 128, 185, 0.2);
+        }
+        
+        /* --- Article List --- */
+        .article-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .article-card {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            border-left: 5px solid #2980b9;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .article-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .article-title {
+            font-size: 1.4rem;
+            font-family: "Georgia", "Times New Roman", serif;
+            color: #2c3e50;
+            margin: 0 0 5px 0;
+        }
+
+        .article-date {
+            font-size: 0.9rem;
+            color: #888;
+            font-family: monospace;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            header .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1 class="logo">Global Conflict Monitor</h1>
+            <p>Search the Article Archive</p>
+        </header>
+
+        <main>
+            <div class="search-container">
+                <input type="text" id="search-bar" placeholder="Filter articles by title...">
+            </div>
+
+            <section id="article-list-container" class="article-list">
+                <!-- Articles will be dynamically filtered by JS -->
+                <div class="article-card" data-title="Barbaric Zionist Strikes Target Journalists and Hospitals">
+                    <h2 class="article-title">Barbaric Zionist Strikes Target Journalists and Hospitals</h2>
+                    <p class="article-date">June 16, 2025</p>
+                </div>
+                <div class="article-card" data-title="Analysis: The Diplomatic Dead End">
+                    <h2 class="article-title">Analysis: The Diplomatic Dead End</h2>
+                    <p class="article-date">June 15, 2025</p>
+                </div>
+                <div class="article-card" data-title="IDF Press Release: Missile Launchers Neutralized">
+                    <h2 class="article-title">IDF Press Release: Missile Launchers Neutralized</h2>
+                    <p class="article-date">June 14, 2025</p>
+                </div>
+                <div class="article-card" data-title="Oil Prices Surge as Strait of Hormuz Becomes Unstable">
+                    <h2 class="article-title">Oil Prices Surge as Strait of Hormuz Becomes Unstable</h2>
+                    <p class="article-date">June 13, 2025</p>
+                </div>
+                <div class="article-card" data-title="European Leaders Call for Emergency Session">
+                    <h2 class="article-title">European Leaders Call for Emergency Session</h2>
+                    <p class="article-date">June 12, 2025</p>
+                </div>
+                <div class="article-card" data-title="UN Security Council Meets Amid Escalating Tensions">
+                    <h2 class="article-title">UN Security Council Meets Amid Escalating Tensions</h2>
+                    <p class="article-date">June 11, 2025</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Get references to the DOM elements
+        const searchBar = document.getElementById('search-bar');
+        const articleCards = document.querySelectorAll('.article-card');
+
+        // Add an event listener to the search bar for the 'input' event
+        searchBar.addEventListener('input', (e) => {
+            // Get the search query, remove leading/trailing whitespace, and convert to lowercase
+            const searchQuery = e.target.value.trim().toLowerCase();
+
+            // Iterate over each article card
+            articleCards.forEach(card => {
+                // Get the article title from the data-title attribute and convert to lowercase
+                const title = card.dataset.title.toLowerCase();
+
+                // Check if the article title includes the search query
+                const isVisible = title.includes(searchQuery);
+
+                // Show or hide the card based on the search result
+                // If it's a match, display it as 'block', otherwise hide it with 'none'
+                card.style.display = isVisible ? 'block' : 'none';
+            });
+        });
+    </script>
+
+</body>
+</html>
