@@ -143,6 +143,7 @@ const pageMap = {
   '/news/en/iran-israel-14-june': '/news/en/iran-israel-14-june.html',
   '/news/en/iran-israel-15-june': '/news/en/iran-israel-15-june.html',
   '/news/en/iran-israel-16-june': '/news/en/iran-israel-16-june.html',
+  '/news/en/iran-israel-17-june': '/news/en/iran-israel-17-june.html',
   '/news/ar': '/news/ar/home.html',
 };
 
