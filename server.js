@@ -19,7 +19,7 @@ import pageMap from './pageMap.js'; // Move large object to separate file for cl
 app.get('/sitemap.xml', async (req, res) => {
   res.header('Content-Type', 'application/xml');
 
-  const hostname = 'https://antinloop.com';
+  const hostname = 'https://algo.antinloop.com';
   const links = Object.keys(pageMap).map(url => ({
     url,
     changefreq: 'monthly',
